@@ -2,6 +2,8 @@ using PathfinderCharGen.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+throw new Exception();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
