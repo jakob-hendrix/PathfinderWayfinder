@@ -39,7 +39,7 @@ jobs:
         run: dotnet restore ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx -r win-x64
         
       - name: Build
-        run: dotnet build ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx --configuration Release --no-restore -r win-x64
+        run: dotnet build ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx --configuration Release --no-restore
       
       - name: Test
         run: dotnet test ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx --no-restore --verbosity normal
