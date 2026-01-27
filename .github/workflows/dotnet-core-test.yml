@@ -31,7 +31,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx
         
       - name: Build
         run: dotnet build ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx --configuration Release --no-restore 
