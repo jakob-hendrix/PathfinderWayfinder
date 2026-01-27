@@ -2,32 +2,42 @@ name: Tests
 
 on:
   pull_request:
+  push:
+    branches: [ "master", "main" ]
 
   workflow_dispatch:
 
 jobs:
   build-and-test:
 
-    name: build-and-test-${{matrix.os}}
+    name: Build and Test on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [ubuntu-latest, windows-latest]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
+        #os: [ubuntu-latest]
+    env:
+        PROJECT_NAME: Wayfinder
+        DOTNET_VERSION: 10.x
+        CODE_ROOT_PATH: ./Wayfinder
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Setup Env
+        uses: actions/checkout@v5
 
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Install dependencies
-      run: dotnet restore
+      - name: Install dependencies
+        run: dotnet restore
+        
+      - name: Build
+        run: dotnet build ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx --configuration Release --no-restore 
       
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      - name: Test
+        run: dotnet test ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx --no-restore --verbosity normal
+
+      - name: Check Formatting
+        run: dotnet format ${{ env.CODE_ROOT_PATH}}/${{ env.PROJECT_NAME }}.slnx --verify-no-changes --verbosity diagnostic

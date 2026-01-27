@@ -1,8 +1,8 @@
-name: Deployment
+name: Deployment (DO NOT USE ATM)
 
 on:
-  push:
-    branches: [master]
+  # push:
+  #   branches: [master]
 
   workflow_dispatch:
 
