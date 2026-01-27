@@ -20,10 +20,10 @@
         <Nullable>enable</Nullable>
 
         <!-- Display name -->
-        <ApplicationTitle>Wayfinder.App</ApplicationTitle>
+        <ApplicationTitle>Wayfinder - Pathfinder CharGen</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.wayfinder.app</ApplicationId>
+        <ApplicationId>com.jakob.wayfinder.app</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
