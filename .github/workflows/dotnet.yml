@@ -20,7 +20,7 @@ jobs:
     env:
         PROJECT_NAME: Wayfinder
         DOTNET_VERSION: 10.x.x
-        CODE_ROOT_PATH: ./Wayfinder
+        CODE_ROOT_PATH: ./src
 
     steps:
       - name: Checkout code
