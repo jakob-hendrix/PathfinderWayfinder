@@ -32,8 +32,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install MAUI Android Workload
-        run: dotnet workload install maui-android
+      - name: Install MAUI Workload(s)
+        run: dotnet workload restore ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx
         
       - name: Install dependencies
         run: dotnet restore ${{ env.CODE_ROOT_PATH }}/${{ env.PROJECT_NAME }}.slnx
