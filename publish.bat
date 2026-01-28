@@ -13,7 +13,7 @@ ECHO Cleaning old builds...
 IF EXIST "bin\%RELEASE%\%TARGET_FRAMEWORK%" RD /s /q "bin\%RELEASE%\%TARGET_FRAMEWORK%"
 
 ECHO Publishing Unpackaged Self-Contained App...
-dotnet publish -f %TARGET_FRAMEWORK% -c %RELEASE% -p:WindowsPackageType=None -p:RuntimeIdentifierOverride=win10-x64 --self-contained true
+dotnet publish ./src/Wayfinder.slnx -f %TARGET_FRAMEWORK% -c %RELEASE% -p:WindowsPackageType=None -p:RuntimeIdentifierOverride=win10-x64 --self-contained true
 
 ECHO Done! Your "No-Install" app is in:
 ECHO bin\%RELEASE%\%TARGET_FRAMEWORK%\win-x64\publish

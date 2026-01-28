@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="Wayfinder.App/Wayfinder.App.csproj" />
+  <Project Path="Wayfinder.App/Wayfinder.App.csproj" Id="34ad38aa-e46d-438d-9407-78876954dea5" />
+  <Project Path="Wayfinder.Core/Wayfinder.Core.csproj" Id="0766ee02-7b6a-4cae-abab-93bd33b74c18" />
+  <Project Path="Wayfinder.Infrastructure/Wayfinder.Infrastructure.csproj" Id="58bc1d7b-b313-43b2-99a5-efd9ec10d980" />
+  <Project Path="Wayfinder.Tests/Wayfinder.Tests.csproj" Id="c8c012b8-9aec-4436-add0-23dc462dc8cc" />
 </Solution>
