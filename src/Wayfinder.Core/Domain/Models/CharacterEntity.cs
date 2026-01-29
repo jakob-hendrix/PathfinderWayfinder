@@ -9,7 +9,7 @@ namespace Wayfinder.Core.Domain.Models
         public string? Gender { get; set; }
 
         // Race. Foreign Key for EF
-        public Guid RaceId { get; set }
+        public Guid RaceId { get; set; }
         public Race? Race { get; set; }
 
         // Classes TODO:
