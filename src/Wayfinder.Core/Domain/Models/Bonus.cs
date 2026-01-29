@@ -1,4 +1,6 @@
-﻿namespace Wayfinder.Core.Domain.Models
+﻿using Wayfinder.Core.Domain.Constants;
+
+namespace Wayfinder.Core.Domain.Models
 {
     public class Bonus
     {

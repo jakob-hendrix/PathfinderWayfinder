@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Wayfinder.Core.Domain.Constants;
 using Wayfinder.Core.Domain.Models;
 using Wayfinder.Core.Rules.Services;
 

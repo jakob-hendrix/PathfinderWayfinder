@@ -1,15 +1,27 @@
-﻿namespace Wayfinder.Core.Domain.Models
+﻿using Wayfinder.Core.Domain.Constants;
+
+namespace Wayfinder.Core.Domain.Models
 {
     public class CharacterEntity
     {
         public Guid Id { get; set; }
-        public string? Name { get; set; }
+        public string? Name { get; set; } = string.Empty;
         public string? Gender { get; set; }
-        public int Strength { get; set; } = 10;
-        public int Dexterity { get; set; } = 10;
-        public int Constitution { get; set; } = 10;
-        public int Intelligence { get; set; } = 10;
-        public int Wisdom { get; set; } = 10;
-        public int Charisma { get; set; } = 10;
+
+        // Race. Foreign Key for EF
+        public Guid RaceId { get; set }
+        public Race? Race { get; set; }
+
+        // Classes TODO:
+
+        public Dictionary<AbilityScore, int> BaseAbilityScores { get; set; } = new()
+        {
+            { AbilityScore.Strength, 10 },
+            { AbilityScore.Dexterity, 10 },
+            { AbilityScore.Constitution, 10 },
+            { AbilityScore.Intelligence, 10 },
+            { AbilityScore.Wisdom, 10 },
+            { AbilityScore.Charisma, 10 }
+        };
     }
 }
