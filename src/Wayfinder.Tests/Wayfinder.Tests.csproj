@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Wayfinder.App\Wayfinder.App.csproj" />
     <ProjectReference Include="..\Wayfinder.Core\Wayfinder.Core.csproj" />
     <ProjectReference Include="..\Wayfinder.Infrastructure\Wayfinder.Infrastructure.csproj" />
   </ItemGroup>
