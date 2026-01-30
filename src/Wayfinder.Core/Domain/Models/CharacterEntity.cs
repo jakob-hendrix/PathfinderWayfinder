@@ -1,6 +1,4 @@
-﻿using Wayfinder.Core.Domain.Constants;
-
-namespace Wayfinder.Core.Domain.Models
+﻿namespace Wayfinder.Core.Domain.Models
 {
     public class CharacterEntity
     {
@@ -14,14 +12,11 @@ namespace Wayfinder.Core.Domain.Models
 
         // Classes TODO:
 
-        public Dictionary<AbilityScore, int> BaseAbilityScores { get; set; } = new()
-        {
-            { AbilityScore.Strength, 10 },
-            { AbilityScore.Dexterity, 10 },
-            { AbilityScore.Constitution, 10 },
-            { AbilityScore.Intelligence, 10 },
-            { AbilityScore.Wisdom, 10 },
-            { AbilityScore.Charisma, 10 }
-        };
+        public int BaseStrength { get; set; } = 10;
+        public int BaseDexterity { get; set; } = 10;
+        public int BaseConstitution { get; set; } = 10;
+        public int BaseIntelligence { get; set; } = 10;
+        public int BaseWisdom { get; set; } = 10;
+        public int BaseCharisma { get; set; } = 10;
     }
 }

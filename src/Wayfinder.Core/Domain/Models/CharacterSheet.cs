@@ -1,6 +1,4 @@
-﻿using Wayfinder.Core.Domain.Constants;
-
-namespace Wayfinder.Core.Domain.Models
+﻿namespace Wayfinder.Core.Domain.Models
 {
     public class CharacterSheet
     {
@@ -8,9 +6,7 @@ namespace Wayfinder.Core.Domain.Models
 
         public CharacterSheet()
         {
-            _character.BaseAbilityScores[AbilityScore.Strength] = 12; //eg using Dict. remove later
+            // TODO: map the base stats to the AbilityScores here
         }
-
-        // 
     }
 }

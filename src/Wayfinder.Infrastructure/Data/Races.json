@@ -1,0 +1,23 @@
+[
+  {
+    "Name": "Elf",
+    "Size": "Medium",
+    "BaseSpeed": 30,
+    "CreatureType": "Humanoid",
+    "CreatureSubTypes": [ "Elf" ],
+    "AbilityModifiers": [
+      {
+        "Ability": "Dexterity",
+        "Value": 2
+      },
+      {
+        "Ability": "Intelligence",
+        "Value": 2
+      },
+      {
+        "Ability": "Constitution",
+        "Value": -2
+      }
+    ]
+  }
+]

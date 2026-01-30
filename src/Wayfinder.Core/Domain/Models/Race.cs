@@ -9,13 +9,7 @@ namespace Wayfinder.Core.Domain.Models
         public CreatureSize Size { get; set; } = CreatureSize.Medium;
         public int BaseSpeed { get; set; } = 30;
         public string CreatureType { get; set; } = string.Empty;
-        public List<string> SubTypes { get; set; } = new();
+        public List<string> CreatureSubTypes { get; set; } = new();
         public List<AbilityModifier> AbilityModifiers { get; set; } = new();
-    }
-
-    public class AbilityModifier
-    {
-        public AbilityScore Ability { get; set; }
-        public int Value { get; set; }
     }
 }

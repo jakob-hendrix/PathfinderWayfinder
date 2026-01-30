@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Wayfinder.Core.DataServices;
+using Wayfinder.Core.Rules.Services;
+using Wayfinder.Infrastructure.DataServices;
+using Wayfinder.Infrastructure.Persistence;
 
 namespace Wayfinder.App
 {
@@ -16,12 +21,36 @@ namespace Wayfinder.App
 
             builder.Services.AddMauiBlazorWebView();
 
+            // Set up database
+            builder.Services.AddDbContext<WayfinderDbContext>(options =>
+                options.UseInMemoryDatabase("WayfinderDb"));
+
+            // Set up data services
+            builder.Services.AddScoped<IRaceService, RaceService>();
+
+            // Set up other services
+            builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
+
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+            var app = builder.Build();
+
+            // Seed the DB from data files
+            SeedDataFromDataFiles(app);
+
+            return app;
+        }
+
+        private static void SeedDataFromDataFiles(MauiApp app)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<WayfinderDbContext>();
+                DbInitializer.SeedData(dbContext);
+            }
         }
     }
 }
