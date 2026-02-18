@@ -1,0 +1,146 @@
+@using Microsoft.Maui.ApplicationModel
+
+<div class="top-menu-container d-flex align-items-center px-2">
+
+    <div class="menu-group">
+        <button class="menu-btn @(_activeMenu == "File" ? "active" : "")"
+                type="button"
+                @onclick='() => ToggleMenu("File")'>
+            File
+        </button>
+
+        @if (_activeMenu == "File")
+        {
+            <div class="menu-overlay" @onclick="CloseMenu"></div>
+            <ul class="custom-dropdown shadow-lg">
+                <li><button class="dropdown-item" @onclick="CloseMenu"><i class="bi bi-save me-2"></i>Save Character</button></li>
+                <li><button class="dropdown-item" @onclick="CloseMenu"><i class="bi bi-folder2-open me-2"></i>Load Character</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button class="dropdown-item" @onclick="CloseMenu"><i class="bi bi-arrow-clockwise me-2"></i>Reload Data Files</button></li>
+            </ul>
+        }
+    </div>
+
+    <div class="menu-group">
+        <button class="menu-btn @(_activeMenu == "About" ? "active" : "")"
+                type="button"
+                @onclick='() => ToggleMenu("About")'>
+            About
+        </button>
+
+        @if (_activeMenu == "About")
+        {
+            <div class="menu-overlay" @onclick="CloseMenu"></div>
+            <ul class="custom-dropdown shadow-lg">
+                <li><button class="dropdown-item" @onclick="CloseMenu"><i class="bi bi-journal-text me-2"></i>Changelog</button></li>
+                <li><button class="dropdown-item" @onclick="OpenGithub"><i class="bi bi-github me-2"></i>Source Code</button></li>
+            </ul>
+        }
+    </div>
+
+</div>
+
+@code {
+    private string? _activeMenu;
+
+    private void ToggleMenu(string menuName)
+    {
+        if (_activeMenu == menuName)
+            _activeMenu = null;
+        else
+            _activeMenu = menuName;
+    }
+
+    private void CloseMenu() => _activeMenu = null;
+
+    private async Task OpenGithub()
+    {
+        CloseMenu();
+        await Browser.Default.OpenAsync("https://github.com/jakob-hendrix/pathfinder-gen", BrowserLaunchMode.External);
+    }
+}
+
+<style>
+    .top-menu-container {
+        height: 38px; /* Slightly taller for a more substantial feel */
+        background-color: #ffffff;
+        border-bottom: 1px solid #dee2e6;
+        position: relative;
+        z-index: 2000;
+        gap: 4px; /* Space between the File and About buttons */
+    }
+
+    .menu-group {
+        position: relative;
+        display: inline-block
+    }
+
+    .menu-btn {
+        border: none;
+        border-radius: 4px; /* Subtle rounding */
+        font-size: 0.95rem; /* Larger font */
+        font-weight: 500;
+        padding: 4px 14px;
+        background: transparent;
+        color: #495057;
+        transition: all 0.15s ease-in-out;
+    }
+
+        .menu-btn:hover {
+            background-color: #f1f3f5;
+            color: #212529;
+        }
+
+        .menu-btn.active {
+            background-color: #e9ecef;
+            color: #0078d4; /* Highlight text color when open */
+        }
+
+    /* The actual dropdown menu */
+    .custom-dropdown {
+        position: absolute;
+        top: calc(100% + 2px);
+        left: 0;
+        min-width: 220px; /* Wider for better readability */
+        margin: 0;
+        padding: 6px 0;
+        list-style: none;
+        background-color: #ffffff;
+        border: 1px solid #ced4da;
+        border-radius: 6px; /* Modern rounded corners for the menu */
+        z-index: 2100;
+        display: block;
+    }
+
+    .dropdown-item {
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: white;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+        color: #212529;
+        display: flex;
+        align-items: center;
+    }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #0078d4;
+        }
+
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: transparent;
+        z-index: 2050;
+    }
+
+    .dropdown-divider {
+        margin: 6px 0;
+        border-top: 1px solid #e9ecef;
+    }
+</style>

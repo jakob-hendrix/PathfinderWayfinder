@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Wayfinder.App.Services;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Rules.Services;
 using Wayfinder.Infrastructure.DataServices;
@@ -30,6 +31,7 @@ namespace Wayfinder.App
 
             // Set up other services
             builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
+            builder.Services.AddScoped<CharacterSessionService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

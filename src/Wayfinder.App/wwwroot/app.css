@@ -88,34 +88,6 @@ main {
     flex: 1;
 }
 
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5,39,103) 0%, #3a0647 100%);
-    width: 250px;
-    height: 100vh;
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
-}
-
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
-}
-
 .card-title {
     font-weight: bold;
     border-bottom: 2px solid #0078d4;
@@ -139,4 +111,61 @@ main {
 
 .bi {
     margin-right: 0.5rem;
+}
+
+/* Ensure the app takes the full height of the window */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Prevents the whole window from scrolling */
+}
+
+header {
+    flex: 0 0 auto; /* Height is determined by TopMenu content */
+    z-index: 1100;
+}
+
+.main-layout-body {
+    display: flex;
+    flex: 1 1 auto; /* Takes up the remaining vertical space */
+    overflow: hidden;
+}
+
+.content-area {
+    flex: 1 1 auto;
+    overflow-y: auto; /* Only the content scrolls, not the menu or sidebar */
+    background-color: #ffffff;
+}
+
+.sidebar {
+    width: max-content;
+    min-width: 180px; /* Safety minimum so it doesn't look squished */
+    background-color: var(--forest-green);
+    flex: 0 0 auto;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-row {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}
+
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
 }
