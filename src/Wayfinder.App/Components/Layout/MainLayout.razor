@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-container">
+    <header>
+        <TopMenu />
+    </header>
+
+    <div class="main-layout-body">
+        <aside class="sidebar">
+            <NavMenu />
+        </aside>
+
+        <main class="content-area">
+            <article class="px-4 py-3">
+                @Body
+            </article>
+        </main>
+    </div>
+</div>

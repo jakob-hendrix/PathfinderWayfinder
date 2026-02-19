@@ -1,0 +1,78 @@
+<div class="nav-container">
+
+    <nav class="flex-column mt-2">
+        <div class="nav-item">
+            <NavLink class="nav-link custom-nav-link" href="/" Match="NavLinkMatch.All">
+                <i class="bi bi-file-person"></i> <span>Character Sheet</span>
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link custom-nav-link" href="base-character">
+                <i class="bi bi-person-plus-fill"></i> <span>Character Creation</span>
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link custom-nav-link" href="class-levels">
+                <i class="bi bi-arrow-up-circle"></i> <span>Class Levels</span>
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link custom-nav-link" href="skills">
+                <i class="bi bi-tools"></i> <span>Skills</span>
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link custom-nav-link" href="inventory">
+                <i class="bi bi-backpack"></i> <span>Equipment</span>
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link custom-nav-link" href="spellbook">
+                <i class="bi bi-magic"></i> <span>Spells</span>
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+<style>
+    :root {
+        --forest-green: #1b4332;
+        --leaf-green: #2d6a4f;
+        --bright-green: #74c69d;
+    }
+
+    .nav-container {
+        height: 100%;
+        /* Ensures the container wraps the widest child */
+        width: max-content;
+    }
+
+    .custom-nav-link {
+        color: #d8f3dc !important;
+        border-radius: 0; /* Square edges for edge-to-edge look */
+        padding: 0.75rem 1.5rem; /* Vertical and Horizontal padding */
+        display: flex;
+        align-items: center;
+        white-space: nowrap; /* Prevents text wrapping */
+        transition: all 0.2s;
+    }
+
+    /* Icon spacing */
+    .bi {
+        margin-right: 12px;
+        font-size: 1.1rem;
+    }
+
+    .custom-nav-link:hover {
+        background-color: var(--leaf-green);
+        color: white !important;
+    }
+
+    .custom-nav-link.active {
+        background-color: var(--bright-green) !important;
+        color: var(--forest-green) !important;
+        font-weight: bold;
+        /* Optional: a small indicator line on the left */
+        border-left: 4px solid var(--forest-green);
+    }
+</style>

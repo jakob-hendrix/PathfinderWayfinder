@@ -1,0 +1,25 @@
+# Set default behavior to automatically normalize line endings.
+* text=auto
+
+# Explicitly declare text files to normalize to LF (important for cross-platform)
+*.cs text diff=csharp
+*.csproj text
+*.sln text
+*.json text
+*.xml text
+*.js text
+*.ts text
+*.html text
+*.css text
+*.md text
+
+# Handle Windows-specific binary files
+*.exe binary
+*.dll binary
+*.pdb binary
+*.so binary
+*.dylib binary
+
+# Ensure proper behavior for Git settings
+.gitattributes text eol=lf
+.gitignore text eol=lf
