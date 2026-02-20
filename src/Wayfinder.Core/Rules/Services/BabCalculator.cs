@@ -8,25 +8,53 @@ namespace Wayfinder.Core.Rules.Services
         int Calculate(IEnumerable<ClassLevel> levels);
     }
 
+    /// <summary>
+    /// Returns the current total BAB based on class levels.
+    /// - The default method totals each class then rounds down, before adding to the total
+    /// - The Fractional method totals all levels together, before rounding down at the end.
+    /// </summary>
     public class BabCalculator : IBabCalculator
     {
         public int Calculate(IEnumerable<ClassLevel> levels)
         {
             if (levels == null || !levels.Any()) return 0;
 
-            return levels.GroupBy(l => l.Class.Name)
-                .Select(group =>
+            int totalBab = 0;
+
+            // Group class from class level by class name
+            var classGroups = levels
+                .Where(l => l.Class != null)
+                .GroupBy(l => l.Class!.Name);
+
+            foreach (var group in classGroups)
+            {
+                var currentClass = group.First().Class;
+                int classLevelCount = group.Count();
+                int classBab = 0;
+
+                // NOTE: when we implement Fractional calculations, this
+                // will change. Original calc are rounded down per class
+                switch (currentClass.BabRate)
                 {
-                    var currentClass = group.First().Class;
-                    int classLevelCount = group.Count();
-                    return currentClass?.BabRate switch
-                    {
-                        BabProgressionRate.Fast => classLevelCount,
-                        BabProgressionRate.Medium => (int)Math.Floor(classLevelCount * 0.75),
-                        BabProgressionRate.Slow => (int)Math.Floor(classLevelCount * 0.5),
-                        _ => 0
-                    };
-                }).Sum();
+                    case BabProgressionRate.Fast:
+                        // Fast rate = 1 BAB per level
+                        classBab = classLevelCount;
+                        break;
+                    case BabProgressionRate.Medium:
+                        // Medium rate = 3/4 BAB per level
+                        classBab = (int)Math.Floor(classLevelCount * 0.75);
+                        break;
+                    case BabProgressionRate.Slow:
+                        // Medium rate = 1/2 BAB per level
+                        classBab = (int)Math.Floor(classLevelCount * 0.5);
+                        break;
+                    default:
+                        break;
+                }
+                totalBab += classBab;
+            }
+
+            return totalBab;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Wayfinder.Core.Domain.Models
 
         public BabProgressionRate BabRate { get; set; }
         public SaveProgressionRate FortitudeRate { get; set; }
-        public SaveProgressionRate WisdomRate { get; set; }
+        public SaveProgressionRate WillRate { get; set; }
         public SaveProgressionRate ReflexRate { get; set; }
 
     }
