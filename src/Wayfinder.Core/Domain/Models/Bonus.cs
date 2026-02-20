@@ -8,6 +8,13 @@ namespace Wayfinder.Core.Domain.Models
         public int Value { get; set; } = 0;
         public string Source { get; set; } = "Unknown";
 
+        //public Bonus(BonusType type, int value, string source)
+        //{
+        //    Type = type;
+        //    Value = value;
+        //    Source = source;
+        //}
+
         // add a bool to force stacking?
         public bool IsStackable
         {

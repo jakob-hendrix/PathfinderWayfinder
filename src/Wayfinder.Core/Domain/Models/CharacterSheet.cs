@@ -17,13 +17,14 @@ namespace Wayfinder.Core.Domain.Models
         private readonly ISaveCalculator _saveCalculator;
         private readonly IAbilityScoreCalculator _abilityScoreCalculator;
 
-        public CharacterSheet(CharacterEntity baseCharacter, List<ClassLevel> levels, IStatCalculator statCalculator, IBabCalculator babCalculator, ISaveCalculator saveCalculator)
+        public CharacterSheet(CharacterEntity baseCharacter, List<ClassLevel> levels, IStatCalculator statCalculator, IBabCalculator babCalculator, ISaveCalculator saveCalculator, IAbilityScoreCalculator abilityScoreCalculator)
         {
             _baseCharacter = baseCharacter;
             _levels = levels;
             _statCalculator = statCalculator;
             _babCalculator = babCalculator;
             _saveCalculator = saveCalculator;
+            _abilityScoreCalculator = abilityScoreCalculator;
         }
 
         // Ability Scores

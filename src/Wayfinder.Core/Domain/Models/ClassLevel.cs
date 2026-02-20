@@ -2,7 +2,7 @@
 {
     public class ClassLevel
     {
-        public CharacterClass? Class { get; set; }
+        public BaseCharacterClass? Class { get; set; }
         public int Level { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace Wayfinder.Tests.Core
         public int Calculate(int baseScore, List<ClassLevel> levels)
         {
             // TODO: add logic
-            // added scores from level ups
+            // added scores from level ups (4th, 8th, 12th, 16th, 20th)
             // bonues score from items
             // bonuses/malus from buff/conditions
             return baseScore;

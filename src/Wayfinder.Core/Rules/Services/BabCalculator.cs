@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Domain.Constants;
+﻿using Wayfinder.Core.DataServices;
+using Wayfinder.Core.Domain.Constants;
 using Wayfinder.Core.Domain.Models;
 
 namespace Wayfinder.Core.Rules.Services
@@ -15,6 +16,13 @@ namespace Wayfinder.Core.Rules.Services
     /// </summary>
     public class BabCalculator : IBabCalculator
     {
+        private readonly IClassRegistry _classRegistry;
+
+        public BabCalculator(IClassRegistry classRegistry)
+        {
+            _classRegistry = classRegistry;
+        }
+
         public int Calculate(IEnumerable<ClassLevel> levels)
         {
             if (levels == null || !levels.Any()) return 0;
@@ -28,7 +36,7 @@ namespace Wayfinder.Core.Rules.Services
 
             foreach (var group in classGroups)
             {
-                var currentClass = group.First().Class;
+                var currentClass = _classRegistry.GetClass(group.Key);
                 int classLevelCount = group.Count();
                 int classBab = 0;
 

@@ -1,7 +1,9 @@
 ﻿using NUnit.Framework;
 using Wayfinder.Core.Domain.Constants;
+using Wayfinder.Core.Domain.Data.Classes;
 using Wayfinder.Core.Domain.Models;
 using Wayfinder.Core.Rules.Services;
+using Wayfinder.Tests.Core.Mocks;
 
 namespace Wayfinder.Tests.Core
 {
@@ -9,11 +11,17 @@ namespace Wayfinder.Tests.Core
     public class BabCalculatorTests
     {
         private IBabCalculator _calculator;
+        private MockClassRegistry _classRegistry;
 
         [SetUp]
         public void Setup()
         {
-            _calculator = new BabCalculator();
+            _classRegistry = new MockClassRegistry();
+            _classRegistry.Classes.Add("Fighter", new CharacterTestClass("Fighter", BabProgressionRate.Fast));
+            _classRegistry.Classes.Add("Rogue", new CharacterTestClass("Rogue", BabProgressionRate.Medium));
+            _classRegistry.Classes.Add("Wizard", new CharacterTestClass("Wizard", BabProgressionRate.Slow));
+
+            _calculator = new BabCalculator(_classRegistry);
         }
 
         [Test]
@@ -37,11 +45,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Fighter",
-                        BabRate = BabProgressionRate.Fast
-                    },
+                    Class = _classRegistry.GetClass("Fighter"),
                     Level = i
                 });
             }
@@ -77,11 +81,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Rogue",
-                        BabRate = BabProgressionRate.Medium
-                    },
+                    Class = _classRegistry.GetClass("Rogue"),
                     Level = i
                 });
             }
@@ -117,11 +117,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Wizard",
-                        BabRate = BabProgressionRate.Slow
-                    },
+                    Class = _classRegistry.GetClass("Wizard"),
                     Level = i
                 });
             }
@@ -149,11 +145,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Fighter",
-                        BabRate = BabProgressionRate.Fast
-                    },
+                    Class = _classRegistry.GetClass("Fighter"),
                     Level = i
                 });
             }
@@ -162,11 +154,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Rogue",
-                        BabRate = BabProgressionRate.Medium
-                    },
+                    Class = _classRegistry.GetClass("Rogue"),
                     Level = i
                 });
             }
@@ -175,11 +163,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Wizard",
-                        BabRate = BabProgressionRate.Slow
-                    },
+                    Class = _classRegistry.GetClass("Wizard"),
                     Level = i
                 });
             }
@@ -201,28 +185,26 @@ namespace Wayfinder.Tests.Core
         {
             var levels = new List<ClassLevel>();
 
+            var classA = new CharacterTestClass("Class A", babRate);
+            _classRegistry.Classes["Class A"] = classA;
+
             for (int i = 1; i <= classALevels; i++)
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Class A",
-                        BabRate = babRate
-                    },
+                    Class = classA,
                     Level = i
                 });
             }
+
+            var classB = new CharacterTestClass("Class B", babRate);
+            _classRegistry.Classes["Class B"] = classB;
 
             for (int i = 1; i <= classBLevels; i++)
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = new CharacterClass
-                    {
-                        Name = "Class B",
-                        BabRate = babRate
-                    },
+                    Class = classB,
                     Level = i
                 });
             }

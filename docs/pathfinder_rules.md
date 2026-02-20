@@ -46,6 +46,19 @@ This structure is taken from years of playing using YAPCG. Might change based on
   - size (just make your dude huge for fun)
 - custom data entry - not stored in underlying json files, but tracked with the character sheet save file
 
+## Class Levels
+
+- BAB
+- Saves
+- HP
+- Skills
+- Spells
+- Class Features
+- Capstone
+- Favored Class Bonus
+- Archetypes
+
+
 ## Fun Addons
 
 - allow in memory swapping of characters
