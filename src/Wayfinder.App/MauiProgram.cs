@@ -31,7 +31,7 @@ namespace Wayfinder.App
 
             // Set up other services
             builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
-            builder.Services.AddScoped<CharacterSessionService>();
+            builder.Services.AddScoped<CharacterSheet>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
