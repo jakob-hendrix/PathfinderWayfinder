@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Rules.Services;
+﻿using Wayfinder.Core.DataServices;
+using Wayfinder.Core.Rules.Services;
 using Wayfinder.Tests.Core;
 
 namespace Wayfinder.Core.Domain.Models
@@ -9,7 +10,7 @@ namespace Wayfinder.Core.Domain.Models
     public class CharacterSheet
     {
         private readonly CharacterEntity _baseCharacter;
-        private readonly List<ClassLevel> _levels;
+        private readonly IClassRegistry _classRegistry;
 
         // Calculators
         private readonly IStatCalculator _statCalculator;
@@ -17,10 +18,16 @@ namespace Wayfinder.Core.Domain.Models
         private readonly ISaveCalculator _saveCalculator;
         private readonly IAbilityScoreCalculator _abilityScoreCalculator;
 
-        public CharacterSheet(CharacterEntity baseCharacter, List<ClassLevel> levels, IStatCalculator statCalculator, IBabCalculator babCalculator, ISaveCalculator saveCalculator, IAbilityScoreCalculator abilityScoreCalculator)
+        public CharacterSheet(
+            CharacterEntity baseCharacter,
+            IClassRegistry classRegistry,
+            IStatCalculator statCalculator,
+            IBabCalculator babCalculator,
+            ISaveCalculator saveCalculator,
+            IAbilityScoreCalculator abilityScoreCalculator)
         {
             _baseCharacter = baseCharacter;
-            _levels = levels;
+            _classRegistry = classRegistry;
             _statCalculator = statCalculator;
             _babCalculator = babCalculator;
             _saveCalculator = saveCalculator;
@@ -35,6 +42,16 @@ namespace Wayfinder.Core.Domain.Models
         public int Wisdom => CalculateAbilityScore(_baseCharacter.BaseWisdom);
         public int Charisma => CalculateAbilityScore(_baseCharacter.BaseCharisma);
 
-        private int CalculateAbilityScore(int baseScore) => _abilityScoreCalculator.Calculate(baseScore, _levels);
+        // Sheet Actions
+        public void AddLevel(string className)
+        {
+            // TODO: implement adding a new level to ClassLevels
+            // This will need to trigger a full recalc of the sheet
+            // Will require validation (max levels, class exists, new class isn't archetype of old class, etc)
+            // So this will need to be in a new factory class of some sort
+        }
+
+        // Helper functions
+        private int CalculateAbilityScore(int baseScore) => _abilityScoreCalculator.Calculate(baseScore, _baseCharacter.ClassLevels);
     }
 }

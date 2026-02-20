@@ -1,40 +1,22 @@
-﻿@inherits LayoutComponentBase
+﻿@using Wayfinder.App.Components.Common
+@inherits LayoutComponentBase
 
 <div class="app-container">
-    <header>
-        <TopMenu />
-    </header>
+  <header>
+    <TopMenu />
+  </header>
 
-    <div class="main-layout-body">
-        <aside class="sidebar">
-            <NavMenu />
-        </aside>
+  <div class="main-layout-body">
+    <aside class="sidebar">
+      <NavMenu />
+    </aside>
 
-        <main class="content-area">
-            <article class="px-4 py-3">
-                <ErrorBoundary @ref="_errorBoundary">
-                    <ChildContent>
-                        @Body
-                    </ChildContent>
-                    <ErrorContent Context="ex">
-                        <div class="alert alert-danger m-3">
-                            <h4>Pathfinder Rules Error</h4>
-                            <p>An error occurred in the calculation engine:</p>
-                            <pre>@ex.Message</pre>
-                            <button class="btn btn-outline-danger" @onclick="Recover">Try to Recover</button>
-                        </div>
-                    </ErrorContent>
-                </ErrorBoundary>
-            </article>
-        </main>
-    </div>
+    <main class="content-area">
+      <WayfinderErrorBoundary>
+        <article class="px-4 py-3">
+          @Body
+        </article>
+      </WayfinderErrorBoundary>
+    </main>
+  </div>
 </div>
-
-@code {
-    private ErrorBoundary? _errorBoundary;
-
-    private void Recover()
-    {
-        _errorBoundary?.Recover();
-    }
-}

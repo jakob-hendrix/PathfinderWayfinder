@@ -2,3 +2,10 @@
 @inject CharacterStateViewModel CharacterViewModel
 
 <h3>Base Character Creator</h3>
+
+@code{
+  protected override void OnInitialized()
+  {
+    CharacterViewModel.Initialize();
+  }
+}
