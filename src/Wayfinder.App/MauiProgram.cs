@@ -2,6 +2,7 @@
 using Wayfinder.App.Services;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.Persistence;
 using Wayfinder.Tests.Core;
 
@@ -33,12 +34,15 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<AppLoggingService>();
 
             // Set up Pathfinder services
+            builder.Services.AddScoped<CharacterStateViewModel>();
             builder.Services.AddSingleton<IBabCalculator, BabCalculator>();
             builder.Services.AddSingleton<IAbilityScoreCalculator, AbilityScoreCalculator>();
             builder.Services.AddSingleton<ISaveCalculator, SaveCalculator>();
             builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
             builder.Services.AddSingleton<IClassRegistry, ClassRegistry>();
-            builder.Services.AddScoped<CharacterStateViewModel>();
+
+            // Set up bundled subsystems
+            builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
@@ -48,19 +52,7 @@ namespace Wayfinder.App
 
             var app = builder.Build();
 
-            // Seed the DB from data files
-            //SeedDataFromDataFiles(app);
-
             return app;
         }
-
-        //private static void SeedDataFromDataFiles(MauiApp app)
-        //{
-        //    using (var scope = app.Services.CreateScope())
-        //    {
-        //        var dbContext = scope.ServiceProvider.GetRequiredService<WayfinderDbContext>();
-        //        DbInitializer.SeedData(dbContext);
-        //    }
-        //}
     }
 }

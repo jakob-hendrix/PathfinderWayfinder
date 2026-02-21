@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Domain.Models;
-using Wayfinder.Core.Rules.Services;
-using Wayfinder.Tests.Core;
+using Wayfinder.Core.Services;
 
 namespace Wayfinder.App.Services
 {
@@ -12,26 +10,12 @@ namespace Wayfinder.App.Services
     {
         // Holds the main state of the character, including all calculated values, inventory, etc
         private readonly AppLoggingService _logger;
-        private readonly IStatCalculator _statCalculator;
-        private readonly IBabCalculator _babCalculator;
-        private readonly ISaveCalculator _saveCalculator;
-        private readonly IClassRegistry _classRegistry;
-        private readonly IAbilityScoreCalculator _abilityScoreCalculator;
+        private readonly IPathfinderRulesEngine _rulesEngine;
 
-        public CharacterStateViewModel(
-            AppLoggingService logger,
-            IStatCalculator statCalculator,
-            IBabCalculator babCalculator,
-            ISaveCalculator saveCalculator,
-            IClassRegistry classRegistry,
-            IAbilityScoreCalculator abilityScoreCalculator)
+        public CharacterStateViewModel(AppLoggingService logger, IPathfinderRulesEngine rulesEngine)
         {
             _logger = logger;
-            _statCalculator = statCalculator;
-            _babCalculator = babCalculator;
-            _saveCalculator = saveCalculator;
-            _classRegistry = classRegistry;
-            _abilityScoreCalculator = abilityScoreCalculator;
+            _rulesEngine = rulesEngine;
 
             _logger.LogInfo($"Initialized CharacterStateViewModel");
         }
@@ -53,13 +37,7 @@ namespace Wayfinder.App.Services
         {
             var entity = new CharacterEntity { Name = "Boxly The Brand Spankin New Hero" };
 
-            ActiveCharacter = new CharacterSheet(
-                entity,
-                _classRegistry,
-                _statCalculator,
-                _babCalculator,
-                _saveCalculator,
-                _abilityScoreCalculator);
+            ActiveCharacter = new CharacterSheet(entity, _rulesEngine);
         }
 
         public int Strength => SafeCalculate(() => ActiveCharacter.Strength, "Strength Calculation");

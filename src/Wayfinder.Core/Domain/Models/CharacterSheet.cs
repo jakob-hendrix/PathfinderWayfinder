@@ -1,6 +1,4 @@
-﻿using Wayfinder.Core.DataServices;
-using Wayfinder.Core.Rules.Services;
-using Wayfinder.Tests.Core;
+﻿using Wayfinder.Core.Services;
 
 namespace Wayfinder.Core.Domain.Models
 {
@@ -10,28 +8,12 @@ namespace Wayfinder.Core.Domain.Models
     public class CharacterSheet
     {
         private readonly CharacterEntity _baseCharacter;
-        private readonly IClassRegistry _classRegistry;
+        private readonly IPathfinderRulesEngine _rulesEngine;
 
-        // Calculators
-        private readonly IStatCalculator _statCalculator;
-        private readonly IBabCalculator _babCalculator;
-        private readonly ISaveCalculator _saveCalculator;
-        private readonly IAbilityScoreCalculator _abilityScoreCalculator;
-
-        public CharacterSheet(
-            CharacterEntity baseCharacter,
-            IClassRegistry classRegistry,
-            IStatCalculator statCalculator,
-            IBabCalculator babCalculator,
-            ISaveCalculator saveCalculator,
-            IAbilityScoreCalculator abilityScoreCalculator)
+        public CharacterSheet(CharacterEntity baseCharacter, IPathfinderRulesEngine rulesEngine)
         {
             _baseCharacter = baseCharacter;
-            _classRegistry = classRegistry;
-            _statCalculator = statCalculator;
-            _babCalculator = babCalculator;
-            _saveCalculator = saveCalculator;
-            _abilityScoreCalculator = abilityScoreCalculator;
+            _rulesEngine = rulesEngine;
         }
 
         // Ability Scores
@@ -52,6 +34,6 @@ namespace Wayfinder.Core.Domain.Models
         }
 
         // Helper functions
-        private int CalculateAbilityScore(int baseScore) => _abilityScoreCalculator.Calculate(baseScore, _baseCharacter.ClassLevels);
+        private int CalculateAbilityScore(int baseScore) => _rulesEngine.AbilityScoreCalculator.Calculate(baseScore, _baseCharacter.ClassLevels);
     }
 }
