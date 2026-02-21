@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Wayfinder.Core.Domain.Constants;
 using Wayfinder.Core.Domain.Data.Classes;
-using Wayfinder.Core.Domain.Models;
+using Wayfinder.Core.Domain.Models.Characters;
 using Wayfinder.Core.Rules.Services;
 using Wayfinder.Tests.Core.Mocks;
 

@@ -1,4 +1,4 @@
-﻿namespace Wayfinder.Core.Domain.Models
+﻿namespace Wayfinder.Core.Domain.Models.Characters
 {
     public class ClassLevel
     {

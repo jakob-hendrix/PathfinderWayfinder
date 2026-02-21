@@ -1,6 +1,6 @@
 ﻿using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Domain.Constants;
-using Wayfinder.Core.Domain.Models;
+using Wayfinder.Core.Domain.Models.Characters;
 
 namespace Wayfinder.Core.Rules.Services
 {

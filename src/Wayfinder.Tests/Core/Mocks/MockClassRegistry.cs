@@ -1,5 +1,5 @@
 ﻿using Wayfinder.Core.DataServices;
-using Wayfinder.Core.Domain.Models;
+using Wayfinder.Core.Domain.Models.Characters;
 
 namespace Wayfinder.Tests.Core.Mocks
 {

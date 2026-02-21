@@ -22,12 +22,7 @@ namespace Wayfinder.App
 
             builder.Services.AddMauiBlazorWebView();
 
-            // Set up database
-            //builder.Services.AddDbContext<WayfinderDbContext>(options =>
-            //    options.UseInMemoryDatabase("WayfinderDb"));
-
             // Set up data services
-            //builder.Services.AddScoped<IRaceService, RaceService>();
             builder.Services.AddScoped<ICharacterStorage, CharacterStorageService>();
 
             // Set app services

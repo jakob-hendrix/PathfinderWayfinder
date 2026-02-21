@@ -1,5 +1,5 @@
 ﻿using Wayfinder.Core.Domain.Data.Classes;
-using Wayfinder.Core.Domain.Models;
+using Wayfinder.Core.Domain.Models.Characters;
 
 namespace Wayfinder.Core.DataServices
 {

@@ -1,6 +1,7 @@
 ﻿using Wayfinder.Core.Domain.Constants;
+using Wayfinder.Core.Domain.Models.Common;
 
-namespace Wayfinder.Core.Domain.Models
+namespace Wayfinder.Core.Domain.Models.Characters
 {
     public abstract class BaseCharacterClass
     {

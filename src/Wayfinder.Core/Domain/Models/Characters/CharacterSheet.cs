@@ -1,6 +1,6 @@
 ﻿using Wayfinder.Core.Services;
 
-namespace Wayfinder.Core.Domain.Models
+namespace Wayfinder.Core.Domain.Models.Characters
 {
     /// <summary>
     /// Rich Domain Model that represents a character with state - meaning class levels, ineventory, etc
