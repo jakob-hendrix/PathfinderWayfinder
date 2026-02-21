@@ -2,7 +2,7 @@
 using Wayfinder.Core.Domain.Models.Characters;
 using Wayfinder.Core.Domain.Models.Common;
 
-namespace Wayfinder.Core.Domain.Data.Classes
+namespace Wayfinder.Tests.Core.Mocks
 {
     public class CharacterTestClass : BaseCharacterClass
     {

@@ -5,6 +5,8 @@ namespace Wayfinder.Core.Domain.Models.Items
     public class ArmorItem : EquippableItem
     {
         public override EquipmentSlot Slot => EquipmentSlot.Armor;
+        public override ItemType Type => ItemType.Armor;
+
         public ArmorType ArmorType { get; set; }
         public int ArmorBonus { get; set; }
         // null represents no limit, otherwise this is the maximum dex bonus allowed by the armor

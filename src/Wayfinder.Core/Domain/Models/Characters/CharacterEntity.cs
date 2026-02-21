@@ -30,7 +30,7 @@ namespace Wayfinder.Core.Domain.Models.Characters
         // Equipment
 
         // The master list of all items linked to the character, equipped, carried, or stored
-        public List<BaseItem> Inventory { get; set; } = new();
+        public List<ItemInstance> Inventory { get; set; } = new();
         public Dictionary<EquipmentSlot, Guid> EquippedItems { get; set; } = new();
 
         // TODO: we will need to track weapons/shields seperately because we want the ability of the user

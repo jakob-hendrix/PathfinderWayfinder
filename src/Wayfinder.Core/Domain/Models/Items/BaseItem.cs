@@ -1,11 +1,13 @@
-﻿namespace Wayfinder.Core.Domain.Models.Items
+﻿using Wayfinder.Core.Domain.Constants;
+
+namespace Wayfinder.Core.Domain.Models.Items
 {
     public abstract class BaseItem
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public double Weight { get; set; }
         public int GoldValue { get; set; }
+        public abstract ItemType Type { get; }
 
         // Most items are just carried
         public virtual bool IsEquippable => false;

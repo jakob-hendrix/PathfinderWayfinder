@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 using Wayfinder.Core.Domain.Constants;
-using Wayfinder.Core.Domain.Models;
+using Wayfinder.Core.Domain.Models.Common;
 
 namespace Wayfinder.Tests.Core
 {
