@@ -1,6 +1,6 @@
-﻿using Wayfinder.Core.Domain.Constants;
-using Wayfinder.Core.Domain.Models.Characters;
-using Wayfinder.Core.Domain.Models.Items;
+﻿using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.DomainModels.Items;
+using Wayfinder.Core.Enums;
 
 namespace Wayfinder.Core.Rules.Services
 {
@@ -14,6 +14,7 @@ namespace Wayfinder.Core.Rules.Services
     {
         public EncumbranceLevel GetEncumbrance(int totalCarriedWeight, int strength)
         {
+            // TODO:
             // https://www.d20pfsrd.com/alignment-description/carrying-capacity/
             // There is a lookup table we need to implement here that returns light, med, heavy load
             // values based on the provided strength
@@ -42,7 +43,7 @@ namespace Wayfinder.Core.Rules.Services
 
         private double CalculateWeightOfItemsContainedTherein(ItemInstance baseItem, List<ItemInstance> inventory)
         {
-            var weight = baseItem.Template.Weight;
+            var weight = baseItem.BaseStats.Weight;
 
             // Recursively find items inside this item
             var heldItems = inventory.Where(i => i.ContainerId == baseItem.Id);

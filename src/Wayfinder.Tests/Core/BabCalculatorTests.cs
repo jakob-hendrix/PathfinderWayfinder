@@ -1,9 +1,10 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Domain.Constants;
-using Wayfinder.Core.Domain.Data.Classes;
-using Wayfinder.Core.Domain.Models.Characters;
+using Wayfinder.Core.Data.Definitions;
+using Wayfinder.Core.DataServices;
+using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Rules.Services;
-using Wayfinder.Tests.Core.Mocks;
+using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core
 {
@@ -11,17 +12,22 @@ namespace Wayfinder.Tests.Core
     public class BabCalculatorTests
     {
         private IBabCalculator _calculator;
-        private MockClassRegistry _classRegistry;
+        private IClassLibrary _classRegistry;
+        private IClassFactory _classFactory;
 
         [SetUp]
         public void Setup()
         {
-            _classRegistry = new MockClassRegistry();
-            _classRegistry.Classes.Add("Fighter", new CharacterTestClass("Fighter", BabProgressionRate.Fast));
-            _classRegistry.Classes.Add("Rogue", new CharacterTestClass("Rogue", BabProgressionRate.Medium));
-            _classRegistry.Classes.Add("Wizard", new CharacterTestClass("Wizard", BabProgressionRate.Slow));
+            _classRegistry = new ClassLibrary();
 
-            _calculator = new BabCalculator(_classRegistry);
+            _classRegistry.Register(new ClassDefinition() { Name = "Fighter", BabRate = "Fast" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Fighter2", BabRate = "Fast" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Rogue", BabRate = "Medium" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Rogue2", BabRate = "Medium" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Wizard", BabRate = "Slow" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Wizard2", BabRate = "Slow" });
+            _classFactory = new ClassFactory(_classRegistry);
+            _calculator = new BabCalculator(_classFactory);
         }
 
         [Test]
@@ -45,7 +51,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Fighter"),
+                    Class = _classFactory.GetClass("Fighter"),
                     Level = i
                 });
             }
@@ -81,7 +87,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Rogue"),
+                    Class = _classFactory.GetClass("Rogue"),
                     Level = i
                 });
             }
@@ -117,7 +123,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Wizard"),
+                    Class = _classFactory.GetClass("Wizard"),
                     Level = i
                 });
             }
@@ -145,7 +151,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Fighter"),
+                    Class = _classFactory.GetClass("Fighter"),
                     Level = i
                 });
             }
@@ -154,7 +160,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Rogue"),
+                    Class = _classFactory.GetClass("Rogue"),
                     Level = i
                 });
             }
@@ -163,7 +169,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Wizard"),
+                    Class = _classFactory.GetClass("Wizard"),
                     Level = i
                 });
             }
@@ -185,8 +191,12 @@ namespace Wayfinder.Tests.Core
         {
             var levels = new List<ClassLevel>();
 
-            var classA = new CharacterTestClass("Class A", babRate);
-            _classRegistry.Classes["Class A"] = classA;
+            var classA = babRate switch
+            {
+                BabProgressionRate.Fast => _classFactory.GetClass("Fighter"),
+                BabProgressionRate.Medium => _classFactory.GetClass("Rogue"),
+                BabProgressionRate.Slow => _classFactory.GetClass("Wizard"),
+            };
 
             for (int i = 1; i <= classALevels; i++)
             {
@@ -197,8 +207,12 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            var classB = new CharacterTestClass("Class B", babRate);
-            _classRegistry.Classes["Class B"] = classB;
+            var classB = babRate switch
+            {
+                BabProgressionRate.Fast => _classFactory.GetClass("Fighter2"),
+                BabProgressionRate.Medium => _classFactory.GetClass("Rogue2"),
+                BabProgressionRate.Slow => _classFactory.GetClass("Wizard2"),
+            };
 
             for (int i = 1; i <= classBLevels; i++)
             {

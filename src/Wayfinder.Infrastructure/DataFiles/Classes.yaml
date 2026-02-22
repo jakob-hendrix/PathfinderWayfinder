@@ -1,0 +1,75 @@
+Classes:
+  - Name: Fighter
+    BAB: Fast
+    HD: 10
+    SkillPoints: 2
+    Fortitude: Fast
+    Reflex: Slow
+    Will: Slow
+    Levels:
+      1:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat"}
+      2:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+          - { Id: "bravery", Name: "Bravery (Ex)", Rank: 1 }
+      3:
+        Features: 
+          - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 1 }
+      4:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+      5:
+        Features: 
+          - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 1 }
+      6:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+          - { Id: "bravery", Name: "Bravery (Ex)", Rank: 2 }
+      7:
+        Features: 
+          - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 2 } # TODO: really this is a 2nd choice, and rank 2 of the 1st choice
+      8:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+      9:
+        Features: 
+          - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 2 } # or advanced weapon training
+      10:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+          - { Id: "bravery", Name: "Bravery (Ex)", Rank: 3 }
+      11:
+        Features: 
+          - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 3 } 
+      12:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+      13:
+        Features: 
+          - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 3 } 
+      14:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+          - { Id: "bravery", Name: "Bravery (Ex)", Rank: 4 }
+      15:
+        Features: 
+          - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 4 } 
+      16:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+      17:
+        Features: 
+          - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 4 } 
+      18:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+          - { Id: "bravery", Name: "Bravery (Ex)", Rank: 5 }
+      19:
+        Features: 
+          - { Id: "armor-mastery", Name: "Armor Mastery (Ex)" }
+      20:
+        Features: 
+          - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+          - { Id: "weapon-mastery", Name: "Weapon Mastery (Ex)" }

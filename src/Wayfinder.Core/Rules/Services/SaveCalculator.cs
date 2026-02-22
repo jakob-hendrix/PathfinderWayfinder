@@ -1,6 +1,6 @@
-﻿using Wayfinder.Core.DataServices;
-using Wayfinder.Core.Domain.Constants;
-using Wayfinder.Core.Domain.Models.Characters;
+﻿using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.Enums;
+using Wayfinder.Core.Services;
 
 namespace Wayfinder.Core.Rules.Services
 {
@@ -10,11 +10,11 @@ namespace Wayfinder.Core.Rules.Services
     }
     public class SaveCalculator : ISaveCalculator
     {
-        private readonly IClassRegistry _classRegistry;
+        private readonly IClassFactory _classFactory;
 
-        public SaveCalculator(IClassRegistry classRegistry)
+        public SaveCalculator(IClassFactory classFactory)
         {
-            _classRegistry = classRegistry;
+            _classFactory = classFactory;
         }
 
         public int Calculate(IEnumerable<ClassLevel> levels, SaveType saveType)
@@ -30,7 +30,7 @@ namespace Wayfinder.Core.Rules.Services
 
             foreach (var group in classGroups)
             {
-                var currentClass = _classRegistry.GetClass(group.Key);
+                var currentClass = _classFactory.GetClass(group.Key);
                 int levelCount = group.Count();
 
                 var rate = saveType switch

@@ -1,7 +1,8 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Domain.Models.Characters;
-using Wayfinder.Core.Domain.Models.Items;
+using Wayfinder.Core.Data.Definitions;
+using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core
 {
@@ -10,10 +11,20 @@ namespace Wayfinder.Tests.Core
     {
         private CharacterEntity _character;
         private IEquipmentManager _equipmentManager;
+        private IItemFactory _itemFactory;
+        private IItemLibrary _itemLibrary;
 
         [SetUp]
         public void Setup()
         {
+
+            _itemLibrary = new ItemLibrary();
+            _itemLibrary.Register(new ItemDefinition { Id = "item1", Name = "Item 1", Weight = 1.0, ItemType = "AdventuringGear" });
+            _itemLibrary.Register(new ItemDefinition { Id = "item2", Name = "Item 2", Weight = 2.0, ItemType = "AdventuringGear" });
+            _itemLibrary.Register(new ItemDefinition { Id = "item3", Name = "Item 3", Weight = 3.0, ItemType = "AdventuringGear" });
+            _itemLibrary.Register(new ItemDefinition { Id = "container1", Name = "container 1", Weight = 10.0, ItemType = "AdventuringGear" });
+
+            _itemFactory = new ItemFactory(_itemLibrary);
             _equipmentManager = new EquipmentManager();
             _character = new CharacterEntity
             {
@@ -34,15 +45,9 @@ namespace Wayfinder.Tests.Core
         {
             _character.Inventory.Clear();
 
-            var itemTemplate = new AdventuringGearItem
-            {
-                Name = "Generic Item",
-                Weight = 1
-            };
-
-            _character.Inventory.Add(new ItemInstance { Template = itemTemplate });
-            _character.Inventory.Add(new ItemInstance { Template = itemTemplate });
-            _character.Inventory.Add(new ItemInstance { Template = itemTemplate });
+            _character.Inventory.Add(_itemFactory.CreateItem("item1"));
+            _character.Inventory.Add(_itemFactory.CreateItem("item1"));
+            _character.Inventory.Add(_itemFactory.CreateItem("item1"));
 
             Assert.That(_equipmentManager.GetTotalCarriedWeight(_character), Is.EqualTo(3));
         }
@@ -51,13 +56,16 @@ namespace Wayfinder.Tests.Core
         public void GetTotalCarriedWeight_ShouldNotIncludeDroppedItems()
         {
             _character.Inventory.Clear();
-            var itemTemplate = new AdventuringGearItem
-            {
-                Name = "Generic Item",
-                Weight = 1
-            };
-            _character.Inventory.Add(new ItemInstance { Template = itemTemplate, IsCarried = true });
-            _character.Inventory.Add(new ItemInstance { Template = itemTemplate, IsCarried = false });
+
+            var item1 = _itemFactory.CreateItem("item1");
+            var item2 = _itemFactory.CreateItem("item1");
+
+            _character.Inventory.Add(item1);
+            _character.Inventory.Add(item2);
+
+            Assert.That(_equipmentManager.GetTotalCarriedWeight(_character), Is.EqualTo(2));
+
+            _character.Inventory[0].IsCarried = false;
 
             Assert.That(_equipmentManager.GetTotalCarriedWeight(_character), Is.EqualTo(1));
         }
@@ -66,62 +74,36 @@ namespace Wayfinder.Tests.Core
         public void GetTotalCarriedWeight_ShouldIncludeItemsInContainers()
         {
             _character.Inventory.Clear();
-            var backpackTemplate = new AdventuringGearItem
-            {
-                Name = "Backpack",
-                Weight = 2
-            };
-            var itemTemplate = new AdventuringGearItem
-            {
-                Name = "Generic Item",
-                Weight = 1
-            };
 
-            var backpackInstance = new ItemInstance
-            {
-                Template = backpackTemplate,
-                IsCarried = true
-            };
+            // weighs 10
+            var container = _itemFactory.CreateItem("container1");
+            container.IsCarried = true;
 
-            _character.Inventory.Add(backpackInstance);
+            // weighs 1
+            var containedItem = _itemFactory.CreateItem("item1");
+            containedItem.ContainerId = container.Id;
 
-            var containedItem1 = new ItemInstance { Template = itemTemplate, IsCarried = true, ContainerId = backpackInstance.Id };
-            var containedItem2 = new ItemInstance { Template = itemTemplate, IsCarried = true, ContainerId = backpackInstance.Id };
+            _character.Inventory.Add(container);
+            _character.Inventory.Add(containedItem);
 
-            _character.Inventory.Add(containedItem1);
-            _character.Inventory.Add(containedItem2);
-
-            Assert.That(_equipmentManager.GetTotalCarriedWeight(_character), Is.EqualTo(4));
+            Assert.That(_equipmentManager.GetTotalCarriedWeight(_character), Is.EqualTo(11));
         }
 
         [Test]
         public void GetTotalCarriedWeight_ShouldExcludeItemsInContainersThatAreDropped()
         {
-            _character.Inventory.Clear();
-            var backpackTemplate = new AdventuringGearItem
-            {
-                Name = "Backpack",
-                Weight = 2
-            };
-            var itemTemplate = new AdventuringGearItem
-            {
-                Name = "Generic Item",
-                Weight = 1
-            };
+            // weighs 10
+            var container = _itemFactory.CreateItem("container1");
+            container.IsCarried = true;
 
-            var backpackInstance = new ItemInstance
-            {
-                Template = backpackTemplate,
-                IsCarried = false
-            };
+            // weighs 1
+            var containedItem = _itemFactory.CreateItem("item1");
+            containedItem.ContainerId = container.Id;
 
-            _character.Inventory.Add(backpackInstance);
+            _character.Inventory.Add(container);
+            _character.Inventory.Add(containedItem);
 
-            var containedItem1 = new ItemInstance { Template = itemTemplate, IsCarried = true, ContainerId = backpackInstance.Id };
-            var containedItem2 = new ItemInstance { Template = itemTemplate, IsCarried = true, ContainerId = backpackInstance.Id };
-
-            _character.Inventory.Add(containedItem1);
-            _character.Inventory.Add(containedItem2);
+            _character.Inventory[0].IsCarried = false;
 
             Assert.That(_equipmentManager.GetTotalCarriedWeight(_character), Is.EqualTo(0));
         }

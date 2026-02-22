@@ -1,5 +1,5 @@
-@using Wayfinder.App.Services
-@inject AppLoggingService AppLogger
+@using Wayfinder.Core.Services
+@inject IAppLogger AppLogger
 @inherits ErrorBoundary
 
 @if (CurrentException is null)

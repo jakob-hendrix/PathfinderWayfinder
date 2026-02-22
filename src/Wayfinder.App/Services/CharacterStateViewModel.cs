@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.Domain.Models.Characters;
+using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.App.Services
@@ -9,10 +9,10 @@ namespace Wayfinder.App.Services
     public partial class CharacterStateViewModel : ObservableObject
     {
         // Holds the main state of the character, including all calculated values, inventory, etc
-        private readonly AppLoggingService _logger;
+        private readonly IAppLogger _logger;
         private readonly IPathfinderRulesEngine _rulesEngine;
 
-        public CharacterStateViewModel(AppLoggingService logger, IPathfinderRulesEngine rulesEngine)
+        public CharacterStateViewModel(IAppLogger logger, IPathfinderRulesEngine rulesEngine)
         {
             _logger = logger;
             _rulesEngine = rulesEngine;

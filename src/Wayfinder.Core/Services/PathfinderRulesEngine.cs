@@ -6,7 +6,7 @@ namespace Wayfinder.Core.Services
 {
     public interface IPathfinderRulesEngine
     {
-        IClassRegistry ClassRegistry { get; }
+        IClassLibrary ClassRegistry { get; }
         IStatCalculator StatCalculator { get; }
         IBabCalculator BabCalculator { get; }
         ISaveCalculator SaveCalculator { get; }
@@ -23,7 +23,7 @@ namespace Wayfinder.Core.Services
 
         public ISaveCalculator SaveCalculator { get; }
 
-        public IClassRegistry ClassRegistry { get; }
+        public IClassLibrary ClassRegistry { get; }
         public IAbilityScoreCalculator AbilityScoreCalculator { get; }
 
         public IEquipmentManager EquipmentManager { get; }
@@ -32,7 +32,7 @@ namespace Wayfinder.Core.Services
             IStatCalculator statCalculator,
             IBabCalculator babCalculator,
             ISaveCalculator saveCalculator,
-            IClassRegistry classRegistry,
+            IClassLibrary classRegistry,
             IAbilityScoreCalculator abilityScoreCalculator,
             IEquipmentManager equipmentManager)
         {

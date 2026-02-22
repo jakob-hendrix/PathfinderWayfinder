@@ -1,9 +1,10 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Domain.Constants;
-using Wayfinder.Core.Domain.Data.Classes;
-using Wayfinder.Core.Domain.Models.Characters;
+using Wayfinder.Core.Data.Definitions;
+using Wayfinder.Core.DataServices;
+using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Rules.Services;
-using Wayfinder.Tests.Core.Mocks;
+using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core
 {
@@ -11,17 +12,26 @@ namespace Wayfinder.Tests.Core
     public class SaveCalculatorTests
     {
         private ISaveCalculator _calculator;
-        private MockClassRegistry _classRegistry;
+        private IClassLibrary _classRegistry;
+        private IClassFactory _classFactory;
 
         [SetUp]
         public void Setup()
         {
-            _classRegistry = new MockClassRegistry();
-            _classRegistry.Classes.Add("Fighter", new CharacterTestClass("Fighter", SaveProgressionRate.Fast, SaveProgressionRate.Slow, SaveProgressionRate.Slow));
-            _classRegistry.Classes.Add("Rogue", new CharacterTestClass("Rogue", SaveProgressionRate.Slow, SaveProgressionRate.Slow, SaveProgressionRate.Fast));
-            _classRegistry.Classes.Add("Wizard", new CharacterTestClass("Wizard", SaveProgressionRate.Slow, SaveProgressionRate.Fast, SaveProgressionRate.Slow));
+            _classRegistry = new ClassLibrary();
+            _classRegistry.Register(new ClassDefinition() { Name = "Fighter", FortitudeRate = "Fast", WillRate = "Slow", ReflexRate = "Slow" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Rogue", FortitudeRate = "Slow", WillRate = "Slow", ReflexRate = "Fast" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Wizard", FortitudeRate = "Slow", WillRate = "Fast", ReflexRate = "Slow" });
 
-            _calculator = new SaveCalculator(_classRegistry);
+            _classRegistry.Register(new ClassDefinition() { Name = "AllFast1", FortitudeRate = "Fast", WillRate = "Fast", ReflexRate = "Fast" });
+            _classRegistry.Register(new ClassDefinition() { Name = "AllFast2", FortitudeRate = "Fast", WillRate = "Fast", ReflexRate = "Fast" });
+
+            _classRegistry.Register(new ClassDefinition() { Name = "AllSlow1", FortitudeRate = "Slow", WillRate = "Slow", ReflexRate = "Slow" });
+            _classRegistry.Register(new ClassDefinition() { Name = "AllSlow2", FortitudeRate = "Slow", WillRate = "Slow", ReflexRate = "Slow" });
+
+            _classFactory = new ClassFactory(_classRegistry);
+
+            _calculator = new SaveCalculator(_classFactory);
         }
 
         [Test]
@@ -61,7 +71,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Fighter"),
+                    Class = _classFactory.GetClass("Fighter"),
                     Level = i
                 });
             }
@@ -97,7 +107,7 @@ namespace Wayfinder.Tests.Core
             {
                 levels.Add(new ClassLevel
                 {
-                    Class = _classRegistry.GetClass("Fighter"),
+                    Class = _classFactory.GetClass("Fighter"),
                     Level = i
                 });
             }
@@ -118,9 +128,7 @@ namespace Wayfinder.Tests.Core
         {
             var levels = new List<ClassLevel>();
 
-            var classA = new CharacterTestClass("Class A", SaveProgressionRate.Fast, SaveProgressionRate.Fast, SaveProgressionRate.Fast);
-            _classRegistry.Classes["Class A"] = classA;
-
+            var classA = _classFactory.GetClass("AllFast1");
             for (int i = 1; i <= classALevels; i++)
             {
                 levels.Add(new ClassLevel
@@ -130,9 +138,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            var classB = new CharacterTestClass("Class B", SaveProgressionRate.Fast, SaveProgressionRate.Fast, SaveProgressionRate.Fast);
-            _classRegistry.Classes["Class B"] = classB;
-
+            var classB = _classFactory.GetClass("AllFast2");
             for (int i = 1; i <= classBLevels; i++)
             {
                 levels.Add(new ClassLevel
@@ -164,9 +170,7 @@ namespace Wayfinder.Tests.Core
         {
             var levels = new List<ClassLevel>();
 
-            var classA = new CharacterTestClass("Class A", SaveProgressionRate.Slow, SaveProgressionRate.Slow, SaveProgressionRate.Slow);
-            _classRegistry.Classes["Class A"] = classA;
-
+            var classA = _classFactory.GetClass("AllSlow1");
             for (int i = 1; i <= classALevels; i++)
             {
                 levels.Add(new ClassLevel
@@ -176,9 +180,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            var classB = new CharacterTestClass("Class B", SaveProgressionRate.Slow, SaveProgressionRate.Slow, SaveProgressionRate.Slow);
-            _classRegistry.Classes["Class B"] = classB;
-
+            var classB = _classFactory.GetClass("AllSlow2");
             for (int i = 1; i <= classBLevels; i++)
             {
                 levels.Add(new ClassLevel

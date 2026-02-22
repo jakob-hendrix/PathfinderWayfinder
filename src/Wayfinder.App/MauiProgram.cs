@@ -26,7 +26,7 @@ namespace Wayfinder.App
             builder.Services.AddScoped<ICharacterStorage, CharacterStorageService>();
 
             // Set app services
-            builder.Services.AddSingleton<AppLoggingService>();
+            builder.Services.AddSingleton<IAppLogger, AppLoggingService>();
 
             // Set up Pathfinder services
             builder.Services.AddScoped<CharacterStateViewModel>();
@@ -34,9 +34,17 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<IAbilityScoreCalculator, AbilityScoreCalculator>();
             builder.Services.AddSingleton<ISaveCalculator, SaveCalculator>();
             builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
-            builder.Services.AddSingleton<IClassRegistry, ClassRegistry>();
+
+            // The compendiums seeded from user files
+            builder.Services.AddSingleton<IItemLibrary, ItemLibrary>();
+            builder.Services.AddSingleton<IClassLibrary, ClassLibrary>();
+
+            // The factories
+            builder.Services.AddSingleton<IClassFactory, ClassFactory>();
+            builder.Services.AddSingleton<IItemFactory, ItemFactory>();
 
             // Set up bundled subsystems
+            builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();
             builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();
 
 #if DEBUG
@@ -46,6 +54,13 @@ namespace Wayfinder.App
 #endif
 
             var app = builder.Build();
+
+            //// Initial seed of data
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+            //    seeder.SeedAll(); //TODO: provide the path from user settings or ask the user
+            //}
 
             return app;
         }
