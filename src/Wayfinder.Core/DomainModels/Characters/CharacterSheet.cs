@@ -8,27 +8,28 @@ namespace Wayfinder.Core.DomainModels.Characters
     /// </summary>
     public class CharacterSheet
     {
-        private readonly CharacterEntity _baseCharacter;
         private readonly IPathfinderRulesEngine _rulesEngine;
 
         public CharacterSheet(CharacterEntity baseCharacter, IPathfinderRulesEngine rulesEngine)
         {
-            _baseCharacter = baseCharacter;
+            BaseCharacter = baseCharacter;
             _rulesEngine = rulesEngine;
         }
 
+        public CharacterEntity BaseCharacter { get; }
+
         // Ability Scores
-        public int Strength => CalculateAbilityScore(_baseCharacter.BaseStrength);
-        public int Dexterity => CalculateAbilityScore(_baseCharacter.BaseDexterity);
-        public int Constitution => CalculateAbilityScore(_baseCharacter.BaseConstitution);
-        public int Intelligence => CalculateAbilityScore(_baseCharacter.BaseIntelligence);
-        public int Wisdom => CalculateAbilityScore(_baseCharacter.BaseWisdom);
-        public int Charisma => CalculateAbilityScore(_baseCharacter.BaseCharisma);
+        public int Strength => CalculateAbilityScore(BaseCharacter.BaseStrength);
+        public int Dexterity => CalculateAbilityScore(BaseCharacter.BaseDexterity);
+        public int Constitution => CalculateAbilityScore(BaseCharacter.BaseConstitution);
+        public int Intelligence => CalculateAbilityScore(BaseCharacter.BaseIntelligence);
+        public int Wisdom => CalculateAbilityScore(BaseCharacter.BaseWisdom);
+        public int Charisma => CalculateAbilityScore(BaseCharacter.BaseCharisma);
 
         // Return a list of hydrated items from the current state of the base character's inventory
         public List<ItemInstance> GetHydratedInventory()
         {
-            return _baseCharacter.Inventory.Select(item =>
+            return BaseCharacter.Inventory.Select(item =>
             {
                 var instance = _rulesEngine.ItemFactory.CreateItem(item.TemplateId);
 
@@ -42,7 +43,7 @@ namespace Wayfinder.Core.DomainModels.Characters
 
         public void ToggleEquip(Guid instanceId)
         {
-            var item = _baseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
+            var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
             if (item != null)
             {
                 // TODO: implement equippgin items
@@ -52,7 +53,7 @@ namespace Wayfinder.Core.DomainModels.Characters
 
         public void ToggleCarried(Guid instanceId)
         {
-            var item = _baseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
+            var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
             if (item != null)
             {
                 item.IsCarried = !item.IsCarried;
@@ -75,6 +76,6 @@ namespace Wayfinder.Core.DomainModels.Characters
         }
 
         // Helper functions
-        private int CalculateAbilityScore(int baseScore) => _rulesEngine.AbilityScoreCalculator.Calculate(baseScore, _baseCharacter.ClassLevels);
+        private int CalculateAbilityScore(int baseScore) => _rulesEngine.AbilityScoreCalculator.Calculate(baseScore, BaseCharacter.ClassLevels);
     }
 }

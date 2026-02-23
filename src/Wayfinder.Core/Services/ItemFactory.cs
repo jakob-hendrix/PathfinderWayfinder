@@ -44,7 +44,7 @@ namespace Wayfinder.Core.Services
                     Cost = definition.Cost,
                     ArmorType = PathfinderEnumMapper.ToArmorType(definition.Properties["Category"]),
                     ArmorBonus = int.Parse(definition.Properties["ArmorBonus"]),
-                    MaxDexBonus = int.Parse(definition.Properties["MaxDexBonus"]),
+                    MaxDexBonus = int.Parse(definition.Properties["MaxDex"]),
                     ArmorCheckPenalty = int.Parse(definition.Properties["ACP"]),
                     ArcaneSpellFailureChance = int.Parse(definition.Properties["SpellFailure"]),
                     SpeedForBase30 = int.Parse(definition.Properties["Speed30"]),

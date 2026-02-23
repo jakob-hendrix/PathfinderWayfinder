@@ -1,4 +1,60 @@
 @page "/"
-@inject CharacterStateViewModel CharacterViewModel
+@inject CharacterStateViewModel ViewModel
 
 <h3>Character Sheet</h3>
+
+<div class="character-sheet-container">
+    @if (ViewModel.ActiveCharacter == null)
+    {
+        <div class="alert alert-info">
+            No character loaded.
+            <button class="btn btn-primary" @onclick="ViewModel.InitializeNewCharacter">Load Seed Character</button>
+        </div>
+    }
+    else
+    {
+        @* 1. Header Information *@
+        <header class="sheet-header">
+            <h2>@ViewModel.ActiveCharacter.BaseCharacter.Name</h2>
+            <h3>Race: @ViewModel.ActiveCharacter.BaseCharacter.Race.Name</h3>
+        </header>
+
+        <hr />
+
+        @* 2. Calculated Summary Stats (One per line) *@
+        <section class="stat-group">
+            <div class="stat-line"><strong>Strength:</strong> @ViewModel.Strength</div>
+            @* We can add more stats here as the engine grows *@
+        </section>
+
+        <hr />
+
+        @* 2. Inventory Collection *@
+        <section class="inventory-section">
+            <div class="inventory-scroll-container">
+                @foreach (var item in ViewModel.Inventory)
+                {
+                    <div class="item-row-strip @(item.IsCarried ? "active" : "inactive")">
+
+                        @* @/* 1. The Drop/Pick Up Button at the front */ *@
+                        <button class="btn btn-sm @(item.IsCarried ? "btn-danger" : "btn-success") btn-fixed-width"
+                                @onclick="() => ViewModel.ToggleItemCarried(item.Id)">
+                            @(item.IsCarried ? "Drop" : "Pick Up")
+                        </button>
+
+                        @* @/* 2. Core Identity */ *@
+                        <span class="item-core-info">
+                            <strong>@item.BaseStats.Name</strong>
+                            <span class="text-muted ms-2">[@item.GetType().Name]</span>
+                        </span>
+
+                        @* @/* 3. Base Stats */ *@
+                        <span class="property-tag">Weight: @item.BaseStats.Weight</span>
+                        <span class="property-tag">Cost: @item.BaseStats.Cost gp</span>
+                        <span class="property-tag">Type: @item.BaseStats.Type</span>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+</div>

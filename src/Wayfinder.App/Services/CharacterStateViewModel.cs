@@ -36,7 +36,7 @@ namespace Wayfinder.App.Services
         // Character collections 
         [ObservableProperty]
         public CharacterSheet? _activeCharacter;
-        public ObservableCollection<ItemInstance> Inventory { get; }
+        public ObservableCollection<ItemInstance> Inventory { get; } = new();
 
         private void HandleDataRefreshed() => RebuildState();
         private void RebuildState()
@@ -73,6 +73,7 @@ namespace Wayfinder.App.Services
         {
             var entity = _characterSeeder.BuildSampleCharacter();
             ActiveCharacter = new CharacterSheet(entity, _rulesEngine);
+            RebuildState();
         }
 
         public int Strength => SafeCalculate(() => ActiveCharacter.Strength, "Strength Calculation");
@@ -88,6 +89,20 @@ namespace Wayfinder.App.Services
             if (item != null)
             {
                 //item.IsEquipped = !item.IsEquipped;
+            }
+
+            RecalculateStats();
+        }
+
+        public void ToggleItemCarried(Guid itemId)
+        {
+            // Update character
+            ActiveCharacter.ToggleCarried(itemId);
+
+            var item = Inventory.FirstOrDefault(i => i.Id == itemId);
+            if (item != null)
+            {
+                item.IsCarried = !item.IsCarried;
             }
 
             RecalculateStats();

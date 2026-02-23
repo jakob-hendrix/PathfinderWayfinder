@@ -49,22 +49,9 @@ namespace Wayfinder.Infrastructure.DataSeeders
             };
 
             // Build inventory
-            AddItem(entity, "chain-shirt", true);
+            entity.Inventory.Add(_engine.ItemFactory.CreateItem("chain_shirt"));
 
             return entity;
-        }
-
-        private void AddItem(CharacterEntity character, string itemId, bool isEquipped)
-        {
-            try
-            {
-                character.Inventory.Add(_engine.ItemFactory.CreateItem(itemId));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return;
-            }
-
         }
     }
 }
