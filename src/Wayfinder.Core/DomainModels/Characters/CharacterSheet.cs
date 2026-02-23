@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Services;
+﻿using Wayfinder.Core.DomainModels.Items;
+using Wayfinder.Core.Services;
 
 namespace Wayfinder.Core.DomainModels.Characters
 {
@@ -24,6 +25,40 @@ namespace Wayfinder.Core.DomainModels.Characters
         public int Wisdom => CalculateAbilityScore(_baseCharacter.BaseWisdom);
         public int Charisma => CalculateAbilityScore(_baseCharacter.BaseCharisma);
 
+        // Return a list of hydrated items from the current state of the base character's inventory
+        public List<ItemInstance> GetHydratedInventory()
+        {
+            return _baseCharacter.Inventory.Select(item =>
+            {
+                var instance = _rulesEngine.ItemFactory.CreateItem(item.TemplateId);
+
+                // TODO: may need more work here to apply custom item
+                // 'facts' to this instance. Like, custom name, enchantments, etc
+                // That or allow the ItemFactory to take an ItemInstance and make a copy
+
+                return instance;
+            }).ToList();
+        }
+
+        public void ToggleEquip(Guid instanceId)
+        {
+            var item = _baseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
+            if (item != null)
+            {
+                // TODO: implement equippgin items
+                // item.IsEquipped = !item.IsEquipped;
+            }
+        }
+
+        public void ToggleCarried(Guid instanceId)
+        {
+            var item = _baseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
+            if (item != null)
+            {
+                item.IsCarried = !item.IsCarried;
+            }
+        }
+
         // Sheet Actions
         public void AddLevel(string className)
         {
@@ -31,6 +66,12 @@ namespace Wayfinder.Core.DomainModels.Characters
             // This will need to trigger a full recalc of the sheet
             // Will require validation (max levels, class exists, new class isn't archetype of old class, etc)
             // So this will need to be in a new factory class of some sort
+        }
+
+        public void Refresh()
+        {
+            // TODO: allows the UI to trigger a full rebuild - is this even necessary?
+            // For now, do nothing
         }
 
         // Helper functions

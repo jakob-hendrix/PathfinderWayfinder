@@ -12,6 +12,8 @@ namespace Wayfinder.Core.Services
         ISaveCalculator SaveCalculator { get; }
         IAbilityScoreCalculator AbilityScoreCalculator { get; }
         IEquipmentManager EquipmentManager { get; }
+        IClassFactory ClassFactory { get; }
+        IItemFactory ItemFactory { get; }
 
     }
 
@@ -28,13 +30,19 @@ namespace Wayfinder.Core.Services
 
         public IEquipmentManager EquipmentManager { get; }
 
+        public IClassFactory ClassFactory { get; }
+
+        public IItemFactory ItemFactory { get; }
+
         public PathfinderRulesEngine(
             IStatCalculator statCalculator,
             IBabCalculator babCalculator,
             ISaveCalculator saveCalculator,
             IClassLibrary classRegistry,
             IAbilityScoreCalculator abilityScoreCalculator,
-            IEquipmentManager equipmentManager)
+            IEquipmentManager equipmentManager,
+            IClassFactory classFactory,
+            IItemFactory itemFactory)
         {
             StatCalculator = statCalculator;
             BabCalculator = babCalculator;
@@ -42,6 +50,8 @@ namespace Wayfinder.Core.Services
             ClassRegistry = classRegistry;
             AbilityScoreCalculator = abilityScoreCalculator;
             EquipmentManager = equipmentManager;
+            ClassFactory = classFactory;
+            ItemFactory = itemFactory;
         }
     }
 }

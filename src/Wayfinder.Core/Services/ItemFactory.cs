@@ -19,7 +19,7 @@ namespace Wayfinder.Core.Services
         {
             var definition = _itemLibrary.GetItemDefinition(templateId);
             if (definition == null)
-                throw new ArgumentException($"No item definition found for template ID: {templateId}");
+                throw new KeyNotFoundException($"No item definition found for template ID: {templateId}");
 
             var templateStats = MapDefinitionToDomain(definition);
 

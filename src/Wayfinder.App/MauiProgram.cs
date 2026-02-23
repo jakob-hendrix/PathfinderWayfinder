@@ -29,7 +29,10 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<DomainMapper>();
 
             // Set app services
+            builder.Services.AddSingleton<AppStateService>();
             builder.Services.AddSingleton<IAppLogger, AppLoggingService>();
+            builder.Services.AddSingleton<DataSeederService>();
+            builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
 
             // Set up Pathfinder services
             builder.Services.AddScoped<CharacterStateViewModel>();
@@ -41,6 +44,7 @@ namespace Wayfinder.App
             // The compendiums seeded from user files
             builder.Services.AddSingleton<IItemLibrary, ItemLibrary>();
             builder.Services.AddSingleton<IClassLibrary, ClassLibrary>();
+            builder.Services.AddSingleton<IPathfinderDataLibrary, PathfinderDataLibrary>();
 
             // The factories
             builder.Services.AddSingleton<IClassFactory, ClassFactory>();
