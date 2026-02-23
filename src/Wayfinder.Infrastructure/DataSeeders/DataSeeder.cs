@@ -1,7 +1,7 @@
-﻿using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DataServices;
+﻿using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataValidators;
+using Wayfinder.Infrastructure.DTOs;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -13,11 +13,13 @@ namespace Wayfinder.Infrastructure.DataSeeders
         private readonly IClassLibrary _classLibrary;
         private readonly IItemLibrary _itemLibrary;
         private readonly IDeserializer _deserializer;
+        private readonly DomainMapper _mapper;
 
         public DataSeeder(
             IAppLogger logger,
             IClassLibrary classLibrary,
-            IItemLibrary itemLibrary)
+            IItemLibrary itemLibrary,
+            DomainMapper mapper)
         {
             _logger = logger;
             _classLibrary = classLibrary;
@@ -25,39 +27,64 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     .WithNamingConvention(PascalCaseNamingConvention.Instance)
                     .Build();
             _itemLibrary = itemLibrary;
+            _mapper = mapper;
         }
 
         public void SeedAll()
         {
             // TODO: pull the path from config or user input
-            var basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DataFiles");
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameData");
 
-            SeedClasses(basePath);
-            SeedItems(basePath);
+            if (!Directory.Exists(dataPath))
+            {
+                _logger.LogError($"Critical Failure: Game data folder not found at {dataPath}");
+                return;
+            }
+
+            _classLibrary.Clear();
+            _itemLibrary.Clear();
+
+            SeedClasses(dataPath);
+            SeedItems(dataPath);
         }
 
         public void SeedClasses(string filePath)
         {
+            _classLibrary.Clear();
+
             foreach (var file in Directory.GetFiles(filePath, "Classes.yaml"))
             {
                 try
                 {
+                    // 1. Deserialize 
                     var yaml = File.ReadAllText(file);
-                    var result = _deserializer.Deserialize<ClassDefinition>(yaml);
+                    var result = _deserializer.Deserialize<List<ClassYamlDto>>(yaml);
 
-                    // Validate user input
-                    // TODO: add new validator for class data
-                    if (result.Levels.Keys.Any(level => level < 1 || level > 20))
+                    foreach (var dto in result)
                     {
-                        throw new ArgumentException("Level keys must be between 1 and 20.");
+                        // 2. Map DTO to domain
+                        var definition = _mapper.MapClassToDomain(dto);
+
+                        // 3. Validate
+                        var (isValid, errors) = ClassSeedValidator.Validate(definition);
+                        if (isValid)
+                        {
+                            _classLibrary.Register(definition);
+                            continue;
+                        }
+                        else
+                        {
+                            foreach (var error in errors)
+                            {
+                                _logger.LogError($"[YAML SEED ERROR] '{definition.Name}': {error}");
+                            }
+                        }
                     }
-
-                    _classLibrary.Register(result);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
-                    throw;
+                    throw new Exception($"Failed to seed items from file {file}", ex);
                 }
             }
         }
@@ -69,10 +96,12 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 try
                 {
                     var yaml = File.ReadAllText(file);
-                    var result = _deserializer.Deserialize<List<ItemDefinition>>(yaml);
+                    var result = _deserializer.Deserialize<List<ItemYamlDto>>(yaml);
 
-                    foreach (var definition in result)
+                    foreach (var dto in result)
                     {
+                        var definition = _mapper.MapItemToDomain(dto);
+
                         var (isValid, errors) = ItemSeedValidator.Validate(definition);
                         if (isValid)
                         {

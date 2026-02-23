@@ -3,6 +3,7 @@ using Wayfinder.App.Services;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Rules.Services;
 using Wayfinder.Core.Services;
+using Wayfinder.Infrastructure.DataSeeders;
 using Wayfinder.Infrastructure.Persistence;
 using Wayfinder.Tests.Core;
 
@@ -24,6 +25,8 @@ namespace Wayfinder.App
 
             // Set up data services
             builder.Services.AddScoped<ICharacterStorage, CharacterStorageService>();
+            builder.Services.AddSingleton<DataSeeder>();
+            builder.Services.AddSingleton<DomainMapper>();
 
             // Set app services
             builder.Services.AddSingleton<IAppLogger, AppLoggingService>();
@@ -55,12 +58,12 @@ namespace Wayfinder.App
 
             var app = builder.Build();
 
-            //// Initial seed of data
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-            //    seeder.SeedAll(); //TODO: provide the path from user settings or ask the user
-            //}
+            // Initial seed of data
+            using (var scope = app.Services.CreateScope())
+            {
+                var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+                seeder.SeedAll(); //TODO: provide the path from user settings or ask the user
+            }
 
             return app;
         }

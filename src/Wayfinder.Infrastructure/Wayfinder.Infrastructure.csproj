@@ -14,4 +14,16 @@
     <ProjectReference Include="..\Wayfinder.Core\Wayfinder.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="GameData\Classes.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="GameData\Items.Armor.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="GameData\Races.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

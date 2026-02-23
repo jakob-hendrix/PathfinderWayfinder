@@ -2,7 +2,7 @@
 
 namespace Wayfinder.Core.Services
 {
-    public interface IItemLibrary
+    public interface IItemLibrary : IDataLibrary
     {
         public void Register(ItemDefinition itemDefinition);
         public ItemDefinition GetItemDefinition(string id);
@@ -11,6 +11,8 @@ namespace Wayfinder.Core.Services
     public class ItemLibrary : IItemLibrary
     {
         private readonly Dictionary<string, ItemDefinition> _itemDefinitions = new();
+
+        public void Clear() => _itemDefinitions.Clear();
 
         public ItemDefinition GetItemDefinition(string id)
         {
