@@ -5,7 +5,6 @@ using Wayfinder.Core.Rules.Services;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
 using Wayfinder.Infrastructure.Persistence;
-using Wayfinder.Tests.Core;
 
 namespace Wayfinder.App
 {
@@ -41,7 +40,7 @@ namespace Wayfinder.App
 
             // Set up Pathfinder services
             builder.Services.AddSingleton<IBabCalculator, BabCalculator>();
-            builder.Services.AddSingleton<IAbilityScoreCalculator, AbilityScoreCalculator>();
+            //builder.Services.AddSingleton<IAbilityScoreCalculator, AbilityScoreCalculator>();
             builder.Services.AddSingleton<ISaveCalculator, SaveCalculator>();
             builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
 

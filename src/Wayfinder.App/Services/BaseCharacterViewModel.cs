@@ -69,37 +69,37 @@ namespace Wayfinder.App.Services
         public int Strength
         {
             get => Character?.BaseStrength ?? 10;
-            set => SetEntityProperty(() => Character!.BaseStrength = value, nameof(Strength));
+            set => SetEntityProperty(() => Character!.BaseStrength = Math.Max(0, value), nameof(Strength));
         }
 
         public int Dexterity
         {
             get => Character?.BaseDexterity ?? 10;
-            set => SetEntityProperty(() => Character!.BaseDexterity = value, nameof(Dexterity));
+            set => SetEntityProperty(() => Character!.BaseDexterity = Math.Max(0, value), nameof(Dexterity));
         }
 
         public int Constitution
         {
             get => Character?.BaseConstitution ?? 10;
-            set => SetEntityProperty(() => Character!.BaseConstitution = value, nameof(Constitution));
+            set => SetEntityProperty(() => Character!.BaseConstitution = Math.Max(0, value), nameof(Constitution));
         }
 
         public int Intelligence
         {
             get => Character?.BaseIntelligence ?? 10;
-            set => SetEntityProperty(() => Character!.BaseIntelligence = value, nameof(Intelligence));
+            set => SetEntityProperty(() => Character!.BaseIntelligence = Math.Max(0, value), nameof(Intelligence));
         }
 
         public int Wisdom
         {
             get => Character?.BaseWisdom ?? 10;
-            set => SetEntityProperty(() => Character!.BaseWisdom = value, nameof(Wisdom));
+            set => SetEntityProperty(() => Character!.BaseWisdom = Math.Max(0, value), nameof(Wisdom));
         }
 
         public int Charisma
         {
             get => Character?.BaseCharisma ?? 10;
-            set => SetEntityProperty(() => Character!.BaseCharisma = value, nameof(Charisma));
+            set => SetEntityProperty(() => Character!.BaseCharisma = Math.Max(0, value), nameof(Charisma));
         }
         // TODO
         // Add a language from seeded language service

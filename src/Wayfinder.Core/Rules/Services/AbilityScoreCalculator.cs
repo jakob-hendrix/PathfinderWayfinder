@@ -1,15 +1,22 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
 
-namespace Wayfinder.Tests.Core
+namespace Wayfinder.Core.Rules.Services
 {
-    public interface IAbilityScoreCalculator
-    {
-        int Calculate(int baseScore, List<ClassLevel> levels);
-    }
+    //public interface IAbilityScoreCalculator
+    //{
+    //    int CalculateCurrentValue(int baseScore, List<ClassLevel> levels);
+    //    int CalculateBonus(int score);
+    //}
 
-    public class AbilityScoreCalculator : IAbilityScoreCalculator
+    //public static class AbilityScoreCalculator : IAbilityScoreCalculator
+    public static class AbilityScoreCalculator
     {
-        public int Calculate(int baseScore, List<ClassLevel> levels)
+        public static int CalculateModifier(int score)
+        {
+            return (int)Math.Floor((Math.Max(0, score) - 10) / 2.0);
+        }
+
+        public static int CalculateCurrentValue(int baseScore, List<ClassLevel> levels)
         {
             // TODO: add logic
             // added scores from level ups (4th, 8th, 12th, 16th, 20th)

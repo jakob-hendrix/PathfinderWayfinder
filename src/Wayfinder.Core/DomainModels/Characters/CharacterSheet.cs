@@ -1,4 +1,5 @@
 ﻿using Wayfinder.Core.DomainModels.Items;
+using Wayfinder.Core.Rules.Services;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.Core.DomainModels.Characters
@@ -76,6 +77,6 @@ namespace Wayfinder.Core.DomainModels.Characters
         }
 
         // Helper functions
-        private int CalculateAbilityScore(int baseScore) => _rulesEngine.AbilityScoreCalculator.Calculate(baseScore, BaseCharacter.ClassLevels);
+        private int CalculateAbilityScore(int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, BaseCharacter.ClassLevels);
     }
 }

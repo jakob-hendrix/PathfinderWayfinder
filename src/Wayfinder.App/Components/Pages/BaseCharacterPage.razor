@@ -10,7 +10,7 @@
         <input type="text" class="form-control" @bind="VM.Name" />
     </div>
 
-    <div class="row mb-3">
+@*     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Base Strength</label>
             <input type="number" class="form-control" @bind="VM.Strength" />
@@ -35,6 +35,17 @@
             <label class="form-label">Base Charisma</label>
             <input type="number" class="form-control" @bind="VM.Charisma" />
         </div>
+    </div> *@
+
+    <div class="card p-4 shadow-sm">
+        <h4 class="mb-4">Ability Scores</h4>
+    
+        <BaseAbilityScoreForm Label="Strength" @bind-Score="VM.Strength" />
+        <BaseAbilityScoreForm Label="Dexterity" @bind-Score="VM.Dexterity" />
+        <BaseAbilityScoreForm Label="Constitution" @bind-Score="VM.Constitution" />
+        <BaseAbilityScoreForm Label="Intelligence" @bind-Score="VM.Intelligence" />
+        <BaseAbilityScoreForm Label="Wisdom" @bind-Score="VM.Wisdom" />
+        <BaseAbilityScoreForm Label="Charisma" @bind-Score="VM.Charisma" />
     </div>
 
     <div class="mb-3">

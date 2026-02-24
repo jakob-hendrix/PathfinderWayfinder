@@ -1,6 +1,5 @@
 ﻿using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Rules.Services;
-using Wayfinder.Tests.Core;
 
 namespace Wayfinder.Core.Services
 {
@@ -10,7 +9,7 @@ namespace Wayfinder.Core.Services
         IStatCalculator StatCalculator { get; }
         IBabCalculator BabCalculator { get; }
         ISaveCalculator SaveCalculator { get; }
-        IAbilityScoreCalculator AbilityScoreCalculator { get; }
+        //IAbilityScoreCalculator AbilityScoreCalculator { get; }
         IEquipmentManager EquipmentManager { get; }
         IClassFactory ClassFactory { get; }
         IItemFactory ItemFactory { get; }
@@ -26,7 +25,7 @@ namespace Wayfinder.Core.Services
         public ISaveCalculator SaveCalculator { get; }
 
         public IClassLibrary ClassRegistry { get; }
-        public IAbilityScoreCalculator AbilityScoreCalculator { get; }
+        //public IAbilityScoreCalculator AbilityScoreCalculator { get; }
 
         public IEquipmentManager EquipmentManager { get; }
 
@@ -39,7 +38,7 @@ namespace Wayfinder.Core.Services
             IBabCalculator babCalculator,
             ISaveCalculator saveCalculator,
             IClassLibrary classRegistry,
-            IAbilityScoreCalculator abilityScoreCalculator,
+            //IAbilityScoreCalculator abilityScoreCalculator,
             IEquipmentManager equipmentManager,
             IClassFactory classFactory,
             IItemFactory itemFactory)
@@ -48,7 +47,7 @@ namespace Wayfinder.Core.Services
             BabCalculator = babCalculator;
             SaveCalculator = saveCalculator;
             ClassRegistry = classRegistry;
-            AbilityScoreCalculator = abilityScoreCalculator;
+            //AbilityScoreCalculator = abilityScoreCalculator;
             EquipmentManager = equipmentManager;
             ClassFactory = classFactory;
             ItemFactory = itemFactory;
