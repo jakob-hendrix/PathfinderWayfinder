@@ -4,10 +4,9 @@ using Wayfinder.Core.Enums;
 namespace Wayfinder.Core.DomainModels.Characters
 {
     /// <summary>
-    /// This is the base character entity that will be saved/loaded from storage.
-    /// 
-    /// The CharacterSheet will be the rich domain model that is used for all calculations and logic
-    /// all of which is derived from the facts of this class
+    /// This is the base character entity that will be saved/loaded from storage. This character holds
+    /// the 'facts' of the character that the ChararacterSheet will use to derive bonuses from
+    /// gear, stats gained from levels, etc
     /// </summary>
     public class CharacterEntity
     {
@@ -15,10 +14,27 @@ namespace Wayfinder.Core.DomainModels.Characters
         public string? Name { get; set; } = string.Empty;
         public string? Gender { get; set; }
 
+        // This gives base speed, some ability bonuses, etc
         public Race? Race { get; set; }
 
-        // Classes
+        public Alignment Alignment { get; set; }
+        public string Diety { get; set; }
+        public int Age { get; set; }
+        public int Weight { get; set; }
+        public string PhysicalDescription { get; set; }
+        public string Biography { get; set; }
+
+        // Should Language be an enum? Probably not - allow for RP to add new ones. We can seed a list of languages
+        // from data
+        public List<string> Languages { get; set; }
+
+        // Levels - includes HP, favored class bonuses, any choices such as Armor Training, etc
         public List<ClassLevel> ClassLevels { get; set; } = new();
+
+        // Skills - skill points per level are derived from class levels, but the chosen ranks
+        // are stored here
+        public List<SkillRank> SkillRanks { get; set; } = new();
+
 
         // Ability Scores
         public int BaseStrength { get; set; } = 10;
@@ -28,13 +44,19 @@ namespace Wayfinder.Core.DomainModels.Characters
         public int BaseWisdom { get; set; } = 10;
         public int BaseCharisma { get; set; } = 10;
 
-        // Equipment
-
-        // The master list of all items linked to the character, equipped, carried, or stored
+        // Equipment. Item instance will track things like charges/max charges
         public List<ItemInstance> Inventory { get; set; } = new();
         public Dictionary<EquipmentSlot, Guid> EquippedItems { get; set; } = new();
+        public List<AttackLoadout> AttacksLoadouts { get; set; } = new();
 
         // TODO: we will need to track weapons/shields seperately because we want the ability of the user
         // to define any number of main hand/off hand combos, since mid-combat switching is common and fast
+
+        // State - things like current wounds, toggled effects
+        public int Wounds { get; set; }
+        public int NonLethalDamage { get; set; }
+        public int TemporaryHp { get; set; }
+
+
     }
 }
