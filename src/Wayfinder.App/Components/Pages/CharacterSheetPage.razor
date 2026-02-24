@@ -13,17 +13,40 @@
     }
     else
     {
-        @* 1. Header Information *@
-        <header class="sheet-header">
-            <h2>@ViewModel.ActiveCharacterSheet.BaseCharacter.Name</h2>
-            <h3>Race: @ViewModel.ActiveCharacterSheet.BaseCharacter.Race</h3>
-        </header>
+        @* @/* Demographic Section */ *@
+        <section class="demographics-section mt-4">
+            <h3 class="text-secondary border-bottom pb-2">@ViewModel.ActiveCharacterSheet?.BaseCharacter.Name</h3>
+            <div class="stat-group">
+                <div class="stat-line"><strong>Race:</strong> @ViewModel.Race</div>
+                <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
+                <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
+                <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
+                <div class="stat-line"><strong>Deity:</strong> @ViewModel.Deity</div>
 
+                <div class="stat-line mt-2">
+                    <strong>Description:</strong>
+                    <span class="text-muted">@ViewModel.PhysicalDescription</span>
+                </div>
+            </div>
+        </section>
+
+        @* @/* Biography Section (Collapsible or full width) */ *@
+        <section class="biography-section mt-4">
+            <h4 class="text-secondary border-bottom pb-2">Biography</h4>
+            <div class="p-3 bg-light border rounded">
+                @((MarkupString)(ViewModel.ActiveCharacterSheet?.BaseCharacter.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
+            </div>
+        </section>
         <hr />
 
         @* 2. Calculated Summary Stats (One per line) *@
         <section class="stat-group">
             <div class="stat-line"><strong>Strength:</strong> @ViewModel.Strength</div>
+            <div class="stat-line"><strong>Dexterity:</strong> @ViewModel.Dexterity</div>
+            <div class="stat-line"><strong>Constitution:</strong> @ViewModel.Constitution</div>
+            <div class="stat-line"><strong>Intelligence:</strong> @ViewModel.Intelligence</div>
+            <div class="stat-line"><strong>Wisdom:</strong> @ViewModel.Wisdom</div>
+            <div class="stat-line"><strong>Charisma:</strong> @ViewModel.Charisma</div>
             @* We can add more stats here as the engine grows *@
         </section>
 

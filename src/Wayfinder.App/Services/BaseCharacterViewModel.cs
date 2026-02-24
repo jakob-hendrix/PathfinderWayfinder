@@ -16,6 +16,9 @@ namespace Wayfinder.App.Services
         // Pull character from state
         public CharacterEntity? Character => _stateService.ActiveCharacter;
 
+        // Expose restricted selections
+        public IEnumerable<Alignment> AlignmentOptions => Enum.GetValues<Alignment>();
+
         // Exposed Properties For the UI To Update
         #region ExposedProperties
         public string Name
@@ -104,13 +107,14 @@ namespace Wayfinder.App.Services
         // TODO
         // Add a language from seeded language service
         // Add a god from seeded god service
-        public string Diety
+        public string Deity
         {
-            get => Character?.Diety ?? string.Empty;
-            set => SetEntityProperty(() => Character!.Diety = value, nameof(Diety));
+            get => Character?.Deity ?? string.Empty;
+            set => SetEntityProperty(() => Character!.Deity = value, nameof(Deity));
         }
         #endregion
 
+        #region Helper Methods
         private void SetEntityProperty(Action updateAction, string propertyName)
         {
             if (Character == null) return;
@@ -119,5 +123,6 @@ namespace Wayfinder.App.Services
             OnPropertyChanged(propertyName);
             _stateService.NotifyStateChanged();
         }
+        #endregion
     }
 }

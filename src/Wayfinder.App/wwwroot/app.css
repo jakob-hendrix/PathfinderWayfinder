@@ -228,3 +228,20 @@ header {
 .property-tag.custom {
     color: #2c3e50;
 }
+
+.stat-line {
+    display: flex;
+    justify-content: flex-start;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-line strong {
+    min-width: 120px; /* Aligns the labels */
+    color: #495057;
+}
+
+.biography-section {
+    line-height: 1.6;
+    font-size: 0.95rem;
+}

@@ -10,32 +10,15 @@
         <input type="text" class="form-control" @bind="VM.Name" />
     </div>
 
-@*     <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">Base Strength</label>
-            <input type="number" class="form-control" @bind="VM.Strength" />
-        </div>
-        <div class="col">
-            <label class="form-label">Base Dexterity</label>
-            <input type="number" class="form-control" @bind="VM.Dexterity" />
-        </div>
-        <div class="col">
-            <label class="form-label">Base Constitution</label>
-            <input type="number" class="form-control" @bind="VM.Constitution" />
-        </div>
-        <div class="col">
-            <label class="form-label">Base Intelligence</label>
-            <input type="number" class="form-control" @bind="VM.Intelligence" />
-        </div>
-        <div class="col">
-            <label class="form-label">Base Wisdom</label>
-            <input type="number" class="form-control" @bind="VM.Wisdom" />
-        </div>
-        <div class="col">
-            <label class="form-label">Base Charisma</label>
-            <input type="number" class="form-control" @bind="VM.Charisma" />
-        </div>
-    </div> *@
+    <div class="mb-3">
+        <label class="form-label">Race</label>
+        <input type="text" class="form-control" @bind="VM.Race" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Diety</label>
+        <input type="text" class="form-control" @bind="VM.Deity" />
+    </div>
 
     <div class="card p-4 shadow-sm">
         <h4 class="mb-4">Ability Scores</h4>
@@ -48,10 +31,42 @@
         <BaseAbilityScoreForm Label="Charisma" @bind-Score="VM.Charisma" />
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Alignment</label>
+            <select class="form-select" @bind="VM.Alignment">
+                @foreach (var alignment in VM.AlignmentOptions)
+                {
+                    <option value="@alignment">@alignment.ToString().SplitCamelCase()</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Age</label>
+        <input type="number" class="form-control" @bind="VM.Age" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Weigth</label>
+        <input type="number" class="form-control" @bind="VM.Weight" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Height</label>
+        <input type="number" class="form-control" @bind="VM.Height" />
+    </div>
+
     <div class="mb-3">
         <label class="form-label">Biography</label>
         <textarea class="form-control" rows="4" @bind="VM.Biography"></textarea>
     </div>
-    
+
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" rows="4" @bind="VM.PhysicalDescription"></textarea>
+    </div>
+
     @* @/* We will add Race and Alignment dropdowns once the seed data is wired up */ *@
 </div>

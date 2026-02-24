@@ -21,12 +21,12 @@ namespace Wayfinder.Core.DomainModels.Characters
         //public Race? Race { get; set; }
 
         public Alignment Alignment { get; set; }
-        public string Diety { get; set; }
+        public string Deity { get; set; }
         public int Age { get; set; }
         public int Weight { get; set; }
         public int Height { get; set; } // in inches
-        public string PhysicalDescription { get; set; }
-        public string Biography { get; set; }
+        public string PhysicalDescription { get; set; } = string.Empty;
+        public string Biography { get; set; } = string.Empty;
 
         // Ability Scores
         public int BaseStrength { get; set; } = 10;

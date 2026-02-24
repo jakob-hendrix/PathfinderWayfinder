@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.DomainModels.Items;
+using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
 
@@ -81,9 +82,24 @@ namespace Wayfinder.App.Services
             RebuildState();
         }
 
+        #region Properties Exposed to the UI
+        public string Race => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Race ?? "No Race Selected", "Race Display");
+        public string Alignment => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase() ?? "No Alignment Selected", "Alignment Display");
+        public string Gender => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Gender ?? "Not Specified", "Gender Display");
+        public string Deity => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Deity ?? "None", "Deity Display");
+        public int Age => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Age ?? 0, "Age Display");
+        public string PhysicalDescription => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.PhysicalDescription ?? "Nothing distinguishing at all.", "Physical Description Display");
+
         public int Strength => SafeCalculate(() => ActiveCharacterSheet.Strength, "Strength Calculation");
+        public int Dexterity => SafeCalculate(() => ActiveCharacterSheet.Dexterity, "Dexterity Calculation");
+        public int Constitution => SafeCalculate(() => ActiveCharacterSheet.Constitution, "Constitution Calculation");
+        public int Intelligence => SafeCalculate(() => ActiveCharacterSheet.Intelligence, "Intelligence Calculation");
+        public int Wisdom => SafeCalculate(() => ActiveCharacterSheet.Wisdom, "Wisdom Calculation");
+        public int Charisma => SafeCalculate(() => ActiveCharacterSheet.Charisma, "Charisma Calculation");
 
         // TODO do others
+
+        #endregion
 
         public void ToggleItemEquipped(Guid itemId)
         {
@@ -115,9 +131,12 @@ namespace Wayfinder.App.Services
 
         private void RecalculateStats()
         {
-            // The character sheet knows how to convert entity facts into library rules
-            // We just need to tell the UI that these things have changed
-            ActiveCharacterSheet.Refresh();
+            if (ActiveCharacterSheet != null)
+            {
+                // The character sheet knows how to convert entity facts into library rules
+                // We just need to tell the UI that these things have changed
+                ActiveCharacterSheet.Refresh();
+            }
 
             // TODO: use OnPrepertyChanged(nameof(prop)) for each property
             // each property on the VM should be pulling from the underlying sheet
