@@ -9,24 +9,29 @@ namespace Wayfinder.App.Services
 {
     // TODO: add auto-save feature
     // "Debounced save" - save whenever a change happens and some period of idle time occurs
-    public partial class CharacterStateViewModel : ObservableObject, IDisposable
+    public partial class CharacterSheetViewModel : ObservableObject, IDisposable
     {
         // Holds the main state of the character, including all calculated values, inventory, etc
         private readonly IAppLogger _logger;
         private readonly IPathfinderRulesEngine _rulesEngine;
+        private readonly CharacterStateService _characterStateService;
         private readonly AppStateService _appStateService;
         private readonly SampleCharacterSeeder _characterSeeder;
 
-        public CharacterStateViewModel(IAppLogger logger, IPathfinderRulesEngine rulesEngine, AppStateService appStateService, SampleCharacterSeeder characterSeeder)
+        public CharacterSheetViewModel(IAppLogger logger, IPathfinderRulesEngine rulesEngine, AppStateService appStateService, SampleCharacterSeeder characterSeeder, CharacterStateService stateService)
         {
             _logger = logger;
             _rulesEngine = rulesEngine;
+            _characterStateService = stateService;
             _appStateService = appStateService;
             _characterSeeder = characterSeeder;
 
             // Watch the UI to see if the data libraries were refreshed. We need to force a recalc
             // of the sheet
             _appStateService.OnDataRefreshed += HandleDataRefreshed;
+
+            // If our base character entity changes, recalc our sheet
+            _characterStateService.OnStateChanged += TriggerFullRecalc;
 
             Initialize();
 
@@ -35,19 +40,19 @@ namespace Wayfinder.App.Services
 
         // Character collections 
         [ObservableProperty]
-        public CharacterSheet? _activeCharacter;
+        public CharacterSheet? _activeCharacterSheet;
         public ObservableCollection<ItemInstance> Inventory { get; } = new();
 
         private void HandleDataRefreshed() => RebuildState();
         private void RebuildState()
         {
-            if (ActiveCharacter == null) return;
+            if (ActiveCharacterSheet == null) return;
 
             // 1. Wipe the UI's existing projections of the character sheet
             Inventory.Clear();
 
             // 2. Ask the sheet for hydrated facts
-            var refreshedItems = ActiveCharacter.GetHydratedInventory();
+            var refreshedItems = ActiveCharacterSheet.GetHydratedInventory();
 
             // 3. Fill our collection
             foreach (var item in refreshedItems)
@@ -63,7 +68,7 @@ namespace Wayfinder.App.Services
         {
             // Check for auto save from crash
             // Prompt to save or load - this will probably be a new page
-            if (ActiveCharacter is null)
+            if (ActiveCharacterSheet is null)
             {
                 InitializeNewCharacter();
             }
@@ -71,19 +76,19 @@ namespace Wayfinder.App.Services
 
         public void InitializeNewCharacter()
         {
-            var entity = _characterSeeder.BuildSampleCharacter();
-            ActiveCharacter = new CharacterSheet(entity, _rulesEngine);
+            _characterStateService.ActiveCharacter = _characterSeeder.BuildSampleCharacter();
+            ActiveCharacterSheet = new CharacterSheet(_characterStateService.ActiveCharacter, _rulesEngine);
             RebuildState();
         }
 
-        public int Strength => SafeCalculate(() => ActiveCharacter.Strength, "Strength Calculation");
+        public int Strength => SafeCalculate(() => ActiveCharacterSheet.Strength, "Strength Calculation");
 
         // TODO do others
 
         public void ToggleItemEquipped(Guid itemId)
         {
             // Update character
-            ActiveCharacter.ToggleEquip(itemId);
+            ActiveCharacterSheet.ToggleEquip(itemId);
 
             var item = Inventory.FirstOrDefault(i => i.Id == itemId);
             if (item != null)
@@ -97,7 +102,7 @@ namespace Wayfinder.App.Services
         public void ToggleItemCarried(Guid itemId)
         {
             // Update character
-            ActiveCharacter.ToggleCarried(itemId);
+            ActiveCharacterSheet.ToggleCarried(itemId);
 
             var item = Inventory.FirstOrDefault(i => i.Id == itemId);
             if (item != null)
@@ -112,15 +117,18 @@ namespace Wayfinder.App.Services
         {
             // The character sheet knows how to convert entity facts into library rules
             // We just need to tell the UI that these things have changed
-            ActiveCharacter.Refresh();
+            ActiveCharacterSheet.Refresh();
 
             // TODO: use OnPrepertyChanged(nameof(prop)) for each property
             // each property on the VM should be pulling from the underlying sheet
 
             // Trick to trigger a change in all properties, to handle the ripple of Pathfinder changes
             // Let's see how much lag this introduces...
-            OnPropertyChanged(string.Empty);
+            TriggerFullRecalc();
         }
+
+        private void TriggerFullRecalc() => OnPropertyChanged(string.Empty);
+
 
         private T SafeCalculate<T>(Func<T> action, string context)
         {
@@ -138,6 +146,7 @@ namespace Wayfinder.App.Services
         public void Dispose()
         {
             _appStateService.OnDataRefreshed -= HandleDataRefreshed;
+            _characterStateService.OnStateChanged -= TriggerFullRecalc;
         }
     }
 }

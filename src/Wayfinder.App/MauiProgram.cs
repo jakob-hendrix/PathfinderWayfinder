@@ -30,12 +30,16 @@ namespace Wayfinder.App
 
             // Set app services
             builder.Services.AddSingleton<AppStateService>();
+            builder.Services.AddSingleton<CharacterStateService>();
             builder.Services.AddSingleton<IAppLogger, AppLoggingService>();
             builder.Services.AddSingleton<DataSeederService>();
             builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
 
+            // ViewModels
+            builder.Services.AddScoped<CharacterSheetViewModel>();
+            builder.Services.AddScoped<BaseCharacterViewModel>();
+
             // Set up Pathfinder services
-            builder.Services.AddScoped<CharacterStateViewModel>();
             builder.Services.AddSingleton<IBabCalculator, BabCalculator>();
             builder.Services.AddSingleton<IAbilityScoreCalculator, AbilityScoreCalculator>();
             builder.Services.AddSingleton<ISaveCalculator, SaveCalculator>();

@@ -1,11 +1,46 @@
 @page "/base-character"
-@inject CharacterStateViewModel CharacterViewModel
+@inject BaseCharacterViewModel VM
 
-<h3>Base Character Creator</h3>
+<div class="page-container p-4">
+    <h3>Character Identity</h3>
+    <hr />
 
-@code{
-  protected override void OnInitialized()
-  {
-    CharacterViewModel.Initialize();
-  }
-}
+    <div class="mb-3">
+        <label class="form-label">Character Name</label>
+        <input type="text" class="form-control" @bind="VM.Name" />
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label class="form-label">Base Strength</label>
+            <input type="number" class="form-control" @bind="VM.Strength" />
+        </div>
+        <div class="col">
+            <label class="form-label">Base Dexterity</label>
+            <input type="number" class="form-control" @bind="VM.Dexterity" />
+        </div>
+        <div class="col">
+            <label class="form-label">Base Constitution</label>
+            <input type="number" class="form-control" @bind="VM.Constitution" />
+        </div>
+        <div class="col">
+            <label class="form-label">Base Intelligence</label>
+            <input type="number" class="form-control" @bind="VM.Intelligence" />
+        </div>
+        <div class="col">
+            <label class="form-label">Base Wisdom</label>
+            <input type="number" class="form-control" @bind="VM.Wisdom" />
+        </div>
+        <div class="col">
+            <label class="form-label">Base Charisma</label>
+            <input type="number" class="form-control" @bind="VM.Charisma" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Biography</label>
+        <textarea class="form-control" rows="4" @bind="VM.Biography"></textarea>
+    </div>
+    
+    @* @/* We will add Race and Alignment dropdowns once the seed data is wired up */ *@
+</div>

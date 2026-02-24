@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Infrastructure\" />
+    <Folder Include="UI\ViewModels\" />
   </ItemGroup>
 
 </Project>

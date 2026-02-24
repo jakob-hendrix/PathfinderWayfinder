@@ -1,10 +1,10 @@
 @page "/"
-@inject CharacterStateViewModel ViewModel
+@inject CharacterSheetViewModel ViewModel
 
 <h3>Character Sheet</h3>
 
 <div class="character-sheet-container">
-    @if (ViewModel.ActiveCharacter == null)
+    @if (ViewModel.ActiveCharacterSheet == null)
     {
         <div class="alert alert-info">
             No character loaded.
@@ -15,8 +15,8 @@
     {
         @* 1. Header Information *@
         <header class="sheet-header">
-            <h2>@ViewModel.ActiveCharacter.BaseCharacter.Name</h2>
-            <h3>Race: @ViewModel.ActiveCharacter.BaseCharacter.Race.Name</h3>
+            <h2>@ViewModel.ActiveCharacterSheet.BaseCharacter.Name</h2>
+            <h3>Race: @ViewModel.ActiveCharacterSheet.BaseCharacter.Race</h3>
         </header>
 
         <hr />

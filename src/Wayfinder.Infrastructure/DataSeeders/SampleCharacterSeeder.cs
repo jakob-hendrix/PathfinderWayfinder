@@ -22,11 +22,12 @@ namespace Wayfinder.Infrastructure.DataSeeders
             {
                 Name = "Sosuke Bosuke",
                 Gender = "Male",
-                Race = new Race
-                {
-                    // TODO: race factory
-                    Name = "Human"
-                },
+                //Race = new Race
+                //{
+                //    // TODO: race factory
+                //    Name = "Human"
+                //},
+                Race = "Human",
                 ClassLevels = new List<ClassLevel>
                 {
                     new ClassLevel
