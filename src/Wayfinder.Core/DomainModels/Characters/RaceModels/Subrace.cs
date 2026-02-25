@@ -1,11 +1,10 @@
-﻿namespace Wayfinder.Core.DomainModels.Characters.Race
+﻿namespace Wayfinder.Core.DomainModels.Characters.RaceModels
 {
-    public class RacialTrait
+    public class Subrace
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-
-        // TODO: add effects
+        public List<AlternativeRacialTrait> Traits { get; init; } = new();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.Infrastructure.DataSeeders
@@ -22,12 +23,6 @@ namespace Wayfinder.Infrastructure.DataSeeders
             {
                 Name = "Sosuke Bosuke",
                 Gender = "Male",
-                //Race = new Race
-                //{
-                //    // TODO: race factory
-                //    Name = "Human"
-                //},
-                Race = "Human",
                 ClassLevels = new List<ClassLevel>
                 {
                     new ClassLevel
@@ -46,7 +41,11 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 BaseConstitution = 15,
                 BaseIntelligence = 5,
                 BaseWisdom = 9,
-                BaseCharisma = 19
+                BaseCharisma = 19,
+                RaceChoices = new RaceChoices
+                {
+                    RaceName = "Human"
+                }
             };
 
             // Build inventory

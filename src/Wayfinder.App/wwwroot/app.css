@@ -245,3 +245,26 @@ header {
     line-height: 1.6;
     font-size: 0.95rem;
 }
+
+.race-data-section .trait-card {
+    padding: 10px;
+    border-left: 4px solid #dee2e6;
+    background-color: #fafafa;
+    transition: border-color 0.2s;
+}
+
+    .race-data-section .trait-card:hover {
+        border-left-color: #0d6efd;
+    }
+
+.subrace-flavor {
+    font-size: 0.9rem;
+    color: #6c757d;
+    border: 1px solid #eee;
+}
+
+.x-small {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

@@ -15,9 +15,14 @@
     {
         @* @/* Demographic Section */ *@
         <section class="demographics-section mt-4">
-            <h3 class="text-secondary border-bottom pb-2">@ViewModel.ActiveCharacterSheet?.BaseCharacter.Name</h3>
+            <h3 class="text-secondary border-bottom pb-2">@ViewModel.ActiveCharacterSheet?.BaseCharacterFacts.Name</h3>
             <div class="stat-group">
-                <div class="stat-line"><strong>Race:</strong> @ViewModel.Race</div>
+                <div class="stat-group mb-4">
+                    <div class="stat-line"><strong>Race:</strong> @ViewModel.CurrentRace?.RaceDefinition.Name</div>
+                    <div class="stat-line"><strong>Subrace:</strong> @(ViewModel.CurrentRace?.Subrace?.Name ?? "None")</div>
+                    <div class="stat-line"><strong>Type:</strong> @ViewModel.CurrentRace?.RaceDefinition.CreatureType</div>
+                    <div class="stat-line"><strong>Subtypes:</strong> @string.Join(", ", ViewModel.CurrentRace?.RaceDefinition.Subtypes ?? new List<string>())</div>
+                </div>
                 <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
                 <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
                 <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
@@ -34,7 +39,7 @@
         <section class="biography-section mt-4">
             <h4 class="text-secondary border-bottom pb-2">Biography</h4>
             <div class="p-3 bg-light border rounded">
-                @((MarkupString)(ViewModel.ActiveCharacterSheet?.BaseCharacter.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
+                @((MarkupString)(ViewModel.ActiveCharacterSheet?.BaseCharacterFacts.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
             </div>
         </section>
         <hr />
@@ -50,7 +55,47 @@
             @* We can add more stats here as the engine grows *@
         </section>
 
-        <hr />
+        @* Racial Heritage Section *@
+        @if (ViewModel.HasRace)
+        {
+            <section class="race-data-section mt-4">
+                <div class="d-flex align-items-center border-bottom pb-2 mb-3">
+                    <h4 class="text-secondary mb-0">Heritage: @ViewModel.RaceFullTitle</h4>
+                    <span class="badge bg-outline-secondary ms-3">@ViewModel.CurrentRace.RaceDefinition.CreatureType</span>
+                </div>
+
+                @if (ViewModel.CurrentRace.Subrace != null)
+                {
+                    <div class="subrace-flavor mb-3 p-3 bg-light rounded italic">
+                        <i class="bi bi-info-circle me-2"></i>
+                        @ViewModel.CurrentRace.Subrace.Description
+                    </div>
+                }
+
+                <div class="traits-grid">
+                    @foreach (var trait in ViewModel.ActiveTraits)
+                    {
+                        <div class="trait-card mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong class="text-primary">@trait.Name</strong>
+                                @if (IsAlternativeTrait(trait.Id))
+                                {
+                                    <span class="badge bg-warning text-dark x-small">Alternative</span>
+                                }
+                            </div>
+                            <p class="text-muted small mb-0">@trait.Description</p>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+        else
+        {
+            <div class="alert alert-warning mt-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                No Race has been assembled. Please visit the <strong>Base Character</strong> page to define your heritage.
+            </div>
+        }
 
         @* 2. Inventory Collection *@
         <section class="inventory-section">
@@ -81,3 +126,9 @@
         </section>
     }
 </div>
+
+@code {
+    // Helper to visually distinguish swapped traits
+    private bool IsAlternativeTrait(string traitId) 
+        => ViewModel.CurrentRace?.ActiveAlternativeRacialTraits.Any(a => a.Id == traitId) ?? false;
+}

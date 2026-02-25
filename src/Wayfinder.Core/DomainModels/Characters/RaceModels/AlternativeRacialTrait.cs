@@ -1,4 +1,4 @@
-﻿namespace Wayfinder.Core.DomainModels.Characters.Race
+﻿namespace Wayfinder.Core.DomainModels.Characters.RaceModels
 {
     public class AlternativeRacialTrait : RacialTrait
     {

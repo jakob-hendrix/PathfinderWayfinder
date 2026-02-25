@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.DomainModels.Items;
+﻿using Wayfinder.Core.DomainModels.Characters.RaceModels;
+using Wayfinder.Core.DomainModels.Items;
 using Wayfinder.Core.Enums;
 
 namespace Wayfinder.Core.DomainModels.Characters
@@ -17,7 +18,9 @@ namespace Wayfinder.Core.DomainModels.Characters
         public string? Gender { get; set; }
 
         // This gives base speed, some ability bonuses, etc
-        public string Race { get; set; }
+        public Race? Race { get; set; }
+
+        public RaceChoices RaceChoices { get; set; } = new();
         //public Race? Race { get; set; }
 
         public Alignment Alignment { get; set; }

@@ -1,6 +1,6 @@
 ﻿using Wayfinder.Core.Data.Definitions;
 
-namespace Wayfinder.Core.DomainModels.Characters.Race
+namespace Wayfinder.Core.DomainModels.Characters.RaceModels
 {
     public class Race
     {

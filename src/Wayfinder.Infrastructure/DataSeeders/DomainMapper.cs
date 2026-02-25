@@ -1,5 +1,5 @@
 ﻿using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters.Race;
+using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Infrastructure.DTOs;
 

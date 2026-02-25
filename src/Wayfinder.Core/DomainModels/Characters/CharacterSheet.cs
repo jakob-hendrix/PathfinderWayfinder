@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.DomainModels.Items;
+﻿using Wayfinder.Core.DomainModels.Characters.RaceModels;
+using Wayfinder.Core.DomainModels.Items;
 using Wayfinder.Core.Rules.Services;
 using Wayfinder.Core.Services;
 
@@ -11,26 +12,43 @@ namespace Wayfinder.Core.DomainModels.Characters
     {
         private readonly IPathfinderRulesEngine _rulesEngine;
 
-        public CharacterSheet(CharacterEntity baseCharacter, IPathfinderRulesEngine rulesEngine)
+        public CharacterSheet(CharacterEntity baseCharacterFacts, IPathfinderRulesEngine rulesEngine)
         {
-            BaseCharacter = baseCharacter;
+            BaseCharacterFacts = baseCharacterFacts;
             _rulesEngine = rulesEngine;
         }
 
-        public CharacterEntity BaseCharacter { get; }
+        public CharacterEntity BaseCharacterFacts { get; }
+
+        public Race? Race { get; private set; }
 
         // Ability Scores
-        public int Strength => CalculateAbilityScore(BaseCharacter.BaseStrength);
-        public int Dexterity => CalculateAbilityScore(BaseCharacter.BaseDexterity);
-        public int Constitution => CalculateAbilityScore(BaseCharacter.BaseConstitution);
-        public int Intelligence => CalculateAbilityScore(BaseCharacter.BaseIntelligence);
-        public int Wisdom => CalculateAbilityScore(BaseCharacter.BaseWisdom);
-        public int Charisma => CalculateAbilityScore(BaseCharacter.BaseCharisma);
+        public int Strength => CalculateAbilityScore(BaseCharacterFacts.BaseStrength);
+        public int Dexterity => CalculateAbilityScore(BaseCharacterFacts.BaseDexterity);
+        public int Constitution => CalculateAbilityScore(BaseCharacterFacts.BaseConstitution);
+        public int Intelligence => CalculateAbilityScore(BaseCharacterFacts.BaseIntelligence);
+        public int Wisdom => CalculateAbilityScore(BaseCharacterFacts.BaseWisdom);
+        public int Charisma => CalculateAbilityScore(BaseCharacterFacts.BaseCharisma);
+
+        // Get a hydrated Race instance
+        public void RecalcRace()
+        {
+            // The Factory builds it, and the Domain stores it
+            var result = _rulesEngine.RaceFactory.BuildRace(BaseCharacterFacts.RaceChoices);
+            if (result.IsValid)
+            {
+                Race = result.HydratedRace;
+            }
+            else
+            {
+                // TODO: throw error?
+            }
+        }
 
         // Return a list of hydrated items from the current state of the base character's inventory
         public List<ItemInstance> GetHydratedInventory()
         {
-            return BaseCharacter.Inventory.Select(item =>
+            return BaseCharacterFacts.Inventory.Select(item =>
             {
                 var instance = _rulesEngine.ItemFactory.CreateItem(item.TemplateId);
 
@@ -44,7 +62,7 @@ namespace Wayfinder.Core.DomainModels.Characters
 
         public void ToggleEquip(Guid instanceId)
         {
-            var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
+            var item = BaseCharacterFacts.Inventory.FirstOrDefault(i => i.Id == instanceId);
             if (item != null)
             {
                 // TODO: implement equippgin items
@@ -54,7 +72,7 @@ namespace Wayfinder.Core.DomainModels.Characters
 
         public void ToggleCarried(Guid instanceId)
         {
-            var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
+            var item = BaseCharacterFacts.Inventory.FirstOrDefault(i => i.Id == instanceId);
             if (item != null)
             {
                 item.IsCarried = !item.IsCarried;
@@ -72,11 +90,10 @@ namespace Wayfinder.Core.DomainModels.Characters
 
         public void Refresh()
         {
-            // TODO: allows the UI to trigger a full rebuild - is this even necessary?
-            // For now, do nothing
+            RecalcRace();
         }
 
         // Helper functions
-        private int CalculateAbilityScore(int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, BaseCharacter.ClassLevels);
+        private int CalculateAbilityScore(int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, BaseCharacterFacts.ClassLevels);
     }
 }

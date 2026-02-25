@@ -1,5 +1,5 @@
 ﻿using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters.Race;
+using Wayfinder.Core.DomainModels.Characters.RaceModels;
 
 namespace Wayfinder.Core.Rules.Services
 {
@@ -18,24 +18,13 @@ namespace Wayfinder.Core.Rules.Services
             var activeDefaults = baseRace.DefaultRacialTraits.ToDictionary(t => t.Name, StringComparer.OrdinalIgnoreCase);
             var replacedTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var finalTraits = new List<RacialTrait>();
-            var validAlternatives = new List<AlternativeRacialTrait>();
 
             if (chosenSubrace != null)
-                ApplyReplacements(chosenSubrace.Traits, activeDefaults, replacedTraitNames, finalTraits, validAlternatives, result);
+                ApplyReplacements(chosenSubrace.Traits, activeDefaults, replacedTraitNames, finalTraits, result);
 
-            ApplyReplacements(chosenAlternatives, activeDefaults, replacedTraitNames, finalTraits, validAlternatives, result);
+            ApplyReplacements(chosenAlternatives, activeDefaults, replacedTraitNames, finalTraits, result);
 
-            if (result.IsValid)
-            {
-                finalTraits.AddRange(activeDefaults.Values);
-                result.HydratedRace = new Race
-                {
-                    RaceDefinition = baseRace,
-                    Subrace = chosenSubrace,
-                    ActiveAlternativeRacialTraits = validAlternatives,
-                    SelectedRacialTraits = finalTraits
-                };
-            }
+            result.ActiveTraits.AddRange(finalTraits);
 
             return result;
         }
@@ -82,7 +71,6 @@ namespace Wayfinder.Core.Rules.Services
             Dictionary<string, RacialTrait> activeDefaults,
             HashSet<string> replacedTraitNames,
             List<RacialTrait> finalTraits,
-            List<AlternativeRacialTrait> validAlternatives,
             RaceResolutionResult result)
         {
             foreach (var alt in traitsToAdd)
@@ -103,6 +91,7 @@ namespace Wayfinder.Core.Rules.Services
                     }
                 }
 
+                // Do replacement and add to our final list
                 if (canApply)
                 {
                     foreach (var replaceName in alt.ReplacesTraitNames)
@@ -112,9 +101,11 @@ namespace Wayfinder.Core.Rules.Services
                     }
 
                     finalTraits.Add(alt); // Direct addition since it inherits RacialTrait
-                    validAlternatives.Add(alt);
                 }
             }
+
+            // Add any remaining default traits to our final list of traits
+            finalTraits.AddRange(activeDefaults.Values);
         }
     }
 }

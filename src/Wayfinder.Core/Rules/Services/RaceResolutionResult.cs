@@ -1,10 +1,12 @@
-﻿using Wayfinder.Core.DomainModels.Characters.Race;
+﻿using Wayfinder.Core.DomainModels.Characters.RaceModels;
 
 namespace Wayfinder.Core.Rules.Services
 {
     public class RaceResolutionResult
     {
         public Race? HydratedRace { get; set; }
+
+        public List<RacialTrait> ActiveTraits { get; set; } = new();
         public List<string> Errors { get; set; } = new();
         public bool IsValid => !Errors.Any();
     }

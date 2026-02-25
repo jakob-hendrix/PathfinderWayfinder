@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.DomainModels.Items;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Services;
-using Wayfinder.Infrastructure.DataSeeders;
 
 namespace Wayfinder.App.Services
 {
@@ -17,15 +17,13 @@ namespace Wayfinder.App.Services
         private readonly IPathfinderRulesEngine _rulesEngine;
         private readonly CharacterStateService _characterStateService;
         private readonly AppStateService _appStateService;
-        private readonly SampleCharacterSeeder _characterSeeder;
 
-        public CharacterSheetViewModel(IAppLogger logger, IPathfinderRulesEngine rulesEngine, AppStateService appStateService, SampleCharacterSeeder characterSeeder, CharacterStateService stateService)
+        public CharacterSheetViewModel(IAppLogger logger, IPathfinderRulesEngine rulesEngine, AppStateService appStateService, CharacterStateService stateService)
         {
             _logger = logger;
             _rulesEngine = rulesEngine;
             _characterStateService = stateService;
             _appStateService = appStateService;
-            _characterSeeder = characterSeeder;
 
             // Watch the UI to see if the data libraries were refreshed. We need to force a recalc
             // of the sheet
@@ -62,7 +60,7 @@ namespace Wayfinder.App.Services
             }
 
             // 4. Recalculate Stats
-            RecalculateStats();
+            TriggerFullRecalc();
         }
 
         public void Initialize()
@@ -77,18 +75,25 @@ namespace Wayfinder.App.Services
 
         public void InitializeNewCharacter()
         {
-            _characterStateService.ActiveCharacter = _characterSeeder.BuildSampleCharacter();
             ActiveCharacterSheet = new CharacterSheet(_characterStateService.ActiveCharacter, _rulesEngine);
             RebuildState();
         }
 
         #region Properties Exposed to the UI
-        public string Race => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Race ?? "No Race Selected", "Race Display");
-        public string Alignment => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase() ?? "No Alignment Selected", "Alignment Display");
-        public string Gender => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Gender ?? "Not Specified", "Gender Display");
-        public string Deity => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Deity ?? "None", "Deity Display");
-        public int Age => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Age ?? 0, "Age Display");
-        public string PhysicalDescription => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.PhysicalDescription ?? "Nothing distinguishing at all.", "Physical Description Display");
+        public Race? CurrentRace => ActiveCharacterSheet?.Race;
+        public bool HasRace => CurrentRace != null;
+        public string RaceFullTitle => CurrentRace != null
+                ? $"{CurrentRace.RaceDefinition.Name}{(CurrentRace.Subrace != null ? $" ({CurrentRace.Subrace.Name})" : "")}"
+                : "No Race Selected";
+
+        public IEnumerable<RacialTrait> ActiveTraits =>
+            CurrentRace?.SelectedRacialTraits ?? Enumerable.Empty<RacialTrait>();
+
+        public string Alignment => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Alignment.ToString().SplitCamelCase() ?? "No Alignment Selected", "Alignment Display");
+        public string Gender => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Gender ?? "Not Specified", "Gender Display");
+        public string Deity => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Deity ?? "None", "Deity Display");
+        public int Age => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Age ?? 0, "Age Display");
+        public string PhysicalDescription => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.PhysicalDescription ?? "Nothing distinguishing at all.", "Physical Description Display");
 
         public int Strength => SafeCalculate(() => ActiveCharacterSheet.Strength, "Strength Calculation");
         public int Dexterity => SafeCalculate(() => ActiveCharacterSheet.Dexterity, "Dexterity Calculation");
@@ -112,7 +117,7 @@ namespace Wayfinder.App.Services
                 //item.IsEquipped = !item.IsEquipped;
             }
 
-            RecalculateStats();
+            TriggerFullRecalc();
         }
 
         public void ToggleItemCarried(Guid itemId)
@@ -126,10 +131,10 @@ namespace Wayfinder.App.Services
                 item.IsCarried = !item.IsCarried;
             }
 
-            RecalculateStats();
+            TriggerFullRecalc();
         }
 
-        private void RecalculateStats()
+        private void TriggerFullRecalc()
         {
             if (ActiveCharacterSheet != null)
             {
@@ -143,11 +148,9 @@ namespace Wayfinder.App.Services
 
             // Trick to trigger a change in all properties, to handle the ripple of Pathfinder changes
             // Let's see how much lag this introduces...
-            TriggerFullRecalc();
+
+            OnPropertyChanged(string.Empty);
         }
-
-        private void TriggerFullRecalc() => OnPropertyChanged(string.Empty);
-
 
         private T SafeCalculate<T>(Func<T> action, string context)
         {

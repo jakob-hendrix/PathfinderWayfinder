@@ -14,7 +14,7 @@ namespace Wayfinder.Core.Services
             {
                 return raceDefinition;
             }
-            throw new KeyNotFoundException($"Class '{raceName}' not found in class library.");
+            throw new KeyNotFoundException($"Race '{raceName}' not found in race library.");
         }
 
         public IEnumerable<RaceDefinition> GetRaceDefinitions() => _races.Values;

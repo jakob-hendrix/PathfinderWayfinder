@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Wayfinder.App.Services;
 using Wayfinder.Core.DataServices;
+using Wayfinder.Core.Factories;
+using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Rules.Services;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
@@ -53,6 +55,7 @@ namespace Wayfinder.App
             // The factories
             builder.Services.AddSingleton<IClassFactory, ClassFactory>();
             builder.Services.AddSingleton<IItemFactory, ItemFactory>();
+            builder.Services.AddSingleton<IRaceFactory, RaceFactory>();
 
             // Set up bundled subsystems
             builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();

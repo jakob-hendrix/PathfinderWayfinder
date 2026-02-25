@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.DomainModels.Characters.Race;
+﻿using Wayfinder.Core.DomainModels.Characters.RaceModels;
 
 namespace Wayfinder.Core.Data.Definitions
 {

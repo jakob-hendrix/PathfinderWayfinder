@@ -3,7 +3,7 @@
   Subtypes: 
     - Human
   DefaultRacialTraits:
-    - Name: Flexible Bonus
+    - Name: Ability Score Adjustment
       Description: Human characters get a +2 bonus to one ability score of their choice at creation to represent their varied nature.
     - Name: Bonus Feat
       Description: Humans select one extra feat at 1st level.
@@ -46,3 +46,59 @@
       Traits:
         - Heart of the Fields
         - Focused Study
+- Name: Elf
+  CreatureType: Humanoid
+  Subtypes: 
+    - Elf
+  DefaultRacialTraits:
+    - Name: Ability Score Adjustment
+      Description: "+2 Dexterity, +2 Intelligence, –2 Constitution: Elves are nimble, both in body and mind, but their forms are frail."
+    - Name: Low-Light Vision
+      Description: Elves can see twice as far as humans in conditions of dim light.
+    - Name: Elven Immunities
+      Description: Elves are immune to magic sleep effects and get a +2 racial bonus on saving throws against enchantment spells and effects.
+    - Name: Elven Magic
+      Description: Elves receive a +2 racial bonus on caster level checks made to overcome spell resistance. In addition, elves receive a +2 racial bonus on Spellcraft checks made to identify the properties of magic items.
+    - Name: Keen Sense
+      Description: Elves receive a +2 racial bonus on Perception checks.
+    - Name: Weapon Familiarity
+      Description: Elves are proficient with longbows (including composite longbows), longswords, rapiers, and shortbows (including composite shortbows), and treat any weapon with the word “elven” in its name as a martial weapon.
+    - Name: Languages
+      Description: Humans begin play speaking Common and their ethnic language. Humans whose ethnic language is Common (or Taldane, in the case of Chelaxians or Taldans) do not receive an additional ethnic language. Humans with high Intelligence scores can choose any languages they want (except secret languages, such as Druidic).
+    - Name: Normal Speed
+      Description: Humans have a base speed of 30 feet.
+    - Name: Medium Size
+      Description: Humans are Medium creatures and have no bonuses or penalties due to their size.
+  AlternativeRacialTraits:
+    - Name: Darkvision
+      Description: >
+        Though uncommon, some groups of elves are born with darkvision, rather than low-light vision. In many cases this is taken as a sign
+        of a drow in the elf’s ancestry, and can lead to persecution within the elf’s home community. Elves with this racial trait gain
+        darkvision with a range of 60 feet, but also gain sensitivity to light and are dazzled in areas of bright light or within the radius of a
+        daylight spell.
+      Replaces:
+        - Low-Light Vision
+    - Name: Desert Runner
+      Description: >
+        Some elves thrive in the deepest deserts, forever roaming across burned and parched lands. Elves with this racial trait receive a +4
+        racial bonus on Constitution checks and Fortitude saves to avoid fatigue, exhaustion, or ill effects from running, forced marches,
+        starvation, thirst, or hot or cold environments.
+      Replaces:
+        - Elven Magic
+    - Name: Elemental Resistance
+      Description: >
+        Elves who dwell in the most extreme environments, from arctic wastelands to volcanic plains, develop natural resistance to the
+        dangers of their homelands over the course of a few generations. Elves with this racial trait gain elemental resistance 5 to acid,
+        cold, electricity, or fire. This choice is made at character creation, and once made it cannot be changed. 
+      Replaces:
+        - Elven Immunities
+  Subraces:
+    - Name: Arctic Elf
+      Description: >
+        These elves were born and raised in the frozen lands of the far north or south, and have dealt with freezing deserts,
+        nights that last for weeks, and the horrors that roam the cold terrain. These elves have the darkvision, desert runner,
+        and elemental resistance alternate racial traits.
+      Traits:
+        - Darkvision
+        - Desert Runner
+        - Elemental Resistance
