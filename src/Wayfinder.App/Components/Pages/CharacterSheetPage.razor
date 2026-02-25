@@ -1,83 +1,109 @@
 @page "/"
+@using Wayfinder.Core.Rules.Services
 @inject CharacterSheetViewModel ViewModel
 
 <h3>Character Sheet</h3>
 
 <div class="character-sheet-container">
-    @if (ViewModel.ActiveCharacterSheet == null)
-    {
-        <div class="alert alert-info">
-            No character loaded.
-            <button class="btn btn-primary" @onclick="ViewModel.InitializeNewCharacter">Load Seed Character</button>
+  @if (ViewModel.ActiveCharacterSheet == null)
+  {
+    <div class="alert alert-info">
+      No character loaded.
+      <button class="btn btn-primary" @onclick="ViewModel.InitializeNewCharacter">Load Seed Character</button>
+    </div>
+  }
+  else
+  {
+    @* @/* Demographic Section */ *@
+    <section class="demographics-section mt-4">
+      <h3 class="text-secondary border-bottom pb-2">@ViewModel.ActiveCharacterSheet?.BaseCharacter.Name</h3>
+      <div class="stat-group">
+        <div class="stat-line"><strong>Race:</strong> @ViewModel.Race</div>
+        <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
+        <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
+        <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
+        <div class="stat-line"><strong>Deity:</strong> @ViewModel.Deity</div>
+
+        <div class="stat-line mt-2">
+          <strong>Description:</strong>
+          <span class="text-muted">@ViewModel.PhysicalDescription</span>
         </div>
-    }
-    else
-    {
-        @* @/* Demographic Section */ *@
-        <section class="demographics-section mt-4">
-            <h3 class="text-secondary border-bottom pb-2">@ViewModel.ActiveCharacterSheet?.BaseCharacter.Name</h3>
-            <div class="stat-group">
-                <div class="stat-line"><strong>Race:</strong> @ViewModel.Race</div>
-                <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
-                <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
-                <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
-                <div class="stat-line"><strong>Deity:</strong> @ViewModel.Deity</div>
+      </div>
+    </section>
 
-                <div class="stat-line mt-2">
-                    <strong>Description:</strong>
-                    <span class="text-muted">@ViewModel.PhysicalDescription</span>
-                </div>
-            </div>
-        </section>
+    @* @/* Biography Section (Collapsible or full width) */ *@
+    <section class="biography-section mt-4">
+      <h4 class="text-secondary border-bottom pb-2">Biography</h4>
+      <div class="p-3 bg-light border rounded">
+        @((MarkupString)(ViewModel.ActiveCharacterSheet?.BaseCharacter.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
+      </div>
+    </section>
+    <hr />
 
-        @* @/* Biography Section (Collapsible or full width) */ *@
-        <section class="biography-section mt-4">
-            <h4 class="text-secondary border-bottom pb-2">Biography</h4>
-            <div class="p-3 bg-light border rounded">
-                @((MarkupString)(ViewModel.ActiveCharacterSheet?.BaseCharacter.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
-            </div>
-        </section>
-        <hr />
+    @* 2. Calculated Summary Stats (One per line) *@
+    <section class="stat-group">
+      <div class="stat-line">
+        <strong>Strength:</strong>
+        <span>@ViewModel.Strength (@ShowModifier(ViewModel.Strength))</span>
+      </div>
+      <div class="stat-line">
+        <strong>Dexterity:</strong>
+        <span>@ViewModel.Dexterity (@ShowModifier(ViewModel.Dexterity))</span>
+      </div>
+      <div class="stat-line">
+        <strong>Constitution:</strong>
+        <span>@ViewModel.Constitution (@ShowModifier(ViewModel.Constitution))</span>
+      </div>
+      <div class="stat-line">
+        <strong>Intelligence:</strong>
+        <span>@ViewModel.Intelligence (@ShowModifier(ViewModel.Intelligence))</span>
+      </div>
+      <div class="stat-line">
+        <strong>Wisdom:</strong>
+        <span>@ViewModel.Wisdom (@ShowModifier(ViewModel.Wisdom))</span>
+      </div>
+      <div class="stat-line">
+        <strong>Charisma:</strong>
+        <span>@ViewModel.Charisma (@ShowModifier(ViewModel.Charisma))</span>
+      </div>
+    </section>
 
-        @* 2. Calculated Summary Stats (One per line) *@
-        <section class="stat-group">
-            <div class="stat-line"><strong>Strength:</strong> @ViewModel.Strength</div>
-            <div class="stat-line"><strong>Dexterity:</strong> @ViewModel.Dexterity</div>
-            <div class="stat-line"><strong>Constitution:</strong> @ViewModel.Constitution</div>
-            <div class="stat-line"><strong>Intelligence:</strong> @ViewModel.Intelligence</div>
-            <div class="stat-line"><strong>Wisdom:</strong> @ViewModel.Wisdom</div>
-            <div class="stat-line"><strong>Charisma:</strong> @ViewModel.Charisma</div>
-            @* We can add more stats here as the engine grows *@
-        </section>
+    <hr />
 
-        <hr />
+    @* 2. Inventory Collection *@
+    <section class="inventory-section">
+      <div class="inventory-scroll-container">
+        @foreach (var item in ViewModel.Inventory)
+        {
+          <div class="item-row-strip @(item.IsCarried ? "active" : "inactive")">
 
-        @* 2. Inventory Collection *@
-        <section class="inventory-section">
-            <div class="inventory-scroll-container">
-                @foreach (var item in ViewModel.Inventory)
-                {
-                    <div class="item-row-strip @(item.IsCarried ? "active" : "inactive")">
+            @* @/* 1. The Drop/Pick Up Button at the front */ *@
+            <button class="btn btn-sm @(item.IsCarried ? "btn-danger" : "btn-success") btn-fixed-width"
+                    @onclick="() => ViewModel.ToggleItemCarried(item.Id)">
+              @(item.IsCarried ? "Drop" : "Pick Up")
+            </button>
 
-                        @* @/* 1. The Drop/Pick Up Button at the front */ *@
-                        <button class="btn btn-sm @(item.IsCarried ? "btn-danger" : "btn-success") btn-fixed-width"
-                                @onclick="() => ViewModel.ToggleItemCarried(item.Id)">
-                            @(item.IsCarried ? "Drop" : "Pick Up")
-                        </button>
+            @* @/* 2. Core Identity */ *@
+            <span class="item-core-info">
+              <strong>@item.BaseStats.Name</strong>
+              <span class="text-muted ms-2">[@item.GetType().Name]</span>
+            </span>
 
-                        @* @/* 2. Core Identity */ *@
-                        <span class="item-core-info">
-                            <strong>@item.BaseStats.Name</strong>
-                            <span class="text-muted ms-2">[@item.GetType().Name]</span>
-                        </span>
-
-                        @* @/* 3. Base Stats */ *@
-                        <span class="property-tag">Weight: @item.BaseStats.Weight</span>
-                        <span class="property-tag">Cost: @item.BaseStats.Cost gp</span>
-                        <span class="property-tag">Type: @item.BaseStats.Type</span>
-                    </div>
-                }
-            </div>
-        </section>
-    }
+            @* @/* 3. Base Stats */ *@
+            <span class="property-tag">Weight: @item.BaseStats.Weight</span>
+            <span class="property-tag">Cost: @item.BaseStats.Cost gp</span>
+            <span class="property-tag">Type: @item.BaseStats.Type</span>
+          </div>
+        }
+      </div>
+    </section>
+  }
 </div>
+
+@code {
+  private string ShowModifier(int abilityScore)
+  {
+    var mod = AbilityScoreCalculator.CalculateModifier(abilityScore);
+    return mod >= 0 ? $"+{mod}" : mod.ToString();
+  }
+}
