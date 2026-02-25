@@ -12,14 +12,18 @@ namespace Wayfinder.Infrastructure.DataSeeders
         private readonly IAppLogger _logger;
         private readonly IClassLibrary _classLibrary;
         private readonly IItemLibrary _itemLibrary;
+        private readonly IRaceLibrary _raceLibrary;
         private readonly IDeserializer _deserializer;
         private readonly DomainMapper _mapper;
+
+        private string _dataPath = string.Empty;
 
         public DataSeeder(
             IAppLogger logger,
             IClassLibrary classLibrary,
             IItemLibrary itemLibrary,
-            DomainMapper mapper)
+            DomainMapper mapper,
+            IRaceLibrary raceLibrary)
         {
             _logger = logger;
             _classLibrary = classLibrary;
@@ -28,32 +32,86 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     .Build();
             _itemLibrary = itemLibrary;
             _mapper = mapper;
+            _raceLibrary = raceLibrary;
         }
 
         public void SeedAll()
         {
             // TODO: pull the path from config or user input
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameData");
 
-            if (!Directory.Exists(dataPath))
+            _dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameData");
+
+            if (!Directory.Exists(_dataPath))
             {
-                _logger.LogError($"Critical Failure: Game data folder not found at {dataPath}");
+                _logger.LogError($"Critical Failure: Game data folder not found at {_dataPath}");
                 return;
             }
 
             _classLibrary.Clear();
             _itemLibrary.Clear();
 
-            SeedClasses(dataPath);
-            SeedItems(dataPath);
+            SeedClasses();
+            SeedItems();
+            SeedRaces();
         }
 
-        public void SeedClasses(string filePath)
+        private void SeedRaces()
+        {
+            _raceLibrary.Clear();
+
+            var files = Directory.GetFiles(_dataPath, "Races.yaml");
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    // 1. Deserialize 
+                    var yaml = File.ReadAllText(file);
+                    var result = _deserializer.Deserialize<List<RaceYamlDto>>(yaml);
+
+                    foreach (var dto in result)
+                    {
+                        // 2. Map DTO to domain
+                        var definition = _mapper.MapRaceToDomain(dto);
+
+                        // 3. Validate
+                        var (isValid, errors) = RaceSeedValidator.Validate(definition);
+                        if (isValid)
+                        {
+                            _raceLibrary.Register(definition);
+                            continue;
+                        }
+                        else
+                        {
+                            foreach (var error in errors)
+                            {
+                                _logger.LogError($"[YAML SEED ERROR] '{definition.Name}': {error}");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to seed races from file {file}", ex);
+                }
+            }
+            //{
+            //    var yaml = File.ReadAllText(file);
+            //    var dto = _deserializer.Deserialize<RaceYamlDto>(yaml);
+
+            //    var definition = MapRaceToDomain(dto);
+            //    _raceLibrary.Register(definition);
+            //}
+        }
+
+        public void SeedClasses()
         {
             _classLibrary.Clear();
 
-            foreach (var file in Directory.GetFiles(filePath, "Classes.yaml"))
+            var files = Directory.GetFiles(_dataPath, "Classes.yaml");
+
+            foreach (var file in files)
             {
                 try
                 {
@@ -89,9 +147,11 @@ namespace Wayfinder.Infrastructure.DataSeeders
             }
         }
 
-        public void SeedItems(string filePath)
+        public void SeedItems()
         {
-            foreach (var file in Directory.GetFiles(filePath, "Items*.yaml"))
+            var files = Directory.GetFiles(_dataPath, "Items*.yaml");
+
+            foreach (var file in files)
             {
                 try
                 {

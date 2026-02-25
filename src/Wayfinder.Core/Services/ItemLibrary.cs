@@ -1,4 +1,5 @@
 ﻿using Wayfinder.Core.Data.Definitions;
+using Wayfinder.Core.Extensions;
 
 namespace Wayfinder.Core.Services
 {
@@ -30,9 +31,8 @@ namespace Wayfinder.Core.Services
                 throw new ArgumentException("Item definition must have either an ID or a Name.");
             }
 
-            // If an id is not provided, derive one from the name
             var finalId = string.IsNullOrEmpty(itemDefinition.Id)
-                ? itemDefinition.Name.ToLower().Replace(" ", "_")
+                ? itemDefinition.Name.GenerateIdFromName()
                 : itemDefinition.Id;
 
             _itemDefinitions[finalId] = itemDefinition;

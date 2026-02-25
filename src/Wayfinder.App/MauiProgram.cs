@@ -47,6 +47,7 @@ namespace Wayfinder.App
             // The compendiums seeded from user files
             builder.Services.AddSingleton<IItemLibrary, ItemLibrary>();
             builder.Services.AddSingleton<IClassLibrary, ClassLibrary>();
+            builder.Services.AddSingleton<IRaceLibrary, RaceLibrary>();
             builder.Services.AddSingleton<IPathfinderDataLibrary, PathfinderDataLibrary>();
 
             // The factories

@@ -6,6 +6,7 @@ namespace Wayfinder.Core.Services
     {
         IClassLibrary ClassLibrary { get; }
         IItemLibrary ItemLibrary { get; }
+        IRaceLibrary RaceLibrary { get; }
     }
 
     public class PathfinderDataLibrary : IPathfinderDataLibrary
@@ -14,10 +15,13 @@ namespace Wayfinder.Core.Services
 
         public IItemLibrary ItemLibrary { get; }
 
-        public PathfinderDataLibrary(IClassLibrary classLibrary, IItemLibrary itemLibrary)
+        public IRaceLibrary RaceLibrary { get; }
+
+        public PathfinderDataLibrary(IClassLibrary classLibrary, IItemLibrary itemLibrary, IRaceLibrary raceLibrary)
         {
             ClassLibrary = classLibrary;
             ItemLibrary = itemLibrary;
+            RaceLibrary = raceLibrary;
         }
     }
 }

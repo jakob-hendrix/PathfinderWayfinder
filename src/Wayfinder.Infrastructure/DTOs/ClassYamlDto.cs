@@ -20,6 +20,7 @@ namespace Wayfinder.Infrastructure.DTOs
         public string WillRate { get; set; } = "Slow";
 
         // the key is the level number
+        // TODO: map to level DTO?
         public Dictionary<int, LevelDefinition> Levels { get; set; } = new();
     }
 }
