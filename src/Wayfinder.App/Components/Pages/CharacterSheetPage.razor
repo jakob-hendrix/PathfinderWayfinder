@@ -1,138 +1,152 @@
 @page "/"
+@using Wayfinder.Core.Extensions
 @using Wayfinder.Core.Rules.Services
 @inject CharacterSheetViewModel ViewModel
 
-<h3>Character Sheet</h3>
-
-<div class="character-sheet-container">
-  @if (ViewModel.ActiveCharacterSheet == null)
-  {
-    <div class="alert alert-info">
-      No character loaded.
-      <button class="btn btn-primary" @onclick="ViewModel.InitializeNewCharacter">Load Seed Character</button>
-    </div>
-  }
-  else
-  {
-    @* @/* Demographic Section */ *@
-    <section class="demographics-section mt-4">
-      <h3 class="text-secondary border-bottom pb-2">@ViewModel.ActiveCharacterSheet?.BaseCharacter.Name</h3>
-      <div class="stat-group">
-        <div class="stat-line"><strong>Race:</strong> @ViewModel.Race</div>
-        <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
-        <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
-        <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
-        <div class="stat-line"><strong>Deity:</strong> @ViewModel.Deity</div>
-
-        <div class="stat-line mt-2">
-          <strong>Description:</strong>
-          <span class="text-muted">@ViewModel.PhysicalDescription</span>
-        </div>
+<div class="container py-4">
+    @if (ViewModel.ActiveCharacterSheet == null)
+    {
+        <div class="alert alert-warning">No character active. Please load or create a character first.</div>
     }
     else
     {
-        @* @/* Demographic Section */ *@
-        <section class="demographics-section mt-4">
-            <h3 class="text-secondary border-bottom pb-2">@ViewModel.ActiveCharacterSheet?.BaseCharacterFacts.Name</h3>
-            <div class="stat-group">
-                <div class="stat-group mb-4">
-                    <div class="stat-line"><strong>Race:</strong> @ViewModel.CurrentRace?.RaceDefinition.Name</div>
-                    <div class="stat-line"><strong>Subrace:</strong> @(ViewModel.CurrentRace?.Subrace?.Name ?? "None")</div>
-                    <div class="stat-line"><strong>Type:</strong> @ViewModel.CurrentRace?.RaceDefinition.CreatureType</div>
-                    <div class="stat-line"><strong>Subtypes:</strong> @string.Join(", ", ViewModel.CurrentRace?.RaceDefinition.Subtypes ?? new List<string>())</div>
-                </div>
-                <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
-                <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
-                <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
-                <div class="stat-line"><strong>Deity:</strong> @ViewModel.Deity</div>
-
-    @* @/* Biography Section (Collapsible or full width) */ *@
-    <section class="biography-section mt-4">
-      <h4 class="text-secondary border-bottom pb-2">Biography</h4>
-      <div class="p-3 bg-light border rounded">
-        @((MarkupString)(ViewModel.ActiveCharacterSheet?.BaseCharacter.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
-      </div>
-    </section>
-    <hr />
-
-        @* @/* Biography Section (Collapsible or full width) */ *@
-        <section class="biography-section mt-4">
-            <h4 class="text-secondary border-bottom pb-2">Biography</h4>
-            <div class="p-3 bg-light border rounded">
-                @((MarkupString)(ViewModel.ActiveCharacterSheet?.BaseCharacterFacts.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
-            </div>
-        </section>
-        <hr />
-
-    <hr />
-
-        @* Racial Heritage Section *@
-        @if (ViewModel.HasRace)
-        {
-            <section class="race-data-section mt-4">
-                <div class="d-flex align-items-center border-bottom pb-2 mb-3">
-                    <h4 class="text-secondary mb-0">Heritage: @ViewModel.RaceFullTitle</h4>
-                    <span class="badge bg-outline-secondary ms-3">@ViewModel.CurrentRace.RaceDefinition.CreatureType</span>
-                </div>
-
-                @if (ViewModel.CurrentRace.Subrace != null)
-                {
-                    <div class="subrace-flavor mb-3 p-3 bg-light rounded italic">
-                        <i class="bi bi-info-circle me-2"></i>
-                        @ViewModel.CurrentRace.Subrace.Description
+        <div class="row">
+            @* @/* --- LEFT COLUMN: Identity & Demographics --- */ *@
+            <div class="col-md-4">
+                <section class="mb-4">
+                    <h2 class="display-6 border-bottom">@ViewModel.ActiveCharacterSheet.BaseCharacterFacts.Name</h2>
+                    
+                    <div class="stat-group mt-3">
+                        <div class="stat-line"><strong>Race:</strong> @ViewModel.RaceFullTitle</div>
+                        <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
+                        <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
+                        <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
+                        <div class="stat-line"><strong>Deity:</strong> @ViewModel.Deity</div>
                     </div>
-                }
+                </section>
 
-                <div class="traits-grid">
-                    @foreach (var trait in ViewModel.ActiveTraits)
+                @* @/* --- ABILITY SCORES --- */ *@
+                <section class="mb-4 p-3 bg-light rounded shadow-sm">
+                    <h4 class="text-secondary border-bottom pb-2">Ability Scores</h4>
+                    <div class="ability-grid">
+                        <div class="stat-line">
+                            <strong>Strength:</strong> 
+                            <span class="fw-bold">@ViewModel.Strength (@FormatMod(ViewModel.Strength))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Dexterity:</strong> 
+                            <span class="fw-bold">@ViewModel.Dexterity (@FormatMod(ViewModel.Dexterity))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Constitution:</strong> 
+                            <span class="fw-bold">@ViewModel.Constitution (@FormatMod(ViewModel.Constitution))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Intelligence:</strong> 
+                            <span class="fw-bold">@ViewModel.Intelligence (@FormatMod(ViewModel.Intelligence))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Wisdom:</strong> 
+                            <span class="fw-bold">@ViewModel.Wisdom (@FormatMod(ViewModel.Wisdom))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Charisma:</strong> 
+                            <span class="fw-bold">@ViewModel.Charisma (@FormatMod(ViewModel.Charisma))</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            @* @/* --- RIGHT COLUMN: Heritage & Detailed Features --- */ *@
+            <div class="col-md-8">
+                
+                @* @/* Racial Traits Section */ *@
+                <section class="mb-4">
+                    <h4 class="text-secondary border-bottom pb-2">Racial Heritage</h4>
+                    @if (ViewModel.ActiveTraits.Any())
                     {
-                        <div class="trait-card mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong class="text-primary">@trait.Name</strong>
-                                @if (IsAlternativeTrait(trait.Id))
-                                {
-                                    <span class="badge bg-warning text-dark x-small">Alternative</span>
-                                }
+                        @if (ViewModel.CurrentRace?.Subrace != null)
+                        {
+                            <div class="alert alert-secondary py-2 small mb-3">
+                                <strong>Subrace: @ViewModel.CurrentRace.Subrace.Name</strong> — 
+                                @ViewModel.CurrentRace.Subrace.Description
                             </div>
-                            <p class="text-muted small mb-0">@trait.Description</p>
+                        }
+
+                        <div class="row">
+                            @foreach (var trait in ViewModel.ActiveTraits)
+                            {
+                                <div class="col-12 mb-3 border-start border-3 border-primary ps-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold text-dark"><strong>@trait.Name</strong></span>
+                                        @if (ViewModel.CurrentRace?.ActiveAlternativeRacialTraits.Any(a => a.Id == trait.Id) == true)
+                                        {
+                                            <span class="badge bg-warning text-dark x-small">Alternative</span>
+                                        }
+                                    </div>
+                                    <div class="text-muted small">@trait.Description</div>
+                                </div>
+                            }
                         </div>
                     }
-                </div>
-            </section>
-        }
-        else
-        {
-            <div class="alert alert-warning mt-4">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                No Race has been assembled. Please visit the <strong>Base Character</strong> page to define your heritage.
+                    else
+                    {
+                        <div class="text-muted italic">No race data available. Ensure a race is selected in the character foundations.</div>
+                    }
+                </section>
+
+                @* @/* Biography & Physical Description */ *@
+                <section class="mb-4">
+                    <h4 class="text-secondary border-bottom pb-2">Story</h4>
+                    <div class="mb-3">
+                        <label class="text-uppercase small fw-bold text-muted">Physical Description</label>
+                        <p class="border p-2 bg-white rounded">@ViewModel.ActiveCharacterSheet.BaseCharacterFacts.PhysicalDescription</p>
+                    </div>
+                    <div>
+                        <label class="text-uppercase small fw-bold text-muted">Biography</label>
+                        <div class="border p-2 bg-white rounded biography-box">
+                            @((MarkupString)(ViewModel.ActiveCharacterSheet.BaseCharacterFacts.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
+                        </div>
+                    </div>
+                </section>
             </div>
-        }
-
-            @* @/* 1. The Drop/Pick Up Button at the front */ *@
-            <button class="btn btn-sm @(item.IsCarried ? "btn-danger" : "btn-success") btn-fixed-width"
-                    @onclick="() => ViewModel.ToggleItemCarried(item.Id)">
-              @(item.IsCarried ? "Drop" : "Pick Up")
-            </button>
-
-            @* @/* 2. Core Identity */ *@
-            <span class="item-core-info">
-              <strong>@item.BaseStats.Name</strong>
-              <span class="text-muted ms-2">[@item.GetType().Name]</span>
-            </span>
-
-            @* @/* 3. Base Stats */ *@
-            <span class="property-tag">Weight: @item.BaseStats.Weight</span>
-            <span class="property-tag">Cost: @item.BaseStats.Cost gp</span>
-            <span class="property-tag">Type: @item.BaseStats.Type</span>
-          </div>
-        }
-      </div>
-    </section>
-  }
+        </div>
+    }
 </div>
 
 @code {
-    // Helper to visually distinguish swapped traits
-    private bool IsAlternativeTrait(string traitId) 
-        => ViewModel.CurrentRace?.ActiveAlternativeRacialTraits.Any(a => a.Id == traitId) ?? false;
+    private string FormatMod(int stat)
+    {
+        var mod = AbilityScoreCalculator.CalculateModifier(stat);
+        return mod >= 0 ? $"+{mod}" : mod.ToString();
+    }
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to state changes so the UI refreshes if the user switches characters or updates facts
+        ViewModel.PropertyChanged += (s, e) => StateHasChanged();
+    }
 }
+
+<style>
+    .stat-line {
+        display: flex;
+        justify-content: flex-start;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .stat-line strong {
+        min-width: 120px;
+        color: #555;
+    }
+
+    .biography-box {
+        min-height: 150px;
+        line-height: 1.6;
+    }
+
+    .x-small {
+        font-size: 0.65rem;
+    }
+</style>

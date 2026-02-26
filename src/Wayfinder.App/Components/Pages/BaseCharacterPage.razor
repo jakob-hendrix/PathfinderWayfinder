@@ -1,71 +1,103 @@
 @page "/base-character"
+@using Wayfinder.Core.Enums
+@using Wayfinder.Core.Extensions
 @inject BaseCharacterViewModel VM
 
-<div class="page-container p-4">
-    <h3>Character Identity</h3>
-    <hr />
-
-    <div class="mb-3">
-        <label class="form-label">Character Name</label>
-        <input type="text" class="form-control" @bind="VM.Name" />
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
+        <h2>Character Foundation</h2>
+        <span class="text-muted">Establish the core facts of your character</span>
     </div>
 
-    <CascadingValue Value="VM">
-        <RaceSelectorComponent />
-    </CascadingValue>
+    @if (VM.Character == null)
+    {
+        <div class="alert alert-info">No character loaded.</div>
+    }
+    else
+    {
+        <div class="row">
+            @* @/* --- LEFT COLUMN: Identity & Race --- */ *@
+            <div class="col-lg-6">
+                
+                @* @/* Identity Box */ *@
+                <div class="card shadow-sm mb-4 border-secondary">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Identity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Character Name</label>
+                            <input type="text" class="form-control form-control-lg" 
+                                   @bind="VM.Character.Name" @bind:event="oninput" 
+                                   @onchange="VM.NotifyRaceChanged" placeholder="Enter name..." />
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Alignment</label>
+                                <select class="form-select" @bind="VM.Character.Alignment">
+                                    @foreach (var align in Enum.GetValues<Alignment>())
+                                    {
+                                        <option value="@align">@align.ToString().SplitCamelCase()</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Gender</label>
+                                <input type="text" class="form-control" @bind="VM.Character.Gender" />
+                            </div>
+                        </div>
 
-    <div class="mb-3">
-        <label class="form-label">Diety</label>
-        <input type="text" class="form-control" @bind="VM.Deity" />
-    </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Age</label>
+                                <input type="number" class="form-control" @bind="VM.Character.Age" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Deity</label>
+                                <input type="text" class="form-control" @bind="VM.Character.Deity" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="card p-4 shadow-sm">
-        <h4 class="mb-4">Ability Scores</h4>
+                @* @/* Race Selector Component */ *@
+                <CascadingValue Value="VM">
+                    <RaceSelectorComponent />
+                </CascadingValue>
+            </div>
 
-        <BaseAbilityScoreForm Label="Strength" @bind-Score="VM.Strength" />
-        <BaseAbilityScoreForm Label="Dexterity" @bind-Score="VM.Dexterity" />
-        <BaseAbilityScoreForm Label="Constitution" @bind-Score="VM.Constitution" />
-        <BaseAbilityScoreForm Label="Intelligence" @bind-Score="VM.Intelligence" />
-        <BaseAbilityScoreForm Label="Wisdom" @bind-Score="VM.Wisdom" />
-        <BaseAbilityScoreForm Label="Charisma" @bind-Score="VM.Charisma" />
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label class="form-label fw-bold">Alignment</label>
-            <select class="form-select" @bind="VM.Alignment">
-                @foreach (var alignment in VM.AlignmentOptions)
-                {
-                    <option value="@alignment">@alignment.ToString().SplitCamelCase()</option>
-                }
-            </select>
+            @* @/* --- RIGHT COLUMN: Base Ability Scores --- */ *@
+            <div class="col-lg-6">
+                <div class="card shadow-sm mb-4 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Base Ability Scores</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-4">
+                            Enter the raw, unmodified scores generated via rolling or point-buy. 
+                            Racial modifiers from the selected heritage will automatically be applied on the final Character Sheet.
+                        </p>
+                        
+                        <div class="d-flex flex-column gap-3">
+                            <BaseAbilityScoreForm Label="Strength" @bind-Score="VM.Character.BaseStrength" />
+                            <BaseAbilityScoreForm Label="Dexterity" @bind-Score="VM.Character.BaseDexterity" />
+                            <BaseAbilityScoreForm Label="Constitution" @bind-Score="VM.Character.BaseConstitution" />
+                            <BaseAbilityScoreForm Label="Intelligence" @bind-Score="VM.Character.BaseIntelligence" />
+                            <BaseAbilityScoreForm Label="Wisdom" @bind-Score="VM.Character.BaseWisdom" />
+                            <BaseAbilityScoreForm Label="Charisma" @bind-Score="VM.Character.BaseCharisma" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Age</label>
-        <input type="number" class="form-control" @bind="VM.Age" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Weigth</label>
-        <input type="number" class="form-control" @bind="VM.Weight" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Height</label>
-        <input type="number" class="form-control" @bind="VM.Height" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Biography</label>
-        <textarea class="form-control" rows="4" @bind="VM.Biography"></textarea>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea class="form-control" rows="4" @bind="VM.PhysicalDescription"></textarea>
-    </div>
-
-    @* @/* We will add Race and Alignment dropdowns once the seed data is wired up */ *@
+    }
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Keep the UI fresh if the active character swaps out
+        VM.PropertyChanged += (s, e) => StateHasChanged();
+    }
+}
