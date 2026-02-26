@@ -31,5 +31,10 @@ namespace Wayfinder.Core.Extensions
 
             return cleanName;
         }
+
+        public static bool EqualsIgnoreCase(this string? a, string? b)
+        {
+            return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
