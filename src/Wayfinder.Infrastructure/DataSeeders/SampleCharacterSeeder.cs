@@ -1,5 +1,5 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.Infrastructure.DataSeeders
@@ -23,7 +23,6 @@ namespace Wayfinder.Infrastructure.DataSeeders
             {
                 Name = "Sosuke Bosuke",
                 Gender = "Male",
-                Race = "Human",
                 ClassLevels = new List<ClassLevel>
                 {
                     new ClassLevel
@@ -43,13 +42,10 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 BaseIntelligence = 5,
                 BaseWisdom = 9,
                 BaseCharisma = 19,
-                Biography = "Something something orphan, something something wretchedly cruel past.",
-                PhysicalDescription = "Sullen brow, a protagonist's chin, and his eyes smolder in the soft moonlight.",
-                Alignment = Alignment.ChaoticGood,
-                Age = 19,
-                Deity = "Desna",
-                Height = 72,
-                Weight = 167
+                RaceChoices = new RaceChoices
+                {
+                    RaceName = "Human"
+                }
             };
 
             // Build inventory

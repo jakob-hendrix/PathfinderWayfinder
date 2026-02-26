@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Wayfinder.App.Services;
 using Wayfinder.Core.DataServices;
+using Wayfinder.Core.Factories;
+using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Rules.Services;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
@@ -47,11 +49,13 @@ namespace Wayfinder.App
             // The compendiums seeded from user files
             builder.Services.AddSingleton<IItemLibrary, ItemLibrary>();
             builder.Services.AddSingleton<IClassLibrary, ClassLibrary>();
+            builder.Services.AddSingleton<IRaceLibrary, RaceLibrary>();
             builder.Services.AddSingleton<IPathfinderDataLibrary, PathfinderDataLibrary>();
 
             // The factories
             builder.Services.AddSingleton<IClassFactory, ClassFactory>();
             builder.Services.AddSingleton<IItemFactory, ItemFactory>();
+            builder.Services.AddSingleton<IRaceFactory, RaceFactory>();
 
             // Set up bundled subsystems
             builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();

@@ -15,5 +15,21 @@ namespace Wayfinder.Core.Extensions
             // Use Regex to find uppercase letters and insert a space before them
             return Regex.Replace(camelCaseString, "([A-Z])", " $1").Trim();
         }
+
+        /// <summary>
+        /// Converts a display name like "Heart of the Fields" into a safe ID like "heart_of_the_fields".
+        /// </summary>
+        public static string GenerateIdFromName(this string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return Guid.NewGuid().ToString(); // Fallback if somehow both ID and Name are missing
+
+            // Lowercase, replace spaces and hyphens with underscores, remove special characters
+            var cleanName = name.Trim().ToLowerInvariant();
+            cleanName = Regex.Replace(cleanName, @"[\s\-]+", "_");
+            cleanName = Regex.Replace(cleanName, @"[^a-z0-9_]", "");
+
+            return cleanName;
+        }
     }
 }

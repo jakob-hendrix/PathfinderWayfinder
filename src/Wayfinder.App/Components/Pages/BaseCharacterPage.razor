@@ -10,10 +10,9 @@
         <input type="text" class="form-control" @bind="VM.Name" />
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Race</label>
-        <input type="text" class="form-control" @bind="VM.Race" />
-    </div>
+    <CascadingValue Value="VM">
+        <RaceSelectorComponent />
+    </CascadingValue>
 
     <div class="mb-3">
         <label class="form-label">Diety</label>
@@ -22,7 +21,7 @@
 
     <div class="card p-4 shadow-sm">
         <h4 class="mb-4">Ability Scores</h4>
-    
+
         <BaseAbilityScoreForm Label="Strength" @bind-Score="VM.Strength" />
         <BaseAbilityScoreForm Label="Dexterity" @bind-Score="VM.Dexterity" />
         <BaseAbilityScoreForm Label="Constitution" @bind-Score="VM.Constitution" />

@@ -1,4 +1,5 @@
 ﻿using Wayfinder.Core.DataServices;
+using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Rules.Services;
 
 namespace Wayfinder.Core.Services
@@ -13,6 +14,7 @@ namespace Wayfinder.Core.Services
         IEquipmentManager EquipmentManager { get; }
         IClassFactory ClassFactory { get; }
         IItemFactory ItemFactory { get; }
+        IRaceFactory RaceFactory { get; }
 
     }
 
@@ -33,6 +35,8 @@ namespace Wayfinder.Core.Services
 
         public IItemFactory ItemFactory { get; }
 
+        public IRaceFactory RaceFactory { get; }
+
         public PathfinderRulesEngine(
             IStatCalculator statCalculator,
             IBabCalculator babCalculator,
@@ -41,7 +45,8 @@ namespace Wayfinder.Core.Services
             //IAbilityScoreCalculator abilityScoreCalculator,
             IEquipmentManager equipmentManager,
             IClassFactory classFactory,
-            IItemFactory itemFactory)
+            IItemFactory itemFactory,
+            IRaceFactory raceFactory)
         {
             StatCalculator = statCalculator;
             BabCalculator = babCalculator;
@@ -51,6 +56,7 @@ namespace Wayfinder.Core.Services
             EquipmentManager = equipmentManager;
             ClassFactory = classFactory;
             ItemFactory = itemFactory;
+            RaceFactory = raceFactory;
         }
     }
 }

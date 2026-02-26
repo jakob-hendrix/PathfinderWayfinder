@@ -1,23 +1,41 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Wayfinder.Core.Data.Definitions;
 using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.Enums;
+using Wayfinder.Core.Services;
 
 namespace Wayfinder.App.Services
 {
     public partial class BaseCharacterViewModel : ObservableObject
     {
         private readonly CharacterStateService _stateService;
+        private readonly IRaceLibrary _raceLibrary;
 
-        public BaseCharacterViewModel(CharacterStateService stateService)
+        public BaseCharacterViewModel(CharacterStateService stateService, IRaceLibrary raceLibrary)
         {
             _stateService = stateService;
+            _raceLibrary = raceLibrary;
         }
 
         // Pull character from state
         public CharacterEntity? Character => _stateService.ActiveCharacter;
 
+        // Pull the character sheet from state. The character state is where certain entities are
+        // constructed. In this case it will give is a rebuilt Race
+        public CharacterSheet ActiveSheet => _stateService.ActiveSheet;
+
+        public void NotifyRaceChanged()
+        {
+            _stateService.NotifyStateChanged();
+            OnPropertyChanged(string.Empty);
+        }
+
+        #region User Choice Options
         // Expose restricted selections
         public IEnumerable<Alignment> AlignmentOptions => Enum.GetValues<Alignment>();
+        public IEnumerable<RaceDefinition> AvailableRaces => _raceLibrary.GetRaceDefinitions();
+        #endregion
 
         // Exposed Properties For the UI To Update
         #region ExposedProperties
@@ -33,11 +51,7 @@ namespace Wayfinder.App.Services
             set => SetEntityProperty(() => Character!.Age = value, nameof(Age));
         }
 
-        public string Race
-        {
-            get => Character?.Race ?? "Human";    // get default race
-            set => SetEntityProperty(() => Character!.Race = value, nameof(Race));
-        }
+        public RaceChoices RaceChoices => Character!.RaceChoices;
 
         public int Weight
         {
