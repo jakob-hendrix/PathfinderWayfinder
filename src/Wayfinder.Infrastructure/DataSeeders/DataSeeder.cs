@@ -59,6 +59,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
         private void SeedRaces()
         {
             _raceLibrary.Clear();
+            var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             var files = Directory.GetFiles(_dataPath, "Races.yaml");
 
@@ -75,7 +76,14 @@ namespace Wayfinder.Infrastructure.DataSeeders
                         // 2. Map DTO to domain
                         var definition = _mapper.MapRaceToDomain(dto);
 
-                        // 3. Validate
+                        // 3. Ensure no dupes
+                        if (!seenIds.Add(definition.Id))
+                        {
+                            _logger.LogError($"[YAML SEED ERROR] Duplicate Race ID found across files: '{definition.Id}'");
+                            continue;
+                        }
+
+                        // 4. Validate
                         var (isValid, errors) = RaceSeedValidator.Validate(definition);
                         if (isValid)
                         {
@@ -96,18 +104,12 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     throw new Exception($"Failed to seed races from file {file}", ex);
                 }
             }
-            //{
-            //    var yaml = File.ReadAllText(file);
-            //    var dto = _deserializer.Deserialize<RaceYamlDto>(yaml);
-
-            //    var definition = MapRaceToDomain(dto);
-            //    _raceLibrary.Register(definition);
-            //}
         }
 
         public void SeedClasses()
         {
             _classLibrary.Clear();
+            var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             var files = Directory.GetFiles(_dataPath, "Classes.yaml");
 
@@ -124,7 +126,14 @@ namespace Wayfinder.Infrastructure.DataSeeders
                         // 2. Map DTO to domain
                         var definition = _mapper.MapClassToDomain(dto);
 
-                        // 3. Validate
+                        // 3. Ensure no dupes
+                        if (!seenIds.Add(definition.Name))
+                        {
+                            _logger.LogError($"[YAML SEED ERROR] Duplicate Class found across files: '{definition.Name}'");
+                            continue;
+                        }
+
+                        // 4. Validate
                         var (isValid, errors) = ClassSeedValidator.Validate(definition);
                         if (isValid)
                         {
@@ -150,6 +159,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
         public void SeedItems()
         {
             var files = Directory.GetFiles(_dataPath, "Items*.yaml");
+            var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var file in files)
             {
@@ -161,6 +171,12 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     foreach (var dto in result)
                     {
                         var definition = _mapper.MapItemToDomain(dto);
+
+                        if (!seenIds.Add(definition.Name))
+                        {
+                            _logger.LogError($"[YAML SEED ERROR] Duplicate Item found across files: '{definition.Name}'");
+                            continue;
+                        }
 
                         var (isValid, errors) = ItemSeedValidator.Validate(definition);
                         if (isValid)

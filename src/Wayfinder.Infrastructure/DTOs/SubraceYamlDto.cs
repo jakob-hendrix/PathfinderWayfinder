@@ -9,7 +9,7 @@ namespace Wayfinder.Infrastructure.DTOs
         public string Description { get; set; } = string.Empty;
 
         // Just a list of the alternative trait that should already be defined
-        [YamlMember(Alias = "Traits")]
+        [YamlMember(Alias = "RacialTraits")]
         public List<string> AlternativeTraitNames { get; set; } = new();
     }
 }

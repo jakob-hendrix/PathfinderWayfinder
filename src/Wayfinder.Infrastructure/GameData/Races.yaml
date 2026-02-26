@@ -16,10 +16,6 @@
     - Name: Medium Size
       Description: Humans are Medium creatures and have no bonuses or penalties due to their size.
   AlternativeRacialTraits:
-    - Name: Focused Study
-      Description: At 1st, 8th, and 16th level, such humans gain Skill Focus in a skill of their choice as a bonus feat.
-      Replaces:
-        - Bonus Feat
     - Name: Heart of the Wilderness
       Description: >
         Gain a racial bonus equal to half character level on Survival checks. Gain a +5 racial
@@ -43,7 +39,7 @@
   Subraces:
     - Name: Country Folk
       Description: Raised away from the cities, these humans are used to hard labor and simple living.
-      Traits:
+      RacialTraits:
         - Heart of the Fields
         - Focused Study
 - Name: Elf
@@ -98,7 +94,7 @@
         These elves were born and raised in the frozen lands of the far north or south, and have dealt with freezing deserts,
         nights that last for weeks, and the horrors that roam the cold terrain. These elves have the darkvision, desert runner,
         and elemental resistance alternate racial traits.
-      Traits:
+      RacialTraits:
         - Darkvision
         - Desert Runner
         - Elemental Resistance

@@ -42,10 +42,10 @@ namespace Wayfinder.Infrastructure.DataSeeders
             // Map alternative traits first, so the subraces can reference them
             var mappedAltTraits = dto.AlternativeRacialTraits.Select(altDto => new AlternativeRacialTrait
             {
-                Id = SetId(altDto.Id, altDto.Name),
+                //Id = SetId(altDto.Id, altDto.Name),
                 Name = altDto.Name,
                 Description = altDto.Description,
-                ReplacesTraitNames = altDto.ReplacesTraitNames
+                ReplacesRacialTraits = altDto.ReplacesTraitNames
             }).ToList();
 
             return new RaceDefinition
@@ -57,7 +57,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
 
                 DefaultRacialTraits = dto.DefaultRacialTraits.Select(t => new RacialTrait
                 {
-                    Id = SetId(t.Id, t.Name),
+                    //Id = SetId(t.Id, t.Name),
                     Name = t.Name,
                     Description = t.Description
                 }).ToList(),
@@ -71,7 +71,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     Description = s.Description,
 
                     // Validate and link traits by name
-                    Traits = s.AlternativeTraitNames
+                    RacialTraits = s.AlternativeTraitNames
                         .Select(traitName => mappedAltTraits.FirstOrDefault(alt => alt.Name.Equals(traitName, StringComparison.OrdinalIgnoreCase))
                             ?? throw new InvalidOperationException($"Validation Error in Race '{dto.Name}': Subrace '{s.Name}' references missing alternative trait '{traitName}'."))
                         .ToList()
@@ -91,10 +91,10 @@ namespace Wayfinder.Infrastructure.DataSeeders
         {
             return new AlternativeRacialTrait
             {
-                Id = dto.Id,
+                //Id = dto.Id,
                 Name = dto.Name,
                 Description = dto.Description,
-                ReplacesTraitNames = dto.ReplacesTraitNames
+                ReplacesRacialTraits = dto.ReplacesTraitNames
             };
         }
     }

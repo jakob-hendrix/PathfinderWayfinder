@@ -31,7 +31,7 @@ namespace Wayfinder.Core.DomainModels.Characters
         public int Charisma => CalculateAbilityScore(BaseCharacterFacts.BaseCharisma);
 
         // Get a hydrated Race instance
-        public void RecalcRace()
+        public void RebuildRace()
         {
             // The Factory builds it, and the Domain stores it
             var result = _rulesEngine.RaceFactory.BuildRace(BaseCharacterFacts.RaceChoices);
@@ -90,7 +90,7 @@ namespace Wayfinder.Core.DomainModels.Characters
 
         public void Refresh()
         {
-            RecalcRace();
+            RebuildRace();
         }
 
         // Helper functions

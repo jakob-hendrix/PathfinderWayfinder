@@ -79,7 +79,7 @@
                                 <div class="col-12 mb-3 border-start border-3 border-primary ps-3">
                                     <div class="d-flex justify-content-between">
                                         <span class="fw-bold text-dark"><strong>@trait.Name</strong></span>
-                                        @if (ViewModel.CurrentRace?.ActiveAlternativeRacialTraits.Any(a => a.Id == trait.Id) == true)
+                                        @if (ViewModel.CurrentRace?.ActiveAlternativeRacialTraits.Any(a => a.Name == trait.Name) == true)
                                         {
                                             <span class="badge bg-warning text-dark x-small">Alternative</span>
                                         }

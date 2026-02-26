@@ -38,11 +38,17 @@ namespace Wayfinder.App.Services
             RefreshDomain();
         }
 
-        private void RefreshDomain()
+        public void RefreshDomain()
         {
-            if (ActiveSheet == null) return;
+            if (ActiveCharacter == null) return;
 
-            ActiveSheet.Refresh();
+            // Update the Sheet (the Reality)
+            if (ActiveSheet != null)
+            {
+                ActiveSheet.RebuildRace();
+            }
+
+            // 2. Announce to anyone listening that the factory just rebuilt the world
             OnStateChanged?.Invoke();
         }
 
