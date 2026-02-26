@@ -2,26 +2,20 @@
 @using Wayfinder.Core.DomainModels.Characters.RaceModels
 @using Wayfinder.Core.Rules.Services
 
-<div class="card shadow-sm mb-4 border-primary">
+<div class="card shadow-sm border-primary sticky-top" style="top: 20px;">
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Heritage & Traits</h5>
+        <h5 class="mb-0">Edit Heritage</h5>
     </div>
     <div class="card-body">
-        @if (VM.Character == null)
+        @if (VM.ActiveCharacter != null)
         {
-            <div class="text-muted">Loading character data...</div>
-        }
-        else
-        {
-            @* @/* 1. Base Race Dropdown */ *@
             <div class="mb-3">
                 <label class="form-label fw-bold text-secondary">Base Race</label>
-                @* @/* Explicit value and onchange */ *@
-                <select class="form-select" value="@(VM.Character?.RaceChoices.RaceName)" @onchange="OnBaseRaceChanged">
+                <select class="form-select" value="@(VM.ActiveCharacter.RaceChoices.RaceName)" @onchange="OnBaseRaceChanged">
                     <option value="">-- Select Race --</option>
                     @foreach (var r in VM.AvailableRaces)
                     {
-                        <option value="@r.Id">@r.Name</option>
+                        <option value="@r.Name">@r.Name</option>
                     }
                 </select>
             </div>
@@ -30,59 +24,51 @@
             {
                 <hr class="text-muted" />
 
-                @* @/* 2. Subrace Dropdown */ *@
                 @if (SelectedDefinition.Subraces.Any())
                 {
                     <div class="mb-4">
                         <label class="form-label fw-bold text-secondary">Subrace / Ethnic Heritage</label>
-                        <select class="form-select" value="@(VM.Character?.RaceChoices.SubraceName)" @onchange="OnSubraceChanged">
+                        <select class="form-select" value="@(VM.ActiveCharacter.RaceChoices.SubraceName)" @onchange="OnSubraceChanged">
                             <option value="">Standard / Default</option>
                             @foreach (var sub in SelectedDefinition.Subraces)
                             {
-                                <option value="@sub.Id">@sub.Name</option>
+                                <option value="@sub.Name">@sub.Name</option>
                             }
                         </select>
-                        @if (ActiveSubraceDef != null)
-                        {
-                            <div class="form-text mt-2 p-2 bg-light border-start border-3 border-warning small">
-                                <strong>@ActiveSubraceDef.Name:</strong> @ActiveSubraceDef.Description
-                            </div>
-                        }
                     </div>
                 }
 
-                @* default racial traits *@
                 <div class="mb-4">
-                    <label class="form-label fw-bold text-secondary">Default Racial Traits</label>
+                    <label class="form-label fw-bold text-secondary">Base Racial Traits</label>
                     <div class="list-group">
-                        @foreach (var trait in SelectedDefinition.DefaultRacialTraits)
+                        @foreach (var defaultTrait in SelectedDefinition.DefaultRacialTraits)
                         {
-                            bool isReplaced = IsTraitReplaced(trait.Name);
-                            <div class="list-group-item @(isReplaced ? "bg-light text-muted opacity-75" : "")">
-                                <strong class="@(isReplaced ? "text-decoration-line-through" : "")">@trait.Name</strong>
-                                @if (isReplaced)
-                                {
-                                    <span class="badge bg-danger x-small">Replaced</span>
-                                }
+                            bool isReplaced = IsTraitReplaced(defaultTrait.Name);
+                            <div class="list-group-item @(isReplaced ? "bg-light text-muted opacity-75" : "bg-white")">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="@(isReplaced ? "text-decoration-line-through" : "")">@defaultTrait.Name</strong>
+                                    @if (isReplaced)
+                                    {
+                                        <span class="badge bg-danger x-small">Replaced</span>
+                                    }
+                                </div>
                             </div>
-                            <p class="mb-0 small">@trait.Description</p>
                         }
                     </div>
                 </div>
 
-                @* Alternative Racial Traits *@
                 @if (SelectedDefinition.AlternativeRacialTraits.Any())
                 {
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary">Alternative Racial Traits</label>
+                        <label class="form-label fw-bold text-secondary">Alternative Traits</label>
                         <div class="list-group trait-list">
                             @foreach (var alt in GetValidAlternativeOptions())
                             {
-                                bool isSelected = VM.Character.RaceChoices.SelectedAlternativeTraitIds.Contains(alt.Id);
+                                bool isSelected = VM.ActiveCharacter.RaceChoices.SelectedAlternativeTraits.Contains(alt.Name);
 
                                 <button type="button"
                                         class="list-group-item list-group-item-action @(isSelected ? "active" : "")"
-                                        @onclick="() => ToggleAltTrait(alt.Id)">
+                                        @onclick="() => ToggleAltTrait(alt.Name)">
                                     <div class="d-flex w-100 justify-content-between align-items-center">
                                         <strong class="mb-1">@alt.Name</strong>
                                         @if (isSelected)
@@ -90,7 +76,6 @@
                                             <i class="bi bi-check-circle-fill"></i>
                                         }
                                     </div>
-                                    <p class="mb-1 small @(isSelected ? "text-white" : "text-muted")">@alt.Description</p>
                                     <small class="x-small @(isSelected ? "text-light" : "text-danger")">
                                         Replaces: @string.Join(", ", alt.ReplacesRacialTraits)
                                     </small>
@@ -99,17 +84,6 @@
                         </div>
                     </div>
                 }
-
-                @* @/* 4. Assembled Traits Summary */ *@
-                <div class="mt-4 p-3 border rounded bg-light">
-                    <h6 class="text-secondary mb-2">Active Traits Pool:</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var trait in VM.Character?.Race?.SelectedRacialTraits ?? new())
-                        {
-                            <span class="badge bg-dark">@trait.Name</span>
-                        }
-                    </div>
-                </div>
             }
         }
     </div>
@@ -120,16 +94,16 @@
         [CascadingParameter] public BaseCharacterViewModel VM { get; set; } = null!;
 
         private RaceDefinition? SelectedDefinition =>
-            VM.AvailableRaces.FirstOrDefault(r => r.Id.EqualsIgnoreCase(VM.Character?.RaceChoices.RaceName));
+            VM.AvailableRaces.FirstOrDefault(r => r.Name.EqualsIgnoreCase(VM.ActiveCharacter?.RaceChoices.RaceName));
 
         private Subrace? ActiveSubraceDef =>
-            SelectedDefinition?.Subraces.FirstOrDefault(s => s.Id.EqualsIgnoreCase(VM.Character?.RaceChoices.SubraceName));
+            SelectedDefinition?.Subraces.FirstOrDefault(s => s.Name.EqualsIgnoreCase(VM.ActiveCharacter?.RaceChoices.SubraceName));
 
         protected override void OnInitialized()
         {
             VM.PropertyChanged += OnViewModelPropertyChanged;
 
-            if (VM.Character?.RaceChoices != null && !string.IsNullOrEmpty(VM.Character.RaceChoices.RaceName) && VM.ActiveSheet?.Race == null)
+            if (VM.ActiveCharacter?.RaceChoices != null && !string.IsNullOrEmpty(VM.ActiveCharacter.RaceChoices.RaceName) && VM.ActiveSheet?.Race == null)
             {
                 VM.NotifyRaceChanged();
             }
@@ -159,11 +133,11 @@
             var newId = e.Value?.ToString() ?? "";
 
             // Only trigger the cascade if the race actually changed
-            if (VM.Character != null && !newId.EqualsIgnoreCase(VM.Character.RaceChoices.RaceName))
+            if (VM.ActiveCharacter != null && !newId.EqualsIgnoreCase(VM.ActiveCharacter.RaceChoices.RaceName))
             {
-                VM.Character.RaceChoices.RaceName = newId;
-                VM.Character.RaceChoices.SubraceName = null;
-                VM.Character.RaceChoices.SelectedAlternativeTraitIds.Clear();
+                VM.ActiveCharacter.RaceChoices.RaceName = newId;
+                VM.ActiveCharacter.RaceChoices.SubraceName = null;
+                VM.ActiveCharacter.RaceChoices.SelectedAlternativeTraits.Clear();
 
                 VM.NotifyRaceChanged();
             }
@@ -174,20 +148,20 @@
             var newId = e.Value?.ToString();
             newId = string.IsNullOrWhiteSpace(newId) ? null : newId;
 
-            if (VM.Character != null && !newId.EqualsIgnoreCase(VM.Character.RaceChoices.SubraceName))
+            if (VM.ActiveCharacter != null && !newId.EqualsIgnoreCase(VM.ActiveCharacter.RaceChoices.SubraceName))
             {
-                VM.Character.RaceChoices.SubraceName = newId;
-                VM.Character.RaceChoices.SelectedAlternativeTraitIds.Clear();
+                VM.ActiveCharacter.RaceChoices.SubraceName = newId;
+                VM.ActiveCharacter.RaceChoices.SelectedAlternativeTraits.Clear();
 
                 VM.NotifyRaceChanged();
             }
         }
 
-        private void ToggleAltTrait(string traitId)
+        private void ToggleAltTrait(string traitName)
         {
-            var list = VM.Character!.RaceChoices.SelectedAlternativeTraitIds;
-            if (list.Contains(traitId)) list.Remove(traitId);
-            else list.Add(traitId);
+            var list = VM.ActiveCharacter!.RaceChoices.SelectedAlternativeTraits;
+            if (list.Contains(traitName)) list.Remove(traitName);
+            else list.Add(traitName);
 
             VM.NotifyRaceChanged();
         }
@@ -197,12 +171,12 @@
             if (SelectedDefinition == null) return Enumerable.Empty<AlternativeRacialTrait>();
 
             var currentSelections = SelectedDefinition.AlternativeRacialTraits
-                .Where(t => VM.Character!.RaceChoices.SelectedAlternativeTraitIds.Contains(t.Id))
+                .Where(t => VM.ActiveCharacter!.RaceChoices.SelectedAlternativeTraits.Contains(t.Name))
                 .ToList();
 
             var available = RacialTraitEngine.GetAvailableAlternatives(SelectedDefinition, ActiveSubraceDef, currentSelections);
 
-            return currentSelections.Concat(available).DistinctBy(x => x.Id);
+            return currentSelections.Concat(available).DistinctBy(x => x.Name);
         }
     }
 }

@@ -42,7 +42,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
             // Map alternative traits first, so the subraces can reference them
             var mappedAltTraits = dto.AlternativeRacialTraits.Select(altDto => new AlternativeRacialTrait
             {
-                Id = SetId(altDto.Id, altDto.Name),
+                //Id = SetId(altDto.Id, altDto.Name),
                 Name = altDto.Name,
                 Description = altDto.Description,
                 ReplacesRacialTraits = altDto.ReplacesTraitNames
@@ -57,7 +57,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
 
                 DefaultRacialTraits = dto.DefaultRacialTraits.Select(t => new RacialTrait
                 {
-                    Id = SetId(t.Id, t.Name),
+                    //Id = SetId(t.Id, t.Name),
                     Name = t.Name,
                     Description = t.Description
                 }).ToList(),
@@ -91,7 +91,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
         {
             return new AlternativeRacialTrait
             {
-                Id = dto.Id,
+                //Id = dto.Id,
                 Name = dto.Name,
                 Description = dto.Description,
                 ReplacesRacialTraits = dto.ReplacesTraitNames

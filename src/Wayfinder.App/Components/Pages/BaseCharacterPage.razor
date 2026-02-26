@@ -1,7 +1,7 @@
 @page "/base-character"
-@using Wayfinder.Core.Enums
 @using Wayfinder.Core.Extensions
 @inject BaseCharacterViewModel VM
+@implements IDisposable
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
@@ -9,15 +9,15 @@
         <span class="text-muted">Establish the core facts of your character</span>
     </div>
 
-    @if (VM.Character == null)
+    @if (VM.ActiveCharacter == null)
     {
         <div class="alert alert-info">No character loaded.</div>
     }
     else
     {
         <div class="row">
-            @* @/* --- LEFT COLUMN: Identity & Race --- */ *@
-            <div class="col-lg-6">
+            @* @/* --- MAIN CONTENT COLUMN (Shrinks when selector is open) --- */ *@
+            <div class="@(IsEditingTraits ? "col-lg-7" : "col-lg-12") transition-all">
                 
                 @* @/* Identity Box */ *@
                 <div class="card shadow-sm mb-4 border-secondary">
@@ -27,65 +27,73 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Character Name</label>
-                            <input type="text" class="form-control form-control-lg" 
-                                   @bind="VM.Character.Name" @bind:event="oninput" 
+                            <input type="text" class="form-control" 
+                                   @bind="VM.ActiveCharacter.Name" @bind:event="oninput" 
                                    @onchange="VM.NotifyRaceChanged" placeholder="Enter name..." />
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Alignment</label>
-                                <select class="form-select" @bind="VM.Character.Alignment">
-                                    @foreach (var align in Enum.GetValues<Alignment>())
-                                    {
-                                        <option value="@align">@align.ToString().SplitCamelCase()</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Gender</label>
-                                <input type="text" class="form-control" @bind="VM.Character.Gender" />
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Age</label>
-                                <input type="number" class="form-control" @bind="VM.Character.Age" />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Deity</label>
-                                <input type="text" class="form-control" @bind="VM.Character.Deity" />
-                            </div>
-                        </div>
+                        @* @/* ... Add Alignment, Gender, etc. back here as needed ... */ *@
                     </div>
                 </div>
 
-                @* @/* Race Selector Component */ *@
-                <CascadingValue Value="VM">
-                    <RaceSelectorComponent />
-                </CascadingValue>
-            </div>
+                @* @/* ACTIVE RACIAL TRAITS SUMMARY */ *@
+                <div class="card shadow-sm mb-4 border-info">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Active Heritage & Traits</h5>
+                        <button class="btn btn-sm @(IsEditingTraits ? "btn-light text-info" : "btn-primary")" 
+                                @onclick="ToggleTraitEditor">
+                            @(IsEditingTraits ? "Close Editor" : "Edit Heritage")
+                        </button>
+                    </div>
+                    @if (IsEditingTraits)
+                    {
+                        <div class="col-lg-5">
+                            <CascadingValue Value="VM">
+                                <RaceSelectorComponent />
+                            </CascadingValue>
+                        </div>
+                    }
+                    <div class="card-body">
+                        @if (string.IsNullOrEmpty(VM.ActiveCharacter.RaceChoices.RaceName))
+                        {
+                            <div class="text-muted italic">No race selected. Click 'Edit Heritage' to choose a race.</div>
+                        }
+                        else
+                        {
+                            <h6 class="text-secondary border-bottom pb-1 mb-3">
+                                @VM.ActiveCharacter.RaceChoices.RaceName 
+                                @if (!string.IsNullOrEmpty(VM.ActiveCharacter.RaceChoices.SubraceName))
+                                {
+                                    <span>(@VM.ActiveCharacter.RaceChoices.SubraceName)</span>
+                                }
+                            </h6>
 
-            @* @/* --- RIGHT COLUMN: Base Ability Scores --- */ *@
-            <div class="col-lg-6">
+                            <div class="row">
+                                @foreach (var trait in VM.ActiveSheet?.Race?.SelectedRacialTraits ?? new())
+                                {
+                                    <div class="col-md-6 mb-3 border-start border-3 border-primary ps-3">
+                                        <div class="fw-bold">@trait.Name</div>
+                                        <div class="text-muted small">@trait.Description</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @* @/* Base Ability Scores */ *@
                 <div class="card shadow-sm mb-4 border-success">
                     <div class="card-header bg-success text-white">
                         <h5 class="mb-0">Base Ability Scores</h5>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted small mb-4">
-                            Enter the raw, unmodified scores generated via rolling or point-buy. 
-                            Racial modifiers from the selected heritage will automatically be applied on the final Character Sheet.
-                        </p>
-                        
-                        <div class="d-flex flex-column gap-3">
-                            <BaseAbilityScoreForm Label="Strength" @bind-Score="VM.Character.BaseStrength" />
-                            <BaseAbilityScoreForm Label="Dexterity" @bind-Score="VM.Character.BaseDexterity" />
-                            <BaseAbilityScoreForm Label="Constitution" @bind-Score="VM.Character.BaseConstitution" />
-                            <BaseAbilityScoreForm Label="Intelligence" @bind-Score="VM.Character.BaseIntelligence" />
-                            <BaseAbilityScoreForm Label="Wisdom" @bind-Score="VM.Character.BaseWisdom" />
-                            <BaseAbilityScoreForm Label="Charisma" @bind-Score="VM.Character.BaseCharisma" />
+                        <p class="text-muted small mb-4">Enter the raw, unmodified scores. Racial modifiers are applied automatically.</p>
+                        <div class="row">
+                            <div class="col-md-6"><BaseAbilityScoreForm Label="Strength" @bind-Score="VM.ActiveCharacter.BaseStrength" /></div>
+                            <div class="col-md-6"><BaseAbilityScoreForm Label="Dexterity" @bind-Score="VM.ActiveCharacter.BaseDexterity" /></div>
+                            <div class="col-md-6"><BaseAbilityScoreForm Label="Constitution" @bind-Score="VM.ActiveCharacter.BaseConstitution" /></div>
+                            <div class="col-md-6"><BaseAbilityScoreForm Label="Intelligence" @bind-Score="VM.ActiveCharacter.BaseIntelligence" /></div>
+                            <div class="col-md-6"><BaseAbilityScoreForm Label="Wisdom" @bind-Score="VM.ActiveCharacter.BaseWisdom" /></div>
+                            <div class="col-md-6"><BaseAbilityScoreForm Label="Charisma" @bind-Score="VM.ActiveCharacter.BaseCharisma" /></div>
                         </div>
                     </div>
                 </div>
@@ -95,9 +103,26 @@
 </div>
 
 @code {
+    private bool IsEditingTraits = false;
+
+    private void ToggleTraitEditor()
+    {
+        IsEditingTraits = !IsEditingTraits;
+    }
+
     protected override void OnInitialized()
     {
-        // Keep the UI fresh if the active character swaps out
-        VM.PropertyChanged += (s, e) => StateHasChanged();
+        // Listen to the ViewModel so the Active Traits card repaints when the side-panel updates the state
+        VM.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        if (VM != null) VM.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }

@@ -37,7 +37,7 @@ namespace Wayfinder.App.Services
             _logger.LogInfo($"Initialized CharacterStateViewModel");
         }
 
-        // Character collections 
+        // ActiveCharacter collections 
         [ObservableProperty]
         public CharacterSheet? _activeCharacterSheet;
         public ObservableCollection<ItemInstance> Inventory { get; } = new();
