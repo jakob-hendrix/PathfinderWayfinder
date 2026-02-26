@@ -45,7 +45,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 Id = SetId(altDto.Id, altDto.Name),
                 Name = altDto.Name,
                 Description = altDto.Description,
-                ReplacesTraitNames = altDto.ReplacesTraitNames
+                ReplacesRacialTraits = altDto.ReplacesTraitNames
             }).ToList();
 
             return new RaceDefinition
@@ -71,7 +71,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     Description = s.Description,
 
                     // Validate and link traits by name
-                    Traits = s.AlternativeTraitNames
+                    RacialTraits = s.AlternativeTraitNames
                         .Select(traitName => mappedAltTraits.FirstOrDefault(alt => alt.Name.Equals(traitName, StringComparison.OrdinalIgnoreCase))
                             ?? throw new InvalidOperationException($"Validation Error in Race '{dto.Name}': Subrace '{s.Name}' references missing alternative trait '{traitName}'."))
                         .ToList()
@@ -94,7 +94,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 Id = dto.Id,
                 Name = dto.Name,
                 Description = dto.Description,
-                ReplacesTraitNames = dto.ReplacesTraitNames
+                ReplacesRacialTraits = dto.ReplacesTraitNames
             };
         }
     }

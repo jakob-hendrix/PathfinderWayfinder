@@ -43,7 +43,7 @@
   Subraces:
     - Name: Country Folk
       Description: Raised away from the cities, these humans are used to hard labor and simple living.
-      Traits:
+      RacialTraits:
         - Heart of the Fields
         - Focused Study
 - Name: Elf
@@ -98,7 +98,7 @@
         These elves were born and raised in the frozen lands of the far north or south, and have dealt with freezing deserts,
         nights that last for weeks, and the horrors that roam the cold terrain. These elves have the darkvision, desert runner,
         and elemental resistance alternate racial traits.
-      Traits:
+      RacialTraits:
         - Darkvision
         - Desert Runner
         - Elemental Resistance

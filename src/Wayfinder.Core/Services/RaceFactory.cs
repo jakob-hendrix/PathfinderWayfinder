@@ -29,11 +29,6 @@ public class RaceFactory : IRaceFactory
             return new RaceResolutionResult { Errors = { $"Race definition '{choices.RaceName}' not found." } };
         }
 
-        //if (baseDef == null)
-        //{
-        //    return new RaceResolutionResult { Errors = { $"Race definition '{choices.RaceDefinitionId}' not found." } };
-        //}
-
         // 2. Resolve the Subrace (if selected)
         Subrace? subDef = null;
         if (!string.IsNullOrWhiteSpace(choices.SubraceName))
@@ -41,7 +36,7 @@ public class RaceFactory : IRaceFactory
             subDef = baseDef.Subraces.FirstOrDefault(s => s.Id == choices.SubraceName);
         }
 
-        // 3. Resolve Alternative Traits
+        // 3. Resolve Alternative RacialTraits
         var selectedAlts = baseDef.AlternativeRacialTraits
             .Where(alt => choices.SelectedAlternativeTraitIds.Contains(alt.Id))
             .ToList();
@@ -57,7 +52,7 @@ public class RaceFactory : IRaceFactory
                 RaceDefinition = baseDef,
                 Subrace = subDef,
                 ActiveAlternativeRacialTraits = selectedAlts,
-                SelectedRacialTraits = resolution.ActiveTraits
+                SelectedRacialTraits = resolution.ActiveRacialTraits
             };
         }
 

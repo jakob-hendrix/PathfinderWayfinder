@@ -8,8 +8,8 @@ namespace Wayfinder.Tests.Core
     {
         [TestCase("test", "test")]
         [TestCase("test 1", "test_1")]
-        [TestCase("  test 2", "__test_2")]
-        [TestCase("  test 3  ", "__test_3")]
+        [TestCase("  test 2", "test_2")]
+        [TestCase("  test 3  ", "test_3")]
         [TestCase("Heart of the Fields", "heart_of_the_fields")]
         [TestCase("Heart of the Fields (test)", "heart_of_the_fields_test")]
         public void GenerateIdFromName_ShouldReturnCorrectId(string name, string expectedId)
@@ -20,7 +20,7 @@ namespace Wayfinder.Tests.Core
         [TestCase("test", "test")]
         [TestCase("Test", "Test")]
         [TestCase("TestTwo", "Test Two")]
-        [TestCase("TestThree ThreeFour", "Test Three Test Four")]
+        [TestCase("TestThree TestFour", "Test Three Test Four")]
         public void SplitCamelCase_ShouldReturnCorrectResult(string input, string expected)
         {
             Assert.That(input.SplitCamelCase(), Is.EqualTo(expected));

@@ -13,7 +13,7 @@ namespace Wayfinder.Core.Extensions
         {
             if (string.IsNullOrWhiteSpace(camelCaseString)) return string.Empty;
             // Use Regex to find uppercase letters and insert a space before them
-            return Regex.Replace(camelCaseString, "([A-Z])", " $1").Trim();
+            return Regex.Replace(camelCaseString, @"([a-z])([A-Z])", "$1 $2");
         }
 
         /// <summary>

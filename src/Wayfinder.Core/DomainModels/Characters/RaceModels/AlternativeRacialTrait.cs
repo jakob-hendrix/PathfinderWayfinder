@@ -2,6 +2,6 @@
 {
     public class AlternativeRacialTrait : RacialTrait
     {
-        public List<string> ReplacesTraitNames { get; init; } = new();
+        public List<string> ReplacesRacialTraits { get; init; } = new();
     }
 }

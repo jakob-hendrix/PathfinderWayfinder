@@ -92,7 +92,7 @@
                                     </div>
                                     <p class="mb-1 small @(isSelected ? "text-white" : "text-muted")">@alt.Description</p>
                                     <small class="x-small @(isSelected ? "text-light" : "text-danger")">
-                                        Replaces: @string.Join(", ", alt.ReplacesTraitNames)
+                                        Replaces: @string.Join(", ", alt.ReplacesRacialTraits)
                                     </small>
                                 </button>
                             }
@@ -148,6 +148,7 @@
         private bool IsTraitReplaced(string traitName)
         {
             if (VM.ActiveSheet?.Race == null) return false;
+            if (!VM.ActiveSheet.Race.RaceDefinition.Name.EqualsIgnoreCase(SelectedDefinition?.Name)) return false;
             return !VM.ActiveSheet.Race.SelectedRacialTraits.Any(t => t.Name.EqualsIgnoreCase(traitName));
         }
 

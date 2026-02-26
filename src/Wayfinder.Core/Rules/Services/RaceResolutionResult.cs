@@ -6,7 +6,7 @@ namespace Wayfinder.Core.Rules.Services
     {
         public Race? HydratedRace { get; set; }
 
-        public List<RacialTrait> ActiveTraits { get; set; } = new();
+        public List<RacialTrait> ActiveRacialTraits { get; set; } = new();
         public List<string> Errors { get; set; } = new();
         public bool IsValid => !Errors.Any();
     }
