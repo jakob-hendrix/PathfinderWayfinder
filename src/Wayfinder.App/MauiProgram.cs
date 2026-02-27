@@ -3,7 +3,7 @@ using Wayfinder.App.Services;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
-using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
 using Wayfinder.Infrastructure.Persistence;

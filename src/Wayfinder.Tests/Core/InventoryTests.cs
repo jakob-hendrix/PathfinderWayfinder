@@ -2,7 +2,7 @@
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
-using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core

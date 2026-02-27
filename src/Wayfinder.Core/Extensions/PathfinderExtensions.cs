@@ -36,5 +36,11 @@ namespace Wayfinder.Core.Extensions
         {
             return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
         }
+
+        public static T? GetDataByLevel<T>(this IEnumerable<T> collection, int level) where T : class
+        {
+            if (collection == null || level < 1 || level > 20) return null;
+            return collection.ElementAtOrDefault(level - 1);
+        }
     }
 }

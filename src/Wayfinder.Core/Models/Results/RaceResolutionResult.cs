@@ -1,6 +1,6 @@
 ﻿using Wayfinder.Core.Models.Characters;
 
-namespace Wayfinder.Core.Rules.Services
+namespace Wayfinder.Core.Models.Results
 {
     public class RaceResolutionResult
     {
