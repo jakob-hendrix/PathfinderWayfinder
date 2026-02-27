@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters;
-using Wayfinder.Core.DomainModels.Characters.RaceModels;
+using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 

@@ -1,7 +1,7 @@
-﻿using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters.RaceModels;
+﻿using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Models.Characters;
 
 namespace Wayfinder.Core.Factories;
 

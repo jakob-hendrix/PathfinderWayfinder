@@ -1,5 +1,5 @@
-﻿using Wayfinder.Core.DomainModels.Characters;
-using Wayfinder.Core.DomainModels.Common;
+﻿using Wayfinder.Core.Models.Characters;
+using Wayfinder.Core.Models.Common;
 using Wayfinder.Core.Enums;
 
 namespace Wayfinder.Tests.Core.Mocks

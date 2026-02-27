@@ -1,5 +1,5 @@
 ﻿using Wayfinder.Core.DataServices;
-using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Services

@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.DomainModels.Characters;
+﻿using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Enums;
 
 namespace Wayfinder.Core.Rules.Calculators

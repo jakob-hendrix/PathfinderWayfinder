@@ -1,7 +1,8 @@
-﻿using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Items;
+﻿using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Models.Items;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Items;
 
 namespace Wayfinder.Core.Services
 {

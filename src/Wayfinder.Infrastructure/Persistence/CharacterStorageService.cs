@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.DomainModels.Characters;
+﻿using Wayfinder.Core.Models.Characters;
 
 namespace Wayfinder.Infrastructure.Persistence
 {

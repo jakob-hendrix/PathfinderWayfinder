@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.Data.Definitions;
+﻿using Wayfinder.Core.DataDefinitions;
 using YamlDotNet.Serialization;
 
 namespace Wayfinder.Infrastructure.DTOs

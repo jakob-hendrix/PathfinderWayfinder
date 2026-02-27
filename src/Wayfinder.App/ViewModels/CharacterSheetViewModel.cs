@@ -1,10 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.DomainModels.Characters;
-using Wayfinder.Core.DomainModels.Characters.RaceModels;
-using Wayfinder.Core.DomainModels.Items;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Items;
 
 namespace Wayfinder.App.Services
 {

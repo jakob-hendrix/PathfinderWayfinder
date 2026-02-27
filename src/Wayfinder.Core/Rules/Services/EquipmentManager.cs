@@ -1,7 +1,7 @@
-﻿using Wayfinder.Core.DomainModels.Characters;
-using Wayfinder.Core.DomainModels.Items;
+﻿using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Items;
 
 namespace Wayfinder.Core.Rules.Services
 {

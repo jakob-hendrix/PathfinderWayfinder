@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Services;
 using Wayfinder.Core.Services;
 

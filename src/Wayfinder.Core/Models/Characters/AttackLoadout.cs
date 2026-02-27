@@ -1,4 +1,4 @@
-﻿namespace Wayfinder.Core.DomainModels.Characters
+﻿namespace Wayfinder.Core.Models.Characters
 {
     public class AttackLoadout
     {

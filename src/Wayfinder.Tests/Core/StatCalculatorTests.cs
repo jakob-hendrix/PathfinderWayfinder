@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.DomainModels.Common;
+using Wayfinder.Core.Models.Common;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Rules.Calculators;
 

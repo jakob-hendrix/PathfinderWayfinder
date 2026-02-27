@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Infrastructure.DataSeeders;
 

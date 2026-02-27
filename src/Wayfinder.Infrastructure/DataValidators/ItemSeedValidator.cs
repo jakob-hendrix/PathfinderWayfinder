@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.Data.Definitions;
+﻿using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Enums;
 
 namespace Wayfinder.Infrastructure.DataValidators
