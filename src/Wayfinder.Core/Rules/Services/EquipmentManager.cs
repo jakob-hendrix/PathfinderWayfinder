@@ -1,15 +1,10 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.DomainModels.Items;
 using Wayfinder.Core.Enums;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Rules.Services
 {
-    public interface IEquipmentManager
-    {
-        double GetTotalCarriedWeight(CharacterEntity entity);
-        EncumbranceLevel GetEncumbrance(int totalCarriedWeight, int strength);
-    }
-
     public class EquipmentManager : IEquipmentManager
     {
         public EncumbranceLevel GetEncumbrance(int totalCarriedWeight, int strength)

@@ -1,23 +1,11 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.Enums;
-using Wayfinder.Core.Services;
 
-namespace Wayfinder.Core.Rules.Services
+namespace Wayfinder.Core.Rules.Calculators
 {
-    public interface ISaveCalculator
+    public static class SaveCalculator
     {
-        int Calculate(IEnumerable<ClassLevel> levels, SaveType saveType);
-    }
-    public class SaveCalculator : ISaveCalculator
-    {
-        private readonly IClassFactory _classFactory;
-
-        public SaveCalculator(IClassFactory classFactory)
-        {
-            _classFactory = classFactory;
-        }
-
-        public int Calculate(IEnumerable<ClassLevel> levels, SaveType saveType)
+        public static int Calculate(IEnumerable<ClassLevel> levels, SaveType saveType)
         {
             if (levels == null || !levels.Any()) return 0;
 
@@ -30,14 +18,14 @@ namespace Wayfinder.Core.Rules.Services
 
             foreach (var group in classGroups)
             {
-                var currentClass = _classFactory.GetClass(group.Key);
+                var currentClass = group.First().Class;
                 int levelCount = group.Count();
 
                 var rate = saveType switch
                 {
-                    SaveType.Fortitude => currentClass.FortitudeRate,
-                    SaveType.Reflex => currentClass.ReflexRate,
-                    SaveType.Will => currentClass.WillRate,
+                    SaveType.Fortitude => currentClass!.FortitudeRate,
+                    SaveType.Reflex => currentClass!.ReflexRate,
+                    SaveType.Will => currentClass!.WillRate,
                     _ => throw new ArgumentException("Invalid save type")
 
                 };

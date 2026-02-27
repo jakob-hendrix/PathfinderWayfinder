@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Wayfinder.Core.Services;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.App.Services
 {

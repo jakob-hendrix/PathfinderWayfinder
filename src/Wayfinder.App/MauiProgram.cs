@@ -24,28 +24,23 @@ namespace Wayfinder.App
 
             builder.Services.AddMauiBlazorWebView();
 
-            // Set up data services
+            #region Data Services
             builder.Services.AddScoped<ICharacterStorage, CharacterStorageService>();
             builder.Services.AddSingleton<DataSeeder>();
             builder.Services.AddSingleton<DomainMapper>();
+            #endregion
 
-            // Set app services
+            #region UI Services
             builder.Services.AddSingleton<AppStateService>();
             builder.Services.AddSingleton<CharacterStateService>();
             builder.Services.AddSingleton<IAppLogger, AppLoggingService>();
             builder.Services.AddSingleton<DataSeederService>();
             builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
-
-            // ViewModels
             builder.Services.AddScoped<CharacterSheetViewModel>();
             builder.Services.AddScoped<BaseCharacterViewModel>();
+            #endregion
 
-            // Set up Pathfinder services
-            builder.Services.AddSingleton<IBabCalculator, BabCalculator>();
-            //builder.Services.AddSingleton<IAbilityScoreCalculator, AbilityScoreCalculator>();
-            builder.Services.AddSingleton<ISaveCalculator, SaveCalculator>();
-            builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
-
+            #region Pathfinder services
             // The compendiums seeded from user files
             builder.Services.AddSingleton<IItemLibrary, ItemLibrary>();
             builder.Services.AddSingleton<IClassLibrary, ClassLibrary>();
@@ -60,7 +55,7 @@ namespace Wayfinder.App
             // Set up bundled subsystems
             builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();
             builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();
-
+            #endregion
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();

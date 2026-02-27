@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.Core.DomainModels.Characters;
-using Wayfinder.Core.Services;
+using Wayfinder.Core.Interfaces;
 using Wayfinder.Infrastructure.DataSeeders;
 
 namespace Wayfinder.App.Services
@@ -42,20 +42,17 @@ namespace Wayfinder.App.Services
         {
             if (ActiveCharacter == null) return;
 
-            // Update the Sheet (the Reality)
-            if (ActiveSheet != null)
-            {
-                ActiveSheet.RebuildRace();
-            }
+            // Trigger the sheet to recalculate it bits and bobs
+            ActiveSheet?.Refresh();
 
             // 2. Announce to anyone listening that the factory just rebuilt the world
-            OnStateChanged?.Invoke();
+            StateChanged?.Invoke();
         }
 
         // Fired when our base character is modified, letting other view know to update
         // their math
-        public event Action? OnStateChanged;
+        public event Action? StateChanged;
 
-        public void NotifyStateChanged() => OnStateChanged?.Invoke();
+        public void NotifyStateChanged() => StateChanged?.Invoke();
     }
 }

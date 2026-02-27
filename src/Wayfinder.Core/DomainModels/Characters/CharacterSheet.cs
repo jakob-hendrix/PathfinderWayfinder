@@ -1,7 +1,7 @@
 ﻿using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.DomainModels.Items;
-using Wayfinder.Core.Rules.Services;
-using Wayfinder.Core.Services;
+using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Rules.Calculators;
 
 namespace Wayfinder.Core.DomainModels.Characters
 {
@@ -42,6 +42,7 @@ namespace Wayfinder.Core.DomainModels.Characters
             else
             {
                 // TODO: throw error?
+                Race = null;
             }
         }
 

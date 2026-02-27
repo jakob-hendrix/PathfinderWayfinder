@@ -1,14 +1,9 @@
 ﻿using Wayfinder.Core.Data.Definitions;
 using Wayfinder.Core.Extensions;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Services
 {
-    public interface IItemLibrary : IDataLibrary
-    {
-        public void Register(ItemDefinition itemDefinition);
-        public ItemDefinition GetItemDefinition(string id);
-    }
-
     public class ItemLibrary : IItemLibrary
     {
         private readonly Dictionary<string, ItemDefinition> _itemDefinitions = new();

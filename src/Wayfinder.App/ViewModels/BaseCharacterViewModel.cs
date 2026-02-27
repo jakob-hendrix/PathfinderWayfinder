@@ -3,7 +3,7 @@ using Wayfinder.Core.Data.Definitions;
 using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.Enums;
-using Wayfinder.Core.Services;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.App.Services
 {
@@ -17,7 +17,7 @@ namespace Wayfinder.App.Services
             _stateService = stateService;
             _raceLibrary = raceLibrary;
 
-            _stateService.OnStateChanged += OnCharacterStateChanged;
+            _stateService.StateChanged += OnCharacterStateChanged;
         }
 
         private void OnCharacterStateChanged()
@@ -147,7 +147,7 @@ namespace Wayfinder.App.Services
 
         public void Dispose()
         {
-            _stateService.OnStateChanged -= OnCharacterStateChanged;
+            _stateService.StateChanged -= OnCharacterStateChanged;
         }
         #endregion
     }

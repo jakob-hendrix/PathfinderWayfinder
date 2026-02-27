@@ -1,14 +1,7 @@
-﻿using Wayfinder.Core.DataServices;
+﻿using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Services
 {
-    public interface IPathfinderDataLibrary
-    {
-        IClassLibrary ClassLibrary { get; }
-        IItemLibrary ItemLibrary { get; }
-        IRaceLibrary RaceLibrary { get; }
-    }
-
     public class PathfinderDataLibrary : IPathfinderDataLibrary
     {
         public IClassLibrary ClassLibrary { get; }

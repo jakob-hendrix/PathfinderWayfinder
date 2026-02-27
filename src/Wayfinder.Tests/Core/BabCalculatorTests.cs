@@ -3,7 +3,8 @@ using Wayfinder.Core.Data.Definitions;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.Enums;
-using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Rules.Calculators;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core
@@ -11,7 +12,6 @@ namespace Wayfinder.Tests.Core
     [TestFixture]
     public class BabCalculatorTests
     {
-        private IBabCalculator _calculator;
         private IClassLibrary _classRegistry;
         private IClassFactory _classFactory;
 
@@ -27,14 +27,13 @@ namespace Wayfinder.Tests.Core
             _classRegistry.Register(new ClassDefinition() { Name = "Wizard", BabRate = "Slow" });
             _classRegistry.Register(new ClassDefinition() { Name = "Wizard2", BabRate = "Slow" });
             _classFactory = new ClassFactory(_classRegistry);
-            _calculator = new BabCalculator(_classFactory);
         }
 
         [Test]
         public void CalculateBab_ShouldReturn0_WhenNoLevels()
         {
             var levels = new List<ClassLevel>();
-            Assert.That(_calculator.Calculate(levels), Is.EqualTo(0));
+            Assert.That(BabCalculator.Calculate(levels), Is.EqualTo(0));
         }
 
         [TestCase(1, 1)]
@@ -56,7 +55,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels), Is.EqualTo(expectedBab));
+            Assert.That(BabCalculator.Calculate(levels), Is.EqualTo(expectedBab));
         }
 
         [TestCase(1, 0)]
@@ -92,7 +91,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels), Is.EqualTo(expectedBab));
+            Assert.That(BabCalculator.Calculate(levels), Is.EqualTo(expectedBab));
         }
 
         [TestCase(1, 0)]
@@ -128,7 +127,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels), Is.EqualTo(expectedBab));
+            Assert.That(BabCalculator.Calculate(levels), Is.EqualTo(expectedBab));
         }
 
         [TestCase(20, 0, 0, 10)]
@@ -174,7 +173,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels), Is.EqualTo(expectedBab));
+            Assert.That(BabCalculator.Calculate(levels), Is.EqualTo(expectedBab));
         }
 
         [TestCase(BabProgressionRate.Fast, 1, 1, 2)]
@@ -223,7 +222,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels), Is.EqualTo(expectedBab));
+            Assert.That(BabCalculator.Calculate(levels), Is.EqualTo(expectedBab));
         }
     }
 }

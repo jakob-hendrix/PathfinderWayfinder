@@ -1,12 +1,9 @@
 ﻿using Wayfinder.Core.DataServices;
 using Wayfinder.Core.DomainModels.Characters;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Services
 {
-    public interface IClassFactory
-    {
-        BaseCharacterClass GetClass(string className);
-    }
     public class ClassFactory : IClassFactory
     {
         private readonly IClassLibrary _classLibrary;

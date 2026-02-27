@@ -1,4 +1,5 @@
 ﻿using Wayfinder.Core.Data.Definitions;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Services
 {

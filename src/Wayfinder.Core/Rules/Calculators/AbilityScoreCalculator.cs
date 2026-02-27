@@ -1,6 +1,6 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
 
-namespace Wayfinder.Core.Rules.Services
+namespace Wayfinder.Core.Rules.Calculators
 {
     //public interface IAbilityScoreCalculator
     //{

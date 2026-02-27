@@ -3,7 +3,8 @@ using Wayfinder.Core.Data.Definitions;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.Enums;
-using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Rules.Calculators;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core
@@ -11,7 +12,6 @@ namespace Wayfinder.Tests.Core
     [TestFixture]
     public class SaveCalculatorTests
     {
-        private ISaveCalculator _calculator;
         private IClassLibrary _classRegistry;
         private IClassFactory _classFactory;
 
@@ -30,17 +30,15 @@ namespace Wayfinder.Tests.Core
             _classRegistry.Register(new ClassDefinition() { Name = "AllSlow2", FortitudeRate = "Slow", WillRate = "Slow", ReflexRate = "Slow" });
 
             _classFactory = new ClassFactory(_classRegistry);
-
-            _calculator = new SaveCalculator(_classFactory);
         }
 
         [Test]
         public void CalculateSave_ShouldReturn0_WhenNoLevels()
         {
             var levels = new List<ClassLevel>();
-            Assert.That(_calculator.Calculate(levels, SaveType.Will), Is.EqualTo(0));
-            Assert.That(_calculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(0));
-            Assert.That(_calculator.Calculate(levels, SaveType.Reflex), Is.EqualTo(0));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will), Is.EqualTo(0));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(0));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Reflex), Is.EqualTo(0));
         }
 
         [TestCase(1, 2)]
@@ -76,7 +74,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(expectedSave));
         }
 
         [TestCase(1, 0)]
@@ -112,7 +110,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels, SaveType.Will), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will), Is.EqualTo(expectedSave));
         }
 
         [TestCase(1, 0, 2)]
@@ -148,7 +146,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(expectedSave));
         }
 
         [TestCase(1, 0, 0)]
@@ -190,7 +188,7 @@ namespace Wayfinder.Tests.Core
                 });
             }
 
-            Assert.That(_calculator.Calculate(levels, SaveType.Will), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will), Is.EqualTo(expectedSave));
         }
     }
 }

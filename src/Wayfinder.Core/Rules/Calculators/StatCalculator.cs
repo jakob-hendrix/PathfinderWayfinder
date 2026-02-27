@@ -1,15 +1,10 @@
 ﻿using Wayfinder.Core.DomainModels.Common;
 
-namespace Wayfinder.Core.Rules.Services
+namespace Wayfinder.Core.Rules.Calculators
 {
-    public interface IStatCalculator
+    public static class StatCalculator
     {
-        int CalculateStat(int baseStat, IEnumerable<Bonus> bonuses);
-    }
-
-    public class StatCalculator : IStatCalculator
-    {
-        public int CalculateStat(int baseStat, IEnumerable<Bonus> bonuses)
+        public static int CalculateStat(int baseStat, IEnumerable<Bonus> bonuses)
         {
             // Only some bonus types stack. 
             var stackableBonusesSum = bonuses

@@ -4,7 +4,7 @@ using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.DomainModels.Characters.RaceModels;
 using Wayfinder.Core.DomainModels.Items;
 using Wayfinder.Core.Extensions;
-using Wayfinder.Core.Services;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.App.Services
 {
@@ -30,7 +30,7 @@ namespace Wayfinder.App.Services
             _appStateService.OnDataRefreshed += HandleDataRefreshed;
 
             // If our base character entity changes, recalc our sheet
-            _characterStateService.OnStateChanged += TriggerFullRecalc;
+            _characterStateService.StateChanged += TriggerFullRecalc;
 
             Initialize();
 
@@ -168,7 +168,7 @@ namespace Wayfinder.App.Services
         public void Dispose()
         {
             _appStateService.OnDataRefreshed -= HandleDataRefreshed;
-            _characterStateService.OnStateChanged -= TriggerFullRecalc;
+            _characterStateService.StateChanged -= TriggerFullRecalc;
         }
     }
 }

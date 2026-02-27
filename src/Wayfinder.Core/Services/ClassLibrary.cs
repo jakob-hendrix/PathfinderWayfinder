@@ -1,14 +1,8 @@
 ﻿using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.Services;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.DataServices
 {
-    public interface IClassLibrary : IDataLibrary
-    {
-        public void Register(ClassDefinition classDefinition);
-        public ClassDefinition GetClassDefinition(string className);
-    }
-
     public class ClassLibrary : IClassLibrary
     {
         private readonly Dictionary<string, ClassDefinition> _definitions = new();

@@ -1,6 +1,6 @@
 ﻿using Wayfinder.Core.Data.Definitions;
 
-namespace Wayfinder.Core.Services
+namespace Wayfinder.Core.Interfaces
 {
     public interface IRaceLibrary : IDataLibrary
     {

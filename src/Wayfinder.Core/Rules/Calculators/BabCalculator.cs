@@ -1,29 +1,16 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.Enums;
-using Wayfinder.Core.Services;
 
-namespace Wayfinder.Core.Rules.Services
+namespace Wayfinder.Core.Rules.Calculators
 {
-    public interface IBabCalculator
-    {
-        int Calculate(IEnumerable<ClassLevel> levels);
-    }
-
     /// <summary>
     /// Returns the current total BAB based on class levels.
     /// - The default method totals each class then rounds down, before adding to the total
     /// - The Fractional method totals all levels together, before rounding down at the end.
     /// </summary>
-    public class BabCalculator : IBabCalculator
+    public static class BabCalculator
     {
-        private readonly IClassFactory _classFactory;
-
-        public BabCalculator(IClassFactory classFactory)
-        {
-            _classFactory = classFactory;
-        }
-
-        public int Calculate(IEnumerable<ClassLevel> levels)
+        public static int Calculate(IEnumerable<ClassLevel> levels)
         {
             if (levels == null || !levels.Any()) return 0;
 
@@ -36,13 +23,13 @@ namespace Wayfinder.Core.Rules.Services
 
             foreach (var group in classGroups)
             {
-                var currentClass = _classFactory.GetClass(group.Key);
+                var babRate = group.First()?.Class?.BabRate;
                 int classLevelCount = group.Count();
                 int classBab = 0;
 
                 // NOTE: when we implement Fractional calculations, this
                 // will change. Original calc are rounded down per class
-                switch (currentClass.BabRate)
+                switch (babRate)
                 {
                     case BabProgressionRate.Fast:
                         // Fast rate = 1 BAB per level

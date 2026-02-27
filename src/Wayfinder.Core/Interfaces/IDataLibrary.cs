@@ -1,4 +1,4 @@
-﻿namespace Wayfinder.Core.Services
+﻿namespace Wayfinder.Core.Interfaces
 {
     public interface IDataLibrary
     {

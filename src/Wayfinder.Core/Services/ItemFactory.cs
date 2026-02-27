@@ -1,14 +1,10 @@
 ﻿using Wayfinder.Core.Data.Definitions;
 using Wayfinder.Core.DomainModels.Items;
 using Wayfinder.Core.Enums;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Services
 {
-    public interface IItemFactory
-    {
-        ItemInstance CreateItem(string templateId);
-    }
-
     public class ItemFactory : IItemFactory
     {
         private readonly IItemLibrary _itemLibrary;

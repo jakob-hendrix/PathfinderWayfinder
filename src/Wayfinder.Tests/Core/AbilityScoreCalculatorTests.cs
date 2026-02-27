@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Rules.Calculators;
 
 namespace Wayfinder.Tests.Core
 {

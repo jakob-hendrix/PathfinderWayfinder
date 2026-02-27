@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.Services;
+﻿using Wayfinder.Core.Interfaces;
 using Wayfinder.Infrastructure.DataSeeders;
 
 namespace Wayfinder.App.Services

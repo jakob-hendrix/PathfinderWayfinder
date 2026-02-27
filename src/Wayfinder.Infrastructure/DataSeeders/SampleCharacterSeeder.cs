@@ -1,6 +1,6 @@
 ﻿using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.DomainModels.Characters.RaceModels;
-using Wayfinder.Core.Services;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Infrastructure.DataSeeders
 {
