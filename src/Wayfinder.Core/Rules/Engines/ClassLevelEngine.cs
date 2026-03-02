@@ -4,7 +4,7 @@ using Wayfinder.Core.Models.Results;
 
 namespace Wayfinder.Core.Rules.Engines;
 
-public class ClassLevelEngine
+public class ClassLevelEngine : IClassLevelEngine
 {
     private readonly IClassLibrary _classLibrary;
 
@@ -87,4 +87,19 @@ public class ClassLevelEngine
 
         return result;
     }
-}
+
+    public List<string> ValidateChoice(ClassLevelChoice choice)
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(choice.ClassName))
+            errors.Add("A class must be selected.");
+
+        // Enforce an ability score choice every 4th level
+        //if (choice.CharacterLevel % 4 == 0 && string.IsNullOrWhiteSpace(choice.AbilityScoreIncrease))
+        //    errors.Add($"Level {choice.CharacterLevel} requires an ability score increase selection.");
+
+        // TODO: Validate HP input (e.g., must be > 0 and <= max hit die)
+
+        return errors;
+    }

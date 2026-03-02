@@ -20,6 +20,7 @@ public class CharacterSheet
     public CharacterEntity BaseCharacterFacts { get; }
 
     public Race? Race { get; private set; }
+    public List<HydratedClassLevel>? ClassLevels { get; private set; }
 
     // Ability Scores
     public int Strength => CalculateAbilityScore(BaseCharacterFacts.BaseStrength);
@@ -42,6 +43,22 @@ public class CharacterSheet
         {
             // TODO: throw error?
             Race = null;
+        }
+    }
+
+    // Get a hydrated Race instance
+    public void RebuildClasses()
+    {
+        // The Factory builds it, and the Domain stores it
+        var result = _rulesEngine.ClassLevelEngine.HydrateLevels(BaseCharacterFacts.ClassLevelChoices);
+        if (result.IsValid)
+        {
+            ClassLevels = result.HydratedLevels;
+        }
+        else
+        {
+            // TODO: throw error?
+            ClassLevels = null;
         }
     }
 
@@ -80,12 +97,23 @@ public class CharacterSheet
     }
 
     // Sheet Actions
-    public void AddLevel(string className)
+    public void AddClassLevel(ClassLevelChoice validChoice)
     {
-        // TODO: implement adding a new level to ClassLevels
-        // This will need to trigger a full recalc of the sheet
-        // Will require validation (max levels, class exists, new class isn't archetype of old class, etc)
-        // So this will need to be in a new factory class of some sort
+        // Ensure we are adding exactly the next level in the sequence
+        int expectedLevel = BaseCharacterFacts.ClassLevelChoices.Count + 1;
+        if (validChoice.CharacterLevel != expectedLevel) return;
+
+        BaseCharacterFacts.ClassLevelChoices.Add(validChoice);
+        RebuildClasses(); // Re-runs the hydration engine!
+    }
+
+    public void RemoveHighestClassLevel()
+    {
+        if (BaseCharacterFacts.ClassLevelChoices.Any())
+        {
+            BaseCharacterFacts.ClassLevelChoices.RemoveAt(BaseCharacterFacts.ClassLevelChoices.Count - 1);
+            RebuildClasses();
+        }
     }
 
     public void Refresh()
@@ -94,5 +122,12 @@ public class CharacterSheet
     }
 
     // Helper functions
-    private int CalculateAbilityScore(int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, BaseCharacterFacts.ClassLevels);
+    private int CalculateAbilityScore(int baseScore)
+    {
+        // TODO: later on handle the null in the calculator instead of here, but for now this is easier
+        if (ClassLevels == null)
+            return baseScore;
+
+        return AbilityScoreCalculator.CalculateCurrentValue(baseScore, ClassLevels);
+    }
 }

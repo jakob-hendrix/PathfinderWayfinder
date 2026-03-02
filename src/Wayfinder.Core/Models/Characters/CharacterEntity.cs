@@ -45,7 +45,7 @@ public class CharacterEntity
     public List<string> Languages { get; set; }
 
     // Levels - includes HP, favored class bonuses, any choices such as Armor Training, etc
-    public List<ClassLevel> ClassLevels { get; set; } = new();
+    public List<ClassLevelChoice> ClassLevelChoices { get; set; } = new();
 
     // Skills - skill points per level are derived from class levels, but the chosen ranks
     // are stored here

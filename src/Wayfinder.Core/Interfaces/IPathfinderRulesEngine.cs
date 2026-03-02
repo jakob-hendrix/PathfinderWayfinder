@@ -7,6 +7,6 @@
         IClassFactory ClassFactory { get; }
         IItemFactory ItemFactory { get; }
         IRaceFactory RaceFactory { get; }
-
+        IClassLevelEngine ClassLevelEngine { get; }
     }
 }
