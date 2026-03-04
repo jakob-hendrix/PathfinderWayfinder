@@ -76,9 +76,10 @@ public class ClassLevelEngine : IClassLevelEngine
             // TODO: grant class-specific bonus feats and featurees here
 
             // Ability Score Increase (level 4, 8, etc)
-            if (choice.CharacterLevel % 4 == 0)
+            if (IsAbilityScoreIncreaseLevel(choice.CharacterLevel))
             {
                 hydratedLevel.GrantsAbilityScoreIncrease = true;
+                hydratedLevel.IncreasedAbilityScore = choice.AbilityScoreIncrease;
             }
 
             result.HydratedLevels.Add(hydratedLevel);

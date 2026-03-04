@@ -13,7 +13,8 @@ public class CharacterSheetTests
 {
     private CharacterEntity _entity;
     private Mock<IPathfinderRulesEngine> _mockEngine;
-    private Mock<IClassLevelEngine> _mockClassEngine; // Assuming your rules engine exposes this
+    private Mock<IClassLevelEngine> _mockClassEngine;
+    private Mock<IRaceFactory> _mockRaceFactory;
     private CharacterSheet _sheet;
 
     [SetUp]
@@ -23,13 +24,28 @@ public class CharacterSheetTests
         _entity = new CharacterEntity();
         _entity.BaseStrength = 10;
         _entity.BaseDexterity = 10;
+        _entity.BaseConstitution = 10;
+        _entity.BaseIntelligence = 10;
+        _entity.BaseWisdom = 10;
+        _entity.BaseCharisma = 10;
 
         // 2. Setup the Engine Mocks
         _mockEngine = new Mock<IPathfinderRulesEngine>();
         _mockClassEngine = new Mock<IClassLevelEngine>();
+        _mockRaceFactory = new Mock<IRaceFactory>();
+
+        _mockRaceFactory
+                .Setup(r => r.BuildRace(It.IsAny<RaceChoices>()))
+                .Returns(new RaceResolutionResult { HydratedRace = null });
 
         // Link the class engine to the rules engine (adjust based on your exact interface)
-        _mockEngine.Setup(e => e.ClassLevelEngine).Returns(_mockClassEngine.Object);
+        _mockEngine
+            .Setup(e => e.ClassLevelEngine)
+            .Returns(_mockClassEngine.Object);
+
+        _mockEngine
+            .Setup(e => e.RaceFactory)
+            .Returns(_mockRaceFactory.Object);
 
         // 3. Initialize the Sheet
         _sheet = new CharacterSheet(_entity, _mockEngine.Object);
@@ -121,6 +137,180 @@ public class CharacterSheetTests
         // Assert: 15 (Base) + 1 (Level 4 Bump) = 16
         // (Racial bonuses are explicitly excluded until implemented)
         Assert.That(totalStrength, Is.EqualTo(16));
+    }
+
+    public void DexterityProperty_CalculatesBasePlusClassLevelBumps()
+    {
+        // Arrange: Base Score
+        _entity.BaseDexterity = 15;
+
+        // Arrange: Class Level Bump (+1 Str at Level 4)
+        // We add the fact to the entity so the sheet can read the user's choice
+        _entity.ClassLevelChoices.Add(new ClassLevelChoice
+        {
+            CharacterLevel = 4,
+            ClassName = "Fighter",
+            AbilityScoreIncrease = AbilityScore.Dexterity
+        });
+
+        // Mock the hydration result to reflect that level 4 actually grants a bump
+        var hydratedLevel = new HydratedClassLevel
+        {
+            CharacterLevel = 4,
+            GrantsAbilityScoreIncrease = true
+        };
+
+        var hydrationResult = new ClassHydrationResult
+        {
+            HydratedLevels = new List<HydratedClassLevel> { hydratedLevel }
+        };
+
+        _mockClassEngine
+            .Setup(e => e.HydrateLevels(It.IsAny<IEnumerable<ClassLevelChoice>>()))
+            .Returns(hydrationResult);
+
+        // Act
+        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+
+        // This triggers your private CalculateAbilityScore(AbilityScore.Strength)
+        int totalStat = _sheet.Dexterity;
+
+        // Assert: 15 (Base) + 1 (Level 4 Bump) = 16
+        // (Racial bonuses are explicitly excluded until implemented)
+        Assert.That(totalStat, Is.EqualTo(16));
+    }
+
+    public void ConstitutionProperty_CalculatesBasePlusClassLevelBumps()
+    {
+        // Arrange: Base Score
+        _entity.BaseConstitution = 15;
+
+        // Arrange: Class Level Bump (+1 Str at Level 4)
+        _entity.ClassLevelChoices.Add(new ClassLevelChoice
+        {
+            CharacterLevel = 4,
+            ClassName = "Fighter",
+            AbilityScoreIncrease = AbilityScore.Constitution
+        });
+
+        var hydratedLevel = new HydratedClassLevel
+        {
+            CharacterLevel = 4,
+            GrantsAbilityScoreIncrease = true
+        };
+
+        var hydrationResult = new ClassHydrationResult
+        {
+            HydratedLevels = new List<HydratedClassLevel> { hydratedLevel }
+        };
+
+        _mockClassEngine
+            .Setup(e => e.HydrateLevels(It.IsAny<IEnumerable<ClassLevelChoice>>()))
+            .Returns(hydrationResult);
+
+        // Act
+        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+        int totalStat = _sheet.Constitution;
+        Assert.That(totalStat, Is.EqualTo(16));
+    }
+
+    public void IntelligenceProperty_CalculatesBasePlusClassLevelBumps()
+    {
+        // Arrange: Base Score
+        _entity.BaseIntelligence = 15;
+        _entity.ClassLevelChoices.Add(new ClassLevelChoice
+        {
+            CharacterLevel = 4,
+            ClassName = "Fighter",
+            AbilityScoreIncrease = AbilityScore.Intelligence
+        });
+
+        var hydratedLevel = new HydratedClassLevel
+        {
+            CharacterLevel = 4,
+            GrantsAbilityScoreIncrease = true
+        };
+
+        var hydrationResult = new ClassHydrationResult
+        {
+            HydratedLevels = new List<HydratedClassLevel> { hydratedLevel }
+        };
+
+        _mockClassEngine
+            .Setup(e => e.HydrateLevels(It.IsAny<IEnumerable<ClassLevelChoice>>()))
+            .Returns(hydrationResult);
+
+        // Act
+        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+
+        int totalStat = _sheet.Intelligence;
+        Assert.That(totalStat, Is.EqualTo(16));
+    }
+
+    public void WisdomProperty_CalculatesBasePlusClassLevelBumps()
+    {
+        // Arrange: Base Score
+        _entity.BaseWisdom = 15;
+        _entity.ClassLevelChoices.Add(new ClassLevelChoice
+        {
+            CharacterLevel = 4,
+            ClassName = "Fighter",
+            AbilityScoreIncrease = AbilityScore.Wisdom
+        });
+
+        var hydratedLevel = new HydratedClassLevel
+        {
+            CharacterLevel = 4,
+            GrantsAbilityScoreIncrease = true
+        };
+
+        var hydrationResult = new ClassHydrationResult
+        {
+            HydratedLevels = new List<HydratedClassLevel> { hydratedLevel }
+        };
+
+        _mockClassEngine
+            .Setup(e => e.HydrateLevels(It.IsAny<IEnumerable<ClassLevelChoice>>()))
+            .Returns(hydrationResult);
+
+        // Act
+        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+
+        int totalStat = _sheet.Wisdom;
+        Assert.That(totalStat, Is.EqualTo(16));
+    }
+
+    public void CharismaProperty_CalculatesBasePlusClassLevelBumps()
+    {
+        // Arrange: Base Score
+        _entity.BaseCharisma = 15;
+        _entity.ClassLevelChoices.Add(new ClassLevelChoice
+        {
+            CharacterLevel = 4,
+            ClassName = "Fighter",
+            AbilityScoreIncrease = AbilityScore.Charisma
+        });
+
+        var hydratedLevel = new HydratedClassLevel
+        {
+            CharacterLevel = 4,
+            GrantsAbilityScoreIncrease = true
+        };
+
+        var hydrationResult = new ClassHydrationResult
+        {
+            HydratedLevels = new List<HydratedClassLevel> { hydratedLevel }
+        };
+
+        _mockClassEngine
+            .Setup(e => e.HydrateLevels(It.IsAny<IEnumerable<ClassLevelChoice>>()))
+            .Returns(hydrationResult);
+
+        // Act
+        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+
+        int totalStat = _sheet.Charisma;
+        Assert.That(totalStat, Is.EqualTo(16));
     }
 
     // --- CLASS SUMMARY TESTS ---

@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Infrastructure.DataSeeders;
 
 namespace Wayfinder.App.Services

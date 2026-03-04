@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using Wayfinder.Core.Enums;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Calculators;
 
 namespace Wayfinder.Tests.Core
@@ -6,15 +8,6 @@ namespace Wayfinder.Tests.Core
     [TestFixture]
     public class AbilityScoreCalculatorTests
     {
-        //private IAbilityScoreCalculator _calculator;
-
-        //[SetUp]
-        //public void Setup()
-        //{
-        //    _calculator = new AbilityScoreCalculator();
-        //}
-
-        // TODO add tests
         [TestFixture]
         public class PathfinderMathExtensionsTests
         {
@@ -45,6 +38,84 @@ namespace Wayfinder.Tests.Core
                 var result = AbilityScoreCalculator.CalculateModifier(score);
                 Assert.That(result, Is.EqualTo(expected));
             }
+        }
+
+        [Test]
+        public void CalculateCurrentValue_WithNullLevels_ReturnsBaseScore()
+        {
+            // Act
+            int result = AbilityScoreCalculator.CalculateCurrentValue(15, AbilityScore.Strength, null);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(15), "If levels is null, it should safely return the base score.");
+        }
+
+        [Test]
+        public void CalculateCurrentValue_WithEmptyLevels_ReturnsBaseScore()
+        {
+            // Act
+            int result = AbilityScoreCalculator.CalculateCurrentValue(12, AbilityScore.Dexterity, new List<HydratedClassLevel>());
+
+            // Assert
+            Assert.That(result, Is.EqualTo(12));
+        }
+
+        [Test]
+        public void CalculateCurrentValue_WithMatchingAbilityBumps_AddsToBaseScore()
+        {
+            // Arrange
+            var levels = new List<HydratedClassLevel>
+        {
+            // Two bumps specifically to Strength
+            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Strength },
+            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Strength }
+        };
+
+            // Act
+            int result = AbilityScoreCalculator.CalculateCurrentValue(14, AbilityScore.Strength, levels);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(16), "Should add +2 to the base score of 14.");
+        }
+
+        [Test]
+        public void CalculateCurrentValue_WithDifferentAbilityBumps_IgnoresThem()
+        {
+            // Arrange
+            var levels = new List<HydratedClassLevel>
+        {
+            // A bump to Dexterity shouldn't affect Strength
+            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Dexterity }
+        };
+
+            // Act
+            int result = AbilityScoreCalculator.CalculateCurrentValue(14, AbilityScore.Strength, levels);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(14), "Should ignore bumps assigned to other ability scores.");
+        }
+
+        [Test]
+        public void CalculateCurrentValue_WithMixedLevels_CalculatesCorrectly()
+        {
+            // Arrange
+            var levels = new List<HydratedClassLevel>
+        {
+            new HydratedClassLevel { GrantsAbilityScoreIncrease = false }, // e.g., Level 1 (no bump)
+            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Intelligence }, // Level 4
+            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Wisdom },      // Level 8
+            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Intelligence } // Level 12
+        };
+
+            // Act - Calculate Intelligence
+            int intResult = AbilityScoreCalculator.CalculateCurrentValue(10, AbilityScore.Intelligence, levels);
+
+            // Act - Calculate Wisdom
+            int wisResult = AbilityScoreCalculator.CalculateCurrentValue(10, AbilityScore.Wisdom, levels);
+
+            // Assert
+            Assert.That(intResult, Is.EqualTo(12), "Should add exactly the 2 Intelligence bumps.");
+            Assert.That(wisResult, Is.EqualTo(11), "Should add exactly the 1 Wisdom bump.");
         }
     }
 }

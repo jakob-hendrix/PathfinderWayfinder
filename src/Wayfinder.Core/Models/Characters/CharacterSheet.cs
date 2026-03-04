@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Interfaces;
+﻿using Wayfinder.Core.Enums;
+using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Items;
 using Wayfinder.Core.Rules.Calculators;
 
@@ -15,6 +16,13 @@ public class CharacterSheet
     {
         BaseCharacterFacts = baseCharacterFacts;
         _rulesEngine = rulesEngine;
+        InitializeSheet();
+    }
+
+    private void InitializeSheet()
+    {
+        RebuildRace();
+        RebuildClasses();
     }
 
     public CharacterEntity BaseCharacterFacts { get; }
@@ -23,12 +31,12 @@ public class CharacterSheet
     public List<HydratedClassLevel>? ClassLevels { get; private set; }
 
     // Ability Scores
-    public int Strength => CalculateAbilityScore(BaseCharacterFacts.BaseStrength);
-    public int Dexterity => CalculateAbilityScore(BaseCharacterFacts.BaseDexterity);
-    public int Constitution => CalculateAbilityScore(BaseCharacterFacts.BaseConstitution);
-    public int Intelligence => CalculateAbilityScore(BaseCharacterFacts.BaseIntelligence);
-    public int Wisdom => CalculateAbilityScore(BaseCharacterFacts.BaseWisdom);
-    public int Charisma => CalculateAbilityScore(BaseCharacterFacts.BaseCharisma);
+    public int Strength => CalculateAbilityScore(AbilityScore.Strength, BaseCharacterFacts.BaseStrength);
+    public int Dexterity => CalculateAbilityScore(AbilityScore.Dexterity, BaseCharacterFacts.BaseDexterity);
+    public int Constitution => CalculateAbilityScore(AbilityScore.Constitution, BaseCharacterFacts.BaseConstitution);
+    public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacterFacts.BaseIntelligence);
+    public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacterFacts.BaseWisdom);
+    public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacterFacts.BaseCharisma);
 
     // Display the state of current class levels as Fighter 1 Wizard 2 etc
     public string ClassSummary
@@ -137,15 +145,16 @@ public class CharacterSheet
     public void Refresh()
     {
         RebuildRace();
+        RebuildClasses();
     }
 
     // Helper functions
-    private int CalculateAbilityScore(int baseScore)
-    {
-        // TODO: later on handle the null in the calculator instead of here, but for now this is easier
-        if (ClassLevels == null)
-            return baseScore;
-
-        return AbilityScoreCalculator.CalculateCurrentValue(baseScore, ClassLevels);
-    }
+    /// <summary>
+    /// Calculate the current game-ready value of an ability score, taking into account levels, racial bonuses,
+    /// buff and conditions, etc
+    /// </summary>
+    /// <param name="scoreType"></param>
+    /// <param name="baseScore"></param>
+    /// <returns></returns>
+    private int CalculateAbilityScore(AbilityScore scoreType, int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, scoreType, ClassLevels);
 }
