@@ -15,7 +15,9 @@
             <div class="col-md-4">
                 <section class="mb-4">
                     <h2 class="display-6 border-bottom">@ViewModel.ActiveCharacterSheet.BaseCharacterFacts.Name</h2>
-                    
+                    <h5 class="text-primary mt-1">
+                        @ViewModel.ActiveCharacterSheet.ClassSummary
+                    </h5>
                     <div class="stat-group mt-3">
                         <div class="stat-line"><strong>Race:</strong> @ViewModel.RaceFullTitle</div>
                         <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
@@ -30,27 +32,27 @@
                     <h4 class="text-secondary border-bottom pb-2">Ability Scores</h4>
                     <div class="ability-grid">
                         <div class="stat-line">
-                            <strong>Strength:</strong> 
+                            <strong>Strength:</strong>
                             <span class="fw-bold">@ViewModel.Strength (@FormatMod(ViewModel.Strength))</span>
                         </div>
                         <div class="stat-line">
-                            <strong>Dexterity:</strong> 
+                            <strong>Dexterity:</strong>
                             <span class="fw-bold">@ViewModel.Dexterity (@FormatMod(ViewModel.Dexterity))</span>
                         </div>
                         <div class="stat-line">
-                            <strong>Constitution:</strong> 
+                            <strong>Constitution:</strong>
                             <span class="fw-bold">@ViewModel.Constitution (@FormatMod(ViewModel.Constitution))</span>
                         </div>
                         <div class="stat-line">
-                            <strong>Intelligence:</strong> 
+                            <strong>Intelligence:</strong>
                             <span class="fw-bold">@ViewModel.Intelligence (@FormatMod(ViewModel.Intelligence))</span>
                         </div>
                         <div class="stat-line">
-                            <strong>Wisdom:</strong> 
+                            <strong>Wisdom:</strong>
                             <span class="fw-bold">@ViewModel.Wisdom (@FormatMod(ViewModel.Wisdom))</span>
                         </div>
                         <div class="stat-line">
-                            <strong>Charisma:</strong> 
+                            <strong>Charisma:</strong>
                             <span class="fw-bold">@ViewModel.Charisma (@FormatMod(ViewModel.Charisma))</span>
                         </div>
                     </div>
@@ -59,7 +61,7 @@
 
             @* @/* --- RIGHT COLUMN: Heritage & Detailed Features --- */ *@
             <div class="col-md-8">
-                
+
                 @* @/* Racial Traits Section */ *@
                 <section class="mb-4">
                     <h4 class="text-secondary border-bottom pb-2">Racial Heritage</h4>
@@ -68,7 +70,7 @@
                         @if (ViewModel.CurrentRace?.Subrace != null)
                         {
                             <div class="alert alert-secondary py-2 small mb-3">
-                                <strong>Subrace: @ViewModel.CurrentRace.Subrace.Name</strong> — 
+                                <strong>Subrace: @ViewModel.CurrentRace.Subrace.Name</strong> —
                                 @ViewModel.CurrentRace.Subrace.Description
                             </div>
                         }
@@ -136,10 +138,10 @@
         border-bottom: 1px solid #eee;
     }
 
-    .stat-line strong {
-        min-width: 120px;
-        color: #555;
-    }
+        .stat-line strong {
+            min-width: 120px;
+            color: #555;
+        }
 
     .biography-box {
         min-height: 150px;

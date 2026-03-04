@@ -1,4 +1,74 @@
 @page "/class-levels"
-@inject CharacterSheetViewModel CharacterViewModel
+@using Wayfinder.UI.ViewModels
+@inject ClassLevelsViewModel VM
 
-<h3>Class Level Manager</h3>
+<div class="container-fluid py-4">
+    <h2>Class Progression</h2>
+
+    <div class="row mt-4">
+        @* LEFT NAV COLUMN *@
+        <div class="col-md-3">
+            <div class="list-group">
+                @foreach (var level in VM.CurrentLevels)
+                {
+                    <button class="list-group-item list-group-item-action @(VM.ViewingLevelIndex == level.CharacterLevel ? "active" : "")"
+                            @onclick="() => VM.ViewHistoricalLevel(level.CharacterLevel)">
+                        <strong>Level @level.CharacterLevel:</strong> @level.ClassDefinition.Name
+                    </button>
+                }
+
+                @if (VM.CurrentLevels.Count < 20)
+                {
+                    <button class="list-group-item list-group-item-action list-group-item-success text-center fw-bold"
+                            @onclick="VM.StartNewLevelCommand.Execute">
+                        + Add Level @(VM.CurrentLevels.Count + 1)
+                    </button>
+                }
+
+                @if (VM.CurrentLevels.Any())
+                {
+                    <button class="list-group-item list-group-item-action list-group-item-danger text-center mt-3"
+                            @onclick="VM.RemoveTopLevelCommand.Execute">
+                        <i class="bi bi-trash"></i> Delete Level @VM.CurrentLevels.Count
+                    </button>
+                }
+            </div>
+        </div>
+
+        @* RIGHT DETAIL COLUMN *@
+        <div class="col-md-9">
+            @if (VM.ActiveDraft != null)
+            {
+                <ClassLevelDetailComponent DraftVM="VM.ActiveDraft"
+                                           AvailableClasses="VM.AvailableClasses"
+                                           OnSaveClicked="VM.SaveDraftCommand.Execute" />
+            }
+            else if (VM.ViewingLevelIndex.HasValue)
+            {
+                @* Read-only view of a past level *@
+                var pastLevel = VM.CurrentLevels.FirstOrDefault(l => l.CharacterLevel == VM.ViewingLevelIndex.Value);
+                if (pastLevel != null)
+                {
+                    <div class="alert alert-secondary">
+                        <h4>Level @pastLevel.CharacterLevel - @pastLevel.ClassDefinition.Name</h4>
+                        <p>This level is locked. To change it, you must delete levels from the top of the stack down to this point.</p>
+                        @* Render past level read-only data here *@
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-muted text-center mt-5">
+                    <h5>Select a level to view details, or add a new level.</h5>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        VM.PropertyChanged += (s, e) => InvokeAsync(StateHasChanged);
+    }
+}

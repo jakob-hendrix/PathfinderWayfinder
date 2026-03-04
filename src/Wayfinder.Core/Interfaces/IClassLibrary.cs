@@ -6,5 +6,6 @@ namespace Wayfinder.Core.Interfaces
     {
         public void Register(ClassDefinition classDefinition);
         public ClassDefinition GetClassDefinition(string className);
+        IEnumerable<ClassDefinition>? GetAll();
     }
 }

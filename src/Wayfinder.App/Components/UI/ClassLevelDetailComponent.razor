@@ -1,0 +1,67 @@
+@using Wayfinder.Core.DataDefinitions
+@using Wayfinder.Core.Enums
+@using Wayfinder.UI.ViewModels
+
+@if (DraftVM != null)
+{
+    <div class="card shadow-sm border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Configure Level @DraftVM.CharacterLevel</h5>
+        </div>
+        <div class="card-body">
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold">Select Class</label>
+                <select class="form-select" @bind="DraftVM.ClassName" @bind:after="DraftVM.Validate">
+                    <option value="">-- Choose a Class --</option>
+                    @foreach (var c in AvailableClasses)
+                    {
+                        <option value="@c.Name">@c.Name</option>
+                    }
+                </select>
+            </div>
+
+            @if (DraftVM.GrantsAbilityScoreIncrease)
+            {
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Ability Score Increase</label>
+                    <select class="form-select" @bind="DraftVM.AbilityScoreIncrease" @bind:after="DraftVM.Validate">
+                        @* The empty value maps perfectly to 'null' for the nullable enum *@
+                        <option value="">-- Select Score --</option>
+
+                        @foreach (AbilityScore score in Enum.GetValues(typeof(AbilityScore)))
+                        {
+                            <option value="@score">@score</option>
+                        }
+                    </select>
+                </div>
+            }
+
+            @* TODO: Add FCB and HP dropdowns/inputs here *@
+
+            @if (!DraftVM.IsValid)
+            {
+                <div class="alert alert-warning py-2 mt-3">
+                    <ul class="mb-0 ps-3">
+                        @foreach(var error in DraftVM.ValidationErrors)
+                        {
+                            <li class="small">@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <button class="btn btn-success w-100 mt-3" 
+                    disabled="@(!DraftVM.IsValid)" 
+                    @onclick="OnSaveClicked">
+                Save & Apply Level @DraftVM.CharacterLevel
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public ClassLevelDetailViewModel DraftVM { get; set; } = null!;
+    [Parameter, EditorRequired] public IEnumerable<ClassDefinition> AvailableClasses { get; set; } = new List<ClassDefinition>();
+    [Parameter] public EventCallback OnSaveClicked { get; set; }
+}

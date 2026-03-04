@@ -7,4 +7,5 @@ public interface IClassLevelEngine
 {
     public ClassHydrationResult HydrateLevels(IEnumerable<ClassLevelChoice> levelChoices);
     public List<string> ValidateChoice(ClassLevelChoice choice);
+    public bool IsAbilityScoreIncreaseLevel(int characterLevel);
 }

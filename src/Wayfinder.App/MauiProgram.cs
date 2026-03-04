@@ -7,6 +7,7 @@ using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
 using Wayfinder.Infrastructure.Persistence;
+using Wayfinder.UI.ViewModels;
 
 namespace Wayfinder.App
 {
@@ -38,6 +39,8 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
             builder.Services.AddScoped<CharacterSheetViewModel>();
             builder.Services.AddScoped<BaseCharacterViewModel>();
+            builder.Services.AddScoped<ClassLevelsViewModel>();
+            builder.Services.AddScoped<ClassLevelDetailViewModel>();
             #endregion
 
             #region Pathfinder services

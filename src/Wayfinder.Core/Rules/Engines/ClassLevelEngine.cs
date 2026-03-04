@@ -88,6 +88,13 @@ public class ClassLevelEngine : IClassLevelEngine
         return result;
     }
 
+    /// <summary>
+    /// Determine if a given level qualifies for an ability score increase.
+    /// </summary>
+    /// <param name="characterLevel"></param>
+    /// <returns></returns>
+    public bool IsAbilityScoreIncreaseLevel(int characterLevel) => characterLevel > 0 && characterLevel % 4 == 0;
+
     public List<string> ValidateChoice(ClassLevelChoice choice)
     {
         var errors = new List<string>();
@@ -96,10 +103,13 @@ public class ClassLevelEngine : IClassLevelEngine
             errors.Add("A class must be selected.");
 
         // Enforce an ability score choice every 4th level
-        //if (choice.CharacterLevel % 4 == 0 && string.IsNullOrWhiteSpace(choice.AbilityScoreIncrease))
-        //    errors.Add($"Level {choice.CharacterLevel} requires an ability score increase selection.");
+        if (IsAbilityScoreIncreaseLevel(choice.CharacterLevel) && choice.AbilityScoreIncrease == null)
+        {
+            errors.Add($"Level {choice.CharacterLevel} requires an ability score increase selection.");
+        }
 
         // TODO: Validate HP input (e.g., must be > 0 and <= max hit die)
 
         return errors;
     }
+}

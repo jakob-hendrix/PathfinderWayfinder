@@ -22,19 +22,32 @@ namespace Wayfinder.Infrastructure.DataSeeders
             {
                 Name = "Sosuke Bosuke",
                 Gender = "Male",
-                ClassLevels = new List<ClassLevel>
+                ClassLevelChoices = new List<ClassLevelChoice>
                 {
-                    new ClassLevel
+                    new ClassLevelChoice
                     {
-                        Class = _engine.ClassFactory.GetClass("Fighter"),
-                        Level = 1
+                        ClassName = "Fighter",
+                        CharacterLevel = 1
                     },
-                    new ClassLevel
+                    new ClassLevelChoice
                     {
-                        Class = _engine.ClassFactory.GetClass("Fighter"),
-                        Level = 2
+                        ClassName = "Fighter",
+                        CharacterLevel = 2
                     },
                 },
+                //ClassLevels = new List<ClassLevel>
+                //{
+                //    new ClassLevel
+                //    {
+                //        Class = _engine.ClassFactory.GetClass("Fighter"),
+                //        Level = 1
+                //    },
+                //    new ClassLevel
+                //    {
+                //        Class = _engine.ClassFactory.GetClass("Fighter"),
+                //        Level = 2
+                //    },
+                //},
                 BaseStrength = 10,
                 BaseDexterity = 13,
                 BaseConstitution = 15,

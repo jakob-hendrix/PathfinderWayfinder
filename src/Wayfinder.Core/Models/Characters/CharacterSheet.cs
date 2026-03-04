@@ -30,6 +30,24 @@ public class CharacterSheet
     public int Wisdom => CalculateAbilityScore(BaseCharacterFacts.BaseWisdom);
     public int Charisma => CalculateAbilityScore(BaseCharacterFacts.BaseCharisma);
 
+    // Display the state of current class levels as Fighter 1 Wizard 2 etc
+    public string ClassSummary
+    {
+        get
+        {
+            if (ClassLevels == null || !ClassLevels.Any())
+                return "No Class Selected";
+
+            // GroupBy naturally keeps the order of the first time it sees a key.
+            // So if Wizard is at index 0, it becomes the first group.
+            var summaryParts = ClassLevels
+                .GroupBy(l => l.ClassDefinition.Name)
+                .Select(g => $"{g.Key} {g.Count()}");
+
+            return string.Join(" ", summaryParts);
+        }
+    }
+
     // Get a hydrated Race instance
     public void RebuildRace()
     {
