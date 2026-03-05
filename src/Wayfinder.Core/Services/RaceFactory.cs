@@ -17,32 +17,34 @@ public class RaceFactory : IRaceFactory
 
     public RaceResolutionResult BuildRace(RaceChoices choices)
     {
-        // 1. Resolve the Base Definition
+        var result = new RaceResolutionResult();
+
         RaceDefinition? baseDef = null;
 
-        try
+
+        if (string.IsNullOrWhiteSpace(choices.RaceName))
         {
-            baseDef = _raceLibrary.GetRaceDefinition(choices.RaceName);
+            result.Errors.Add($"No race name provided");
+            return result;
         }
-        catch (KeyNotFoundException ex)
+
+        baseDef = _raceLibrary.GetRaceDefinition(choices.RaceName);
+        if (baseDef == null)
         {
-            return new RaceResolutionResult { Errors = { $"Race definition '{choices.RaceName}' not found." } };
+            result.Errors.Add($"Race definition '{choices.RaceName}' not found.");
+            return result;
         }
 
         // 2. Resolve the Subrace (if selected)
         Subrace? subDef = null;
         if (!string.IsNullOrWhiteSpace(choices.SubraceName))
         {
-            try
+            subDef = baseDef.Subraces.FirstOrDefault(s => s.Name == choices.SubraceName);
+            if (subDef == null)
             {
-                subDef = baseDef.Subraces.FirstOrDefault(s => s.Name == choices.SubraceName);
+                result.Errors.Add($"Subrace definition '{choices.SubraceName}' not found.");
+                return result;
             }
-            catch (KeyNotFoundException ex)
-            {
-
-                return new RaceResolutionResult { Errors = { $"Subrace definition '{choices.SubraceName}' not found." } };
-            }
-
         }
 
         // 3. Resolve Alternative RacialTraits

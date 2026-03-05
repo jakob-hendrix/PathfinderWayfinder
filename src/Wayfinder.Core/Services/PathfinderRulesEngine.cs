@@ -4,7 +4,7 @@ namespace Wayfinder.Core.Services
 {
     public class PathfinderRulesEngine : IPathfinderRulesEngine
     {
-        public IClassLibrary ClassRegistry { get; }
+        //public IClassLibrary ClassRegistry { get; }
 
         public IEquipmentManager EquipmentManager { get; }
 
@@ -17,14 +17,14 @@ namespace Wayfinder.Core.Services
         public IClassLevelEngine ClassLevelEngine { get; }
 
         public PathfinderRulesEngine(
-            IClassLibrary classRegistry,
+            //IClassLibrary classRegistry,
             IEquipmentManager equipmentManager,
             IClassFactory classFactory,
             IItemFactory itemFactory,
             IRaceFactory raceFactory,
             IClassLevelEngine classLevelEngine)
         {
-            ClassRegistry = classRegistry;
+            //ClassRegistry = classRegistry;
             EquipmentManager = equipmentManager;
             ClassFactory = classFactory;
             ItemFactory = itemFactory;
