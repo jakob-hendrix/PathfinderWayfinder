@@ -13,8 +13,8 @@ public partial class ClassLevelsViewModel : ObservableObject
     private readonly CharacterStateService _stateService;
     private readonly IClassLevelEngine _engine; // To pass to the DetailVM
     private readonly IClassLibrary _classLib;
-    [ObservableProperty] private ClassLevelDetailViewModel? _activeDraft;
-    [ObservableProperty] private int? _viewingLevelIndex; // Allows looking back at old levels
+
+    [ObservableProperty] private ClassLevelDetailViewModel? _activeDetail;
 
     public IEnumerable<ClassDefinition> AvailableClasses => _classLib.GetAll();
     public IReadOnlyList<HydratedClassLevel> CurrentLevels => _stateService.ActiveSheet?.ClassLevels ?? new List<HydratedClassLevel>();
@@ -32,23 +32,31 @@ public partial class ClassLevelsViewModel : ObservableObject
     private void StartNewLevel()
     {
         int nextLevel = CurrentLevels.Count + 1;
-        if (nextLevel > 20) return;  //TODO: move the max level check into the b
+        if (nextLevel > 20) return;
 
-        ActiveDraft = new ClassLevelDetailViewModel(_stateService, _engine, _classLib, nextLevel);
-        ActiveDraft.Validate(); // Prime the validation
-        ViewingLevelIndex = null;
+        ActiveDetail = new ClassLevelDetailViewModel(_engine, _stateService, _classLib, nextLevel);
+        ActiveDetail.Validate();
+    }
+
+    public void ViewHistoricalLevel(int level)
+    {
+        var pastLevel = CurrentLevels.FirstOrDefault(l => l.CharacterLevel == level);
+        if (pastLevel != null)
+        {
+            ActiveDetail = new ClassLevelDetailViewModel(_stateService, _classLib, pastLevel);
+        }
     }
 
     [RelayCommand]
     private void SaveDraft()
     {
-        if (ActiveDraft != null && ActiveDraft.IsValid && _stateService.ActiveSheet != null)
+        if (ActiveDetail != null && ActiveDetail.IsValid && _stateService.ActiveSheet != null)
         {
-            _stateService.ActiveSheet.AddClassLevel(ActiveDraft.ToChoice());
+            _stateService.ActiveSheet.AddClassLevel(ActiveDetail.ToChoice());
 
             // Rebuild domain, clear draft, and point view back to the top of the stack
             _stateService.RefreshDomain();
-            ActiveDraft = null;
+            ActiveDetail = null;
         }
     }
 
@@ -59,14 +67,7 @@ public partial class ClassLevelsViewModel : ObservableObject
         {
             _stateService.ActiveSheet.RemoveHighestClassLevel();
             _stateService.RefreshDomain();
-            ActiveDraft = null;
-            ViewingLevelIndex = null;
+            ActiveDetail = null;
         }
-    }
-
-    public void ViewHistoricalLevel(int level)
-    {
-        ViewingLevelIndex = level;
-        ActiveDraft = null; // Close the draft if we are just looking at history
     }
 }

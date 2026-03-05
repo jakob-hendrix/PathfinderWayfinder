@@ -1,51 +1,97 @@
-﻿namespace Wayfinder.UI.ViewModels;
-
-using System.Collections.Generic;
-using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.App.Services;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 
-// Represents the 'draft' of a class level
+namespace Wayfinder.UI.ViewModels;
+
 public partial class ClassLevelDetailViewModel : ObservableObject
 {
+    private readonly IClassLevelEngine? _engine; // Nullable because read-only mode doesn't need it
     private readonly CharacterStateService _stateService;
-    private readonly IClassLevelEngine _engine;
     private readonly IClassLibrary _classLibrary;
 
     [ObservableProperty] private int _characterLevel;
     [ObservableProperty] private string _className = string.Empty;
-    [ObservableProperty] private FavoredClassBonus _fcbChoice;
     [ObservableProperty] private AbilityScore? _abilityScoreIncrease;
-
     [ObservableProperty] private List<string> _validationErrors = new();
 
-    public bool IsValid => !ValidationErrors.Any();
-    public bool GrantsAbilityScoreIncrease => _engine.IsAbilityScoreIncreaseLevel(CharacterLevel);
-    public IEnumerable<ClassFeatureDefinition> GainedFeatures => GetGainedFeatures();
+    // Make this an observable property so we can set it explicitly
+    [ObservableProperty] private IEnumerable<ClassFeatureDefinition> _gainedFeatures = Enumerable.Empty<ClassFeatureDefinition>();
 
-    public ClassLevelDetailViewModel(CharacterStateService stateService, IClassLevelEngine engine, IClassLibrary classLibrary, int level)
+    public bool IsReadOnly { get; }
+    public bool IsValid => !ValidationErrors.Any();
+    public bool GrantsAbilityScoreIncrease { get; }
+
+    // --- CONSTRUCTOR 1: DRAFT MODE ---
+    public ClassLevelDetailViewModel(
+        IClassLevelEngine engine,
+        CharacterStateService stateService,
+        IClassLibrary classLibrary,
+        int level)
+    {
+        _engine = engine;
+        _stateService = stateService;
+        _classLibrary = classLibrary;
+
+        IsReadOnly = false;
+        CharacterLevel = level;
+        GrantsAbilityScoreIncrease = _engine.IsAbilityScoreIncreaseLevel(level);
+    }
+
+    // --- CONSTRUCTOR 2: READ-ONLY HISTORY MODE ---
+    public ClassLevelDetailViewModel(
+        CharacterStateService stateService,
+        IClassLibrary classLibrary,
+        HydratedClassLevel pastLevel)
     {
         _stateService = stateService;
-        _engine = engine;
         _classLibrary = classLibrary;
-        CharacterLevel = level;
+
+        IsReadOnly = true;
+        CharacterLevel = pastLevel.CharacterLevel;
+        ClassName = pastLevel.ClassDefinition.Name;
+        AbilityScoreIncrease = pastLevel.IncreasedAbilityScore;
+        GrantsAbilityScoreIncrease = pastLevel.GrantsAbilityScoreIncrease;
+
+        // Directly load the features using the known internal class level
+        var classDef = _classLibrary.GetClassDefinition(ClassName);
+        var levelDef = classDef?.Levels[pastLevel.ClassLevel];
+        GainedFeatures = levelDef?.ClassFeatures ?? Enumerable.Empty<ClassFeatureDefinition>();
     }
 
-    // CommunityToolkit hook: Fires automatically when _className changes
     partial void OnClassNameChanged(string value)
     {
+        if (IsReadOnly) return; // Don't recalculate if we are just viewing history
+
         Validate();
-        // Tell the UI that the GainedFeatures list needs to be re-rendered
-        OnPropertyChanged(nameof(GainedFeatures));
+        UpdateGainedFeaturesForDraft();
     }
 
-    // Call this whenever a property changes in the UI
+    private void UpdateGainedFeaturesForDraft()
+    {
+        if (string.IsNullOrWhiteSpace(ClassName))
+        {
+            GainedFeatures = Enumerable.Empty<ClassFeatureDefinition>();
+            return;
+        }
+
+        var classDef = _classLibrary.GetClassDefinition(ClassName);
+        if (classDef == null) return;
+
+        int existingClassLevels = _stateService.ActiveSheet?.ClassLevels
+            .Count(l => l.ClassDefinition.Name == ClassName && l.CharacterLevel < CharacterLevel) ?? 0;
+
+        var levelDef = classDef.Levels[existingClassLevels + 1];
+        GainedFeatures = levelDef?.ClassFeatures ?? Enumerable.Empty<ClassFeatureDefinition>();
+    }
+
     public void Validate()
     {
+        if (IsReadOnly || _engine == null) return;
+
         var choice = ToChoice();
         ValidationErrors = _engine.ValidateChoice(choice);
         OnPropertyChanged(nameof(IsValid));
@@ -57,29 +103,7 @@ public partial class ClassLevelDetailViewModel : ObservableObject
         {
             CharacterLevel = CharacterLevel,
             ClassName = ClassName,
-            SelectedFavoredClassBonus = FcbChoice,
             AbilityScoreIncrease = AbilityScoreIncrease
         };
-    }
-
-    private IEnumerable<ClassFeatureDefinition> GetGainedFeatures()
-    {
-        if (string.IsNullOrWhiteSpace(ClassName)) return Enumerable.Empty<ClassFeatureDefinition>();
-
-        var classDef = _classLibrary.GetClassDefinition(ClassName);
-        if (classDef == null) return Enumerable.Empty<ClassFeatureDefinition>();
-
-        // 1. Figure out how many levels of THIS class the character already has
-        // We only count levels that come BEFORE the current draft level
-        int existingClassLevels = _stateService.ActiveSheet?.ClassLevels?
-            .Count(l => l.ClassDefinition.Name == ClassName && l.CharacterLevel < CharacterLevel) ?? 0;
-
-        // 2. The level they are about to take is existing + 1
-        int newClassLevel = existingClassLevels + 1;
-
-        // 3. Find the definition for that specific class level
-        var levelDef = classDef.Levels[newClassLevel];
-
-        return levelDef?.ClassFeatures ?? Enumerable.Empty<ClassFeatureDefinition>();
     }
 }

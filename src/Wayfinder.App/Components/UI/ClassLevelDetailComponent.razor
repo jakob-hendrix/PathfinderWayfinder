@@ -1,3 +1,4 @@
+@using System
 @using Wayfinder.Core.DataDefinitions
 @using Wayfinder.Core.Enums
 @using Wayfinder.UI.ViewModels
@@ -5,14 +6,25 @@
 @if (DraftVM != null)
 {
     <div class="card shadow-sm border-primary">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Configure Level @DraftVM.CharacterLevel</h5>
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Level @DraftVM.CharacterLevel Details</h5>
+            @if (DraftVM.IsReadOnly)
+            {
+                <span class="badge bg-secondary">Locked (History)</span>
+            }
         </div>
         <div class="card-body">
-            
+
+            @if (DraftVM.IsReadOnly)
+            {
+                <div class="alert alert-secondary py-2 mb-4">
+                    <small>This level is locked. To change choices made here, you must delete levels from the top of the stack down to this point.</small>
+                </div>
+            }
+
             <div class="mb-3">
-                <label class="form-label fw-bold">Select Class</label>
-                <select class="form-select" @bind="DraftVM.ClassName" @bind:after="DraftVM.Validate">
+                <label class="form-label fw-bold">Class</label>
+                <select class="form-select" @bind="DraftVM.ClassName" @bind:after="DraftVM.Validate" disabled="@DraftVM.IsReadOnly">
                     <option value="">-- Choose a Class --</option>
                     @foreach (var c in AvailableClasses)
                     {
@@ -25,10 +37,8 @@
             {
                 <div class="mb-3">
                     <label class="form-label fw-bold">Ability Score Increase</label>
-                    <select class="form-select" @bind="DraftVM.AbilityScoreIncrease" @bind:after="DraftVM.Validate">
-                        @* The empty value maps perfectly to 'null' for the nullable enum *@
+                    <select class="form-select" @bind="DraftVM.AbilityScoreIncrease" @bind:after="DraftVM.Validate" disabled="@DraftVM.IsReadOnly">
                         <option value="">-- Select Score --</option>
-
                         @foreach (AbilityScore score in Enum.GetValues(typeof(AbilityScore)))
                         {
                             <option value="@score">@score</option>
@@ -37,30 +47,28 @@
                 </div>
             }
 
-            @* TODO: Add FCB and HP dropdowns/inputs here *@
-
+            @* Class Features Display (Works identically for Draft and Read-Only) *@
             @if (DraftVM.GainedFeatures.Any())
             {
                 <div class="mt-4 mb-3 p-3 bg-light border rounded">
-                    <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Features Gained at this Level</h6>
+                    <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Features Gained</h6>
                     <ul class="list-unstyled mb-0">
                         @foreach (var feature in DraftVM.GainedFeatures)
                         {
                             <li class="mb-2">
-                                <strong class="text-dark">@feature.Name:</strong> 
+                                <strong class="text-dark">@feature.Name:</strong>
                                 <span class="text-muted">@feature.Rank</span>
-                                @* TODO: add details when that is implemetned *@
                             </li>
                         }
                     </ul>
                 </div>
             }
 
-            @if (!DraftVM.IsValid)
+            @if (!DraftVM.IsReadOnly && !DraftVM.IsValid)
             {
                 <div class="alert alert-warning py-2 mt-3">
                     <ul class="mb-0 ps-3">
-                        @foreach(var error in DraftVM.ValidationErrors)
+                        @foreach (var error in DraftVM.ValidationErrors)
                         {
                             <li class="small">@error</li>
                         }
@@ -68,11 +76,14 @@
                 </div>
             }
 
-            <button class="btn btn-success w-100 mt-3" 
-                    disabled="@(!DraftVM.IsValid)" 
-                    @onclick="OnSaveClicked">
-                Save & Apply Level @DraftVM.CharacterLevel
-            </button>
+            @if (!DraftVM.IsReadOnly)
+            {
+                <button class="btn btn-success w-100 mt-3"
+                        disabled="@(!DraftVM.IsValid)"
+                        @onclick="OnSaveClicked">
+                    Save & Apply Level @DraftVM.CharacterLevel
+                </button>
+            }
         </div>
     </div>
 }
