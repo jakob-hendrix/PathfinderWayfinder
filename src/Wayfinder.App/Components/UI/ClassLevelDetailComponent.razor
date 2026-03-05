@@ -39,6 +39,23 @@
 
             @* TODO: Add FCB and HP dropdowns/inputs here *@
 
+            @if (DraftVM.GainedFeatures.Any())
+            {
+                <div class="mt-4 mb-3 p-3 bg-light border rounded">
+                    <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Features Gained at this Level</h6>
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var feature in DraftVM.GainedFeatures)
+                        {
+                            <li class="mb-2">
+                                <strong class="text-dark">@feature.Name:</strong> 
+                                <span class="text-muted">@feature.Rank</span>
+                                @* TODO: add details when that is implemetned *@
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
             @if (!DraftVM.IsValid)
             {
                 <div class="alert alert-warning py-2 mt-3">

@@ -12,18 +12,18 @@ public partial class ClassLevelsViewModel : ObservableObject
 {
     private readonly CharacterStateService _stateService;
     private readonly IClassLevelEngine _engine; // To pass to the DetailVM
-
+    private readonly IClassLibrary _classLib;
     [ObservableProperty] private ClassLevelDetailViewModel? _activeDraft;
     [ObservableProperty] private int? _viewingLevelIndex; // Allows looking back at old levels
 
-    public IEnumerable<ClassDefinition> AvailableClasses { get; private set; }
+    public IEnumerable<ClassDefinition> AvailableClasses => _classLib.GetAll();
     public IReadOnlyList<HydratedClassLevel> CurrentLevels => _stateService.ActiveSheet?.ClassLevels ?? new List<HydratedClassLevel>();
 
     public ClassLevelsViewModel(CharacterStateService stateService, IClassLevelEngine engine, IClassLibrary classLib)
     {
         _stateService = stateService;
         _engine = engine;
-        AvailableClasses = classLib.GetAll();
+        _classLib = classLib;
 
         _stateService.StateChanged += () => OnPropertyChanged(nameof(CurrentLevels));
     }
@@ -34,7 +34,7 @@ public partial class ClassLevelsViewModel : ObservableObject
         int nextLevel = CurrentLevels.Count + 1;
         if (nextLevel > 20) return;  //TODO: move the max level check into the b
 
-        ActiveDraft = new ClassLevelDetailViewModel(_engine, nextLevel);
+        ActiveDraft = new ClassLevelDetailViewModel(_stateService, _engine, _classLib, nextLevel);
         ActiveDraft.Validate(); // Prime the validation
         ViewingLevelIndex = null;
     }
