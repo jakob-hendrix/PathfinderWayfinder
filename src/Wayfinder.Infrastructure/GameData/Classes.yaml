@@ -5,6 +5,13 @@
   Fortitude: Fast
   Reflex: Slow
   Will: Slow
+  RacialFCBs:
+    - RaceName: Human
+      Description: "Add +1 to the fighter's CMD when resisting two combat maneuvers of the character's choice."
+    - RaceName: Dwarf
+      Description: "Add +1 to the fighter's CMD when resisting a bull rush or trip attempt."
+    - RaceName: Elf
+      Description: "Add +1 to the fighter's CMD when resisting a disarm or sunder attempt."
   Levels:
     1:
       ClassFeatures: 

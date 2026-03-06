@@ -4,6 +4,7 @@ using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
+using Wayfinder.Core.Rules.Engines;
 
 namespace Wayfinder.UI.ViewModels;
 
@@ -17,6 +18,7 @@ public partial class ClassLevelDetailViewModel : ObservableObject
     [ObservableProperty] private string _className = string.Empty;
     [ObservableProperty] private AbilityScore? _abilityScoreIncrease;
     [ObservableProperty] private List<string> _validationErrors = new();
+    [ObservableProperty] private FavoredClassBonus _fcbChoice;
 
     // Make this an observable property so we can set it explicitly
     [ObservableProperty] private IEnumerable<ClassFeatureDefinition> _gainedFeatures = Enumerable.Empty<ClassFeatureDefinition>();
@@ -24,6 +26,8 @@ public partial class ClassLevelDetailViewModel : ObservableObject
     public bool IsReadOnly { get; }
     public bool IsValid => !ValidationErrors.Any();
     public bool GrantsAbilityScoreIncrease { get; }
+    public bool IsFavoredClass { get; private set; }
+    public string? AvailableRacialFcbDescription { get; private set; }
 
     // --- CONSTRUCTOR 1: DRAFT MODE ---
     public ClassLevelDetailViewModel(
@@ -57,7 +61,17 @@ public partial class ClassLevelDetailViewModel : ObservableObject
         GrantsAbilityScoreIncrease = pastLevel.GrantsAbilityScoreIncrease;
 
         // Directly load the features using the known internal class level
+        IsFavoredClass = pastLevel.IsFavoredClass;
+        FcbChoice = pastLevel.AppliedFavoredClassBonus;
+
         var classDef = _classLibrary.GetClassDefinition(ClassName);
+        var raceName = _stateService.ActiveSheet?.Race?.Name;
+
+        if (IsFavoredClass)
+        {
+            AvailableRacialFcbDescription = FavoredClassBonusEngine.GetAlternateRacialFcbDescription(classDef, raceName);
+        }
+
         var levelDef = classDef?.Levels[pastLevel.ClassLevel];
         GainedFeatures = levelDef?.ClassFeatures ?? Enumerable.Empty<ClassFeatureDefinition>();
     }
@@ -66,8 +80,46 @@ public partial class ClassLevelDetailViewModel : ObservableObject
     {
         if (IsReadOnly) return; // Don't recalculate if we are just viewing history
 
+        UpdateFavoredClassStatus();
         Validate();
         UpdateGainedFeaturesForDraft();
+    }
+
+    private void UpdateFavoredClassStatus()
+    {
+        if (string.IsNullOrWhiteSpace(ClassName))
+        {
+            IsFavoredClass = false;
+            AvailableRacialFcbDescription = null;
+            FcbChoice = FavoredClassBonus.None;
+            return;
+        }
+
+        IsFavoredClass = FavoredClassBonusEngine.IsFavoredClass(
+            ClassName,
+            CharacterLevel,
+            _stateService.ActiveSheet?.ClassLevels);
+
+        // 2. See if there is an alternate racial FCB available
+        AvailableRacialFcbDescription = null;
+        if (IsFavoredClass)
+        {
+            var classDef = _classLibrary.GetClassDefinition(ClassName);
+            var raceName = _stateService.ActiveSheet?.Race?.Name;
+
+            AvailableRacialFcbDescription = FavoredClassBonusEngine.GetAlternateRacialFcbDescription(classDef, raceName);
+        }
+
+        // 3. Reset the choice if they switch away from a favored class
+        if (!IsFavoredClass)
+        {
+            FcbChoice = FavoredClassBonus.None;
+        }
+        // Auto-select HP by default if it is a favored class to prevent invalid blank states
+        else if (FcbChoice == FavoredClassBonus.None)
+        {
+            FcbChoice = FavoredClassBonus.HitPoint;
+        }
     }
 
     private void UpdateGainedFeaturesForDraft()
@@ -94,7 +146,20 @@ public partial class ClassLevelDetailViewModel : ObservableObject
 
         var choice = ToChoice();
         ValidationErrors = _engine.ValidateChoice(choice);
+
+        // Enforce FCB rules
+        if (IsFavoredClass && FcbChoice == FavoredClassBonus.None)
+        {
+            ValidationErrors.Add("You must select a Favored Class Bonus (+1 HP, +1 Skill Point, or Alternate).");
+        }
+        if (!IsFavoredClass && FcbChoice != FavoredClassBonus.None)
+        {
+            ValidationErrors.Add("You cannot select a Favored Class Bonus for a class that is not your Favored Class.");
+        }
+
         OnPropertyChanged(nameof(IsValid));
+        OnPropertyChanged(nameof(IsFavoredClass));
+        OnPropertyChanged(nameof(AvailableRacialFcbDescription));
     }
 
     public ClassLevelChoice ToChoice()
@@ -103,7 +168,8 @@ public partial class ClassLevelDetailViewModel : ObservableObject
         {
             CharacterLevel = CharacterLevel,
             ClassName = ClassName,
-            AbilityScoreIncrease = AbilityScoreIncrease
+            AbilityScoreIncrease = AbilityScoreIncrease,
+            SelectedFavoredClassBonus = FcbChoice
         };
     }
 }

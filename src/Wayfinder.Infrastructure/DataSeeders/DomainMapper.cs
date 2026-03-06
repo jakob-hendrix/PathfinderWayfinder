@@ -9,7 +9,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
     {
         public ClassDefinition MapClassToDomain(ClassYamlDto dto)
         {
-            return new ClassDefinition
+            var definition = new ClassDefinition
             {
                 Name = dto.Name,
                 BabRate = dto.BabRate,
@@ -18,8 +18,19 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 FortitudeRate = dto.FortitudeRate,
                 ReflexRate = dto.ReflexRate,
                 WillRate = dto.WillRate,
-                Levels = dto.Levels
+                Levels = dto.Levels,
             };
+
+            if (dto.RacialFcbOptions != null)
+            {
+                definition.RacialFcbOptions = dto.RacialFcbOptions.Select(fcb => new RacialFavoredClassBonus
+                {
+                    RaceName = fcb.RaceName,
+                    Description = fcb.Description
+                }).ToList();
+            }
+
+            return definition;
         }
 
         public ItemDefinition MapItemToDomain(ItemYamlDto dto)

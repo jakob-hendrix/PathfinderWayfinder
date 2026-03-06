@@ -1,4 +1,6 @@
-﻿using Wayfinder.Core.Interfaces;
+﻿
+using Wayfinder.Core.Enums;
+using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 
 namespace Wayfinder.Infrastructure.DataSeeders
@@ -22,42 +24,32 @@ namespace Wayfinder.Infrastructure.DataSeeders
             {
                 Name = "Sosuke Bosuke",
                 Gender = "Male",
+                RaceChoices = new RaceChoices
+                {
+                    RaceName = "Human"
+                },
                 ClassLevelChoices = new List<ClassLevelChoice>
                 {
                     new ClassLevelChoice
                     {
                         ClassName = "Fighter",
-                        CharacterLevel = 1
+                        CharacterLevel = 1,
+                        SelectedFavoredClassBonus = FavoredClassBonus.HitPoint
                     },
                     new ClassLevelChoice
                     {
                         ClassName = "Fighter",
-                        CharacterLevel = 2
+                        CharacterLevel = 2,
+                        SelectedFavoredClassBonus = FavoredClassBonus.AlternateRacial
                     },
                 },
-                //ClassLevels = new List<ClassLevel>
-                //{
-                //    new ClassLevel
-                //    {
-                //        Class = _engine.ClassFactory.GetClass("Fighter"),
-                //        Level = 1
-                //    },
-                //    new ClassLevel
-                //    {
-                //        Class = _engine.ClassFactory.GetClass("Fighter"),
-                //        Level = 2
-                //    },
-                //},
+
                 BaseStrength = 10,
                 BaseDexterity = 13,
                 BaseConstitution = 15,
                 BaseIntelligence = 5,
                 BaseWisdom = 9,
                 BaseCharisma = 19,
-                RaceChoices = new RaceChoices
-                {
-                    RaceName = "Human"
-                }
             };
 
             // Build inventory

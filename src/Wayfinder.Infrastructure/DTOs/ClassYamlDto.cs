@@ -19,8 +19,9 @@ namespace Wayfinder.Infrastructure.DTOs
         [YamlMember(Alias = "Will")]
         public string WillRate { get; set; } = "Slow";
 
-        // the key is the level number
-        // TODO: map to level DTO?
         public Dictionary<int, LevelDefinition> Levels { get; set; } = new();
+        [YamlMember(Alias = "RacialFCBs")]
+        public List<RacialFavoredClassBonusDto> RacialFcbOptions { get; set; } = new();
+
     }
 }

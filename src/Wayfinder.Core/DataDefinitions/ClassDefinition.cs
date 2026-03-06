@@ -1,4 +1,6 @@
-﻿namespace Wayfinder.Core.DataDefinitions;
+﻿using Wayfinder.Core.Models.Characters;
+
+namespace Wayfinder.Core.DataDefinitions;
 
 public class ClassDefinition
 {
@@ -12,4 +14,5 @@ public class ClassDefinition
 
     // the key is the level number
     public Dictionary<int, LevelDefinition> Levels { get; set; } = new();
+    public List<RacialFavoredClassBonus> RacialFcbOptions { get; set; } = new();
 }

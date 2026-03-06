@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Interfaces;
+﻿using Wayfinder.Core.Enums;
+using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Results;
 
@@ -16,21 +17,11 @@ public class ClassLevelEngine : IClassLevelEngine
     public ClassHydrationResult HydrateLevels(IEnumerable<ClassLevelChoice> levelChoices)
     {
         var result = new ClassHydrationResult();
-        var orderedChoices = levelChoices.OrderBy(c => c.CharacterLevel).ToList();
-        var classLevelTracker = new Dictionary<string, int>();
-        string? favoredClassName = null;
+        //var orderedChoices = levelChoices.OrderBy(c => c.CharacterLevel).ToList();
+        //var classLevelTracker = new Dictionary<string, int>();
 
-        for (int i = 0; i < orderedChoices.Count; i++)
+        foreach (var choice in levelChoices.OrderBy(c => c.CharacterLevel))
         {
-            var choice = orderedChoices[i];
-
-            // Validation logic
-            if (choice.CharacterLevel != i + 1)
-            {
-                result.Errors.Add($"Level sequence broken. Expect level {i + 1} but found {choice.CharacterLevel}");
-                break;
-            }
-
             var classDef = _classLibrary.GetClassDefinition(choice.ClassName);
             if (classDef == null)
             {
@@ -38,28 +29,36 @@ public class ClassLevelEngine : IClassLevelEngine
                 break;
             }
 
-            // Keep track of total levels in *this* class
-            if (!classLevelTracker.ContainsKey(classDef.Name))
-                classLevelTracker[classDef.Name] = 0;
+            //// Keep track of total levels in *this* class
+            //if (!classLevelTracker.ContainsKey(classDef.Name))
+            //    classLevelTracker[classDef.Name] = 0;
 
-            classLevelTracker[classDef.Name]++;
+            //classLevelTracker[classDef.Name]++;
 
-            // Favored Class is the level 1 class
-            if (choice.CharacterLevel == 1)
-                favoredClassName = classDef.Name;
-
-            bool isFavored = classDef.Name == favoredClassName;
-
-            // Build hydrated level
+            // Build base hydrated level
             var hydratedLevel = new HydratedClassLevel
             {
                 CharacterLevel = choice.CharacterLevel,
-                ClassLevel = classLevelTracker[classDef.Name],
+                ClassLevel = result.HydratedLevels.Count(
+                    l => l.ClassDefinition.Name == choice.ClassName) + 1,
                 ClassDefinition = classDef,
                 BaseSkillPointsGranted = classDef.SkillPointsPerLevel,
-                IsFavoredClass = isFavored,
-                AppliedFavoredClassBonus = isFavored ? choice.SelectedFavoredClassBonus : Enums.FavoredClassBonus.None
             };
+
+            // FCB logic
+            hydratedLevel.IsFavoredClass = FavoredClassBonusEngine.IsFavoredClass(
+                choice.ClassName,
+                choice.CharacterLevel,
+                result.HydratedLevels);
+
+            if (hydratedLevel.IsFavoredClass)
+            {
+                hydratedLevel.AppliedFavoredClassBonus = choice.SelectedFavoredClassBonus;
+            }
+            else
+            {
+                hydratedLevel.AppliedFavoredClassBonus = FavoredClassBonus.None;
+            }
 
             // 5. Grant standard progression feats. Odd levels
             if (choice.CharacterLevel % 2 != 0)

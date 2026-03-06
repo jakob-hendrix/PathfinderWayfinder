@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Items;
 
 namespace Wayfinder.App.Services
@@ -82,7 +82,7 @@ namespace Wayfinder.App.Services
         public Race? CurrentRace => ActiveCharacterSheet?.Race;
         public bool HasRace => CurrentRace != null;
         public string RaceFullTitle => CurrentRace != null
-                ? $"{CurrentRace.RaceDefinition.Name}{(CurrentRace.Subrace != null ? $" ({CurrentRace.Subrace.Name})" : "")}"
+                ? $"{CurrentRace.Name}{(CurrentRace.Subrace != null ? $" ({CurrentRace.Subrace.Name})" : "")}"
                 : "No Race Selected";
 
         public IEnumerable<RacialTrait> ActiveTraits =>

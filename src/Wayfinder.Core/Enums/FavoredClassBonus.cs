@@ -2,9 +2,9 @@
 {
     public enum FavoredClassBonus
     {
-        None,
-        HitPoint,
-        SkillPoint,
-        Racial
+        None = 0,
+        HitPoint = 1,
+        SkillPoint = 2,
+        AlternateRacial = 3
     }
 }
