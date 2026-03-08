@@ -31,6 +31,24 @@ namespace Wayfinder.App.Services
         [ObservableProperty]
         private CharacterSheet? _activeSheet;
 
+        public void CreateNewCharacter()
+        {
+            var newCharacter = new CharacterEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = "New Character",
+                BaseStrength = 10,
+                BaseDexterity = 10,
+                BaseConstitution = 10,
+                BaseIntelligence = 10,
+                BaseWisdom = 10,
+                BaseCharisma = 10
+            };
+
+            ActiveSheet = new CharacterSheet(newCharacter, _engine);
+            RefreshDomain();
+        }
+
         public void LoadCharacter(CharacterEntity entity)
         {
             ActiveCharacter = entity;

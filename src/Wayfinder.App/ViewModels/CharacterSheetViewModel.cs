@@ -16,6 +16,7 @@ namespace Wayfinder.App.Services
         private readonly IPathfinderRulesEngine _rulesEngine;
         private readonly CharacterStateService _characterStateService;
         private readonly AppStateService _appStateService;
+        public CharacterSheet? ActiveCharacterSheet => _characterStateService.ActiveSheet;
 
         public CharacterSheetViewModel(IAppLogger logger, IPathfinderRulesEngine rulesEngine, AppStateService appStateService, CharacterStateService stateService)
         {
@@ -47,9 +48,6 @@ namespace Wayfinder.App.Services
             TemporaryHp = ActiveCharacterSheet.TemporaryHp;
         }
 
-        // ActiveCharacter collections 
-        [ObservableProperty]
-        public CharacterSheet? _activeCharacterSheet;
         public ObservableCollection<ItemInstance> Inventory { get; } = new();
 
         #region Properties Exposed to the UI
@@ -189,7 +187,7 @@ namespace Wayfinder.App.Services
 
         public void InitializeNewCharacter()
         {
-            ActiveCharacterSheet = new CharacterSheet(_characterStateService.ActiveCharacter, _rulesEngine);
+            _characterStateService.CreateNewCharacter();
             RebuildState();
         }
 
