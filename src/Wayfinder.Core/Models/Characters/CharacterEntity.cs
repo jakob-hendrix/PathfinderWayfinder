@@ -39,7 +39,6 @@ public class CharacterEntity
     public int BaseCharisma { get; set; } = 10;
     #endregion
 
-    #region Derived Facts From Data
     // Should Language be an enum? Probably not - allow for RP to add new ones. We can seed a list of languages
     // from data
     public List<string> Languages { get; set; }
@@ -54,7 +53,6 @@ public class CharacterEntity
     public List<ItemInstance> Inventory { get; set; } = new();
     public Dictionary<EquipmentSlot, Guid> EquippedItems { get; set; } = new();
     public List<AttackLoadout> AttacksLoadouts { get; set; } = new();
-    #endregion
 
     #region Current Status Facts
     // State - things like current wounds, toggled effects

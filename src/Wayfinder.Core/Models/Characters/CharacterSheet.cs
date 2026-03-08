@@ -11,32 +11,45 @@ namespace Wayfinder.Core.Models.Characters;
 public class CharacterSheet
 {
     private readonly IPathfinderRulesEngine _rulesEngine;
+    public CharacterEntity BaseCharacter { get; }
 
     public CharacterSheet(CharacterEntity baseCharacterFacts, IPathfinderRulesEngine rulesEngine)
     {
-        BaseCharacterFacts = baseCharacterFacts;
+        BaseCharacter = baseCharacterFacts;
         _rulesEngine = rulesEngine;
-        InitializeSheet();
+        Refresh();
     }
 
-    private void InitializeSheet()
-    {
-        RebuildRace();
-        RebuildClasses();
-    }
-
-    public CharacterEntity BaseCharacterFacts { get; }
+    #region Character Stats
 
     public Race? Race { get; private set; }
     public List<HydratedClassLevel>? ClassLevels { get; private set; }
 
+    public int MaxHp => HitPointCalculator.CalculateMaxHp(ClassLevels, Constitution);
+    // TODO: ATM this is just basic math.
+    // I'd like to add a status indicator for "unconcious" or "dead" or "dying"
+    public int CurrentHp => MaxHp + TemporaryHp - Wounds;
+    public int TemporaryHp => BaseCharacter.TemporaryHp;
+    public int Wounds => BaseCharacter.Wounds;
+    public int NonLethalDamage => BaseCharacter.NonLethalDamage;
+
+
     // Ability Scores
-    public int Strength => CalculateAbilityScore(AbilityScore.Strength, BaseCharacterFacts.BaseStrength);
-    public int Dexterity => CalculateAbilityScore(AbilityScore.Dexterity, BaseCharacterFacts.BaseDexterity);
-    public int Constitution => CalculateAbilityScore(AbilityScore.Constitution, BaseCharacterFacts.BaseConstitution);
-    public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacterFacts.BaseIntelligence);
-    public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacterFacts.BaseWisdom);
-    public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacterFacts.BaseCharisma);
+    public int Strength => CalculateAbilityScore(AbilityScore.Strength, BaseCharacter.BaseStrength);
+    public int Dexterity => CalculateAbilityScore(AbilityScore.Dexterity, BaseCharacter.BaseDexterity);
+    public int Constitution => CalculateAbilityScore(AbilityScore.Constitution, BaseCharacter.BaseConstitution);
+    public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacter.BaseIntelligence);
+    public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacter.BaseWisdom);
+    public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacter.BaseCharisma);
+
+    #endregion
+
+    public void UpdateVitals(int wounds, int nonLethalDamage, int temporaryHp)
+    {
+        BaseCharacter.Wounds = Math.Max(0, wounds);
+        BaseCharacter.NonLethalDamage = Math.Max(0, nonLethalDamage);
+        BaseCharacter.TemporaryHp = Math.Max(0, temporaryHp);
+    }
 
     // Display the state of current class levels as Fighter 1 Wizard 2 etc
     public string ClassSummary
@@ -60,7 +73,7 @@ public class CharacterSheet
     public void RebuildRace()
     {
         // The Factory builds it, and the Domain stores it
-        var result = _rulesEngine.RaceFactory.BuildRace(BaseCharacterFacts.RaceChoices);
+        var result = _rulesEngine.RaceFactory.BuildRace(BaseCharacter.RaceChoices);
         if (result.IsValid)
         {
             Race = result.HydratedRace;
@@ -76,7 +89,7 @@ public class CharacterSheet
     public void RebuildClasses()
     {
         // The Factory builds it, and the Domain stores it
-        var result = _rulesEngine.ClassLevelEngine.HydrateLevels(BaseCharacterFacts.ClassLevelChoices);
+        var result = _rulesEngine.ClassLevelEngine.HydrateLevels(BaseCharacter.ClassLevelChoices);
         if (result.IsValid)
         {
             ClassLevels = result.HydratedLevels;
@@ -91,7 +104,7 @@ public class CharacterSheet
     // Return a list of hydrated items from the current state of the base character's inventory
     public List<ItemInstance> GetHydratedInventory()
     {
-        return BaseCharacterFacts.Inventory.Select(item =>
+        return BaseCharacter.Inventory.Select(item =>
         {
             var instance = _rulesEngine.ItemFactory.CreateItem(item.TemplateId);
 
@@ -105,7 +118,7 @@ public class CharacterSheet
 
     public void ToggleEquip(Guid instanceId)
     {
-        var item = BaseCharacterFacts.Inventory.FirstOrDefault(i => i.Id == instanceId);
+        var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
         if (item != null)
         {
             // TODO: implement equippgin items
@@ -115,7 +128,7 @@ public class CharacterSheet
 
     public void ToggleCarried(Guid instanceId)
     {
-        var item = BaseCharacterFacts.Inventory.FirstOrDefault(i => i.Id == instanceId);
+        var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
         if (item != null)
         {
             item.IsCarried = !item.IsCarried;
@@ -126,18 +139,18 @@ public class CharacterSheet
     public void AddClassLevel(ClassLevelChoice validChoice)
     {
         // Ensure we are adding exactly the next level in the sequence
-        int expectedLevel = BaseCharacterFacts.ClassLevelChoices.Count + 1;
+        int expectedLevel = BaseCharacter.ClassLevelChoices.Count + 1;
         if (validChoice.CharacterLevel != expectedLevel) return;
 
-        BaseCharacterFacts.ClassLevelChoices.Add(validChoice);
+        BaseCharacter.ClassLevelChoices.Add(validChoice);
         RebuildClasses(); // Re-runs the hydration engine!
     }
 
     public void RemoveHighestClassLevel()
     {
-        if (BaseCharacterFacts.ClassLevelChoices.Any())
+        if (BaseCharacter.ClassLevelChoices.Any())
         {
-            BaseCharacterFacts.ClassLevelChoices.RemoveAt(BaseCharacterFacts.ClassLevelChoices.Count - 1);
+            BaseCharacter.ClassLevelChoices.RemoveAt(BaseCharacter.ClassLevelChoices.Count - 1);
             RebuildClasses();
         }
     }

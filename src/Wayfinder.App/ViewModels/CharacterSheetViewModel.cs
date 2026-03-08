@@ -24,6 +24,8 @@ namespace Wayfinder.App.Services
             _characterStateService = stateService;
             _appStateService = appStateService;
 
+            LoadVitalsFromDomain();
+
             // Watch the UI to see if the data libraries were refreshed. We need to force a recalc
             // of the sheet
             _appStateService.OnDataRefreshed += HandleDataRefreshed;
@@ -36,47 +38,19 @@ namespace Wayfinder.App.Services
             _logger.LogInfo($"Initialized CharacterStateViewModel");
         }
 
+        private void LoadVitalsFromDomain()
+        {
+            if (ActiveCharacterSheet == null) return;
+
+            Wounds = ActiveCharacterSheet.Wounds;
+            NonLethalDamage = ActiveCharacterSheet.NonLethalDamage;
+            TemporaryHp = ActiveCharacterSheet.TemporaryHp;
+        }
+
         // ActiveCharacter collections 
         [ObservableProperty]
         public CharacterSheet? _activeCharacterSheet;
         public ObservableCollection<ItemInstance> Inventory { get; } = new();
-
-        private void HandleDataRefreshed() => RebuildState();
-        private void RebuildState()
-        {
-            if (ActiveCharacterSheet == null) return;
-
-            // 1. Wipe the UI's existing projections of the character sheet
-            Inventory.Clear();
-
-            // 2. Ask the sheet for hydrated facts
-            var refreshedItems = ActiveCharacterSheet.GetHydratedInventory();
-
-            // 3. Fill our collection
-            foreach (var item in refreshedItems)
-            {
-                Inventory.Add(item);
-            }
-
-            // 4. Recalculate Stats
-            TriggerFullRecalc();
-        }
-
-        public void Initialize()
-        {
-            // Check for auto save from crash
-            // Prompt to save or load - this will probably be a new page
-            if (ActiveCharacterSheet is null)
-            {
-                InitializeNewCharacter();
-            }
-        }
-
-        public void InitializeNewCharacter()
-        {
-            ActiveCharacterSheet = new CharacterSheet(_characterStateService.ActiveCharacter, _rulesEngine);
-            RebuildState();
-        }
 
         #region Properties Exposed to the UI
         public Race? CurrentRace => ActiveCharacterSheet?.Race;
@@ -88,11 +62,11 @@ namespace Wayfinder.App.Services
         public IEnumerable<RacialTrait> ActiveTraits =>
             CurrentRace?.SelectedRacialTraits ?? Enumerable.Empty<RacialTrait>();
 
-        public string Alignment => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Alignment.ToString().SplitCamelCase() ?? "No Alignment Selected", "Alignment Display");
-        public string Gender => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Gender ?? "Not Specified", "Gender Display");
-        public string Deity => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Deity ?? "None", "Deity Display");
-        public int Age => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.Age ?? 0, "Age Display");
-        public string PhysicalDescription => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacterFacts.PhysicalDescription ?? "Nothing distinguishing at all.", "Physical Description Display");
+        public string Alignment => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase() ?? "No Alignment Selected", "Alignment Display");
+        public string Gender => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Gender ?? "Not Specified", "Gender Display");
+        public string Deity => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Deity ?? "None", "Deity Display");
+        public int Age => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Age ?? 0, "Age Display");
+        public string PhysicalDescription => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.PhysicalDescription ?? "Nothing distinguishing at all.", "Physical Description Display");
 
         public int Strength => SafeCalculate(() => ActiveCharacterSheet.Strength, "Strength Calculation");
         public int Dexterity => SafeCalculate(() => ActiveCharacterSheet.Dexterity, "Dexterity Calculation");
@@ -101,7 +75,14 @@ namespace Wayfinder.App.Services
         public int Wisdom => SafeCalculate(() => ActiveCharacterSheet.Wisdom, "Wisdom Calculation");
         public int Charisma => SafeCalculate(() => ActiveCharacterSheet.Charisma, "Charisma Calculation");
 
-        // TODO do others
+
+        // Mutable - bound to UI
+        [ObservableProperty] private int _wounds;
+        [ObservableProperty] private int _nonLethalDamage;
+        [ObservableProperty] private int _temporaryHp;
+
+        public int MaxHp => ActiveCharacterSheet?.MaxHp ?? 0;
+        public int CurrentHp => ActiveCharacterSheet?.CurrentHp ?? 0;
 
         #endregion
 
@@ -168,6 +149,59 @@ namespace Wayfinder.App.Services
         {
             _appStateService.OnDataRefreshed -= HandleDataRefreshed;
             _characterStateService.StateChanged -= TriggerFullRecalc;
+        }
+
+
+        private void HandleDataRefreshed() => RebuildState();
+        private void RebuildState()
+        {
+            if (ActiveCharacterSheet == null) return;
+
+            // 1. Wipe the UI's existing projections of the character sheet
+            Inventory.Clear();
+
+            // 2. Ask the sheet for hydrated facts
+            var refreshedItems = ActiveCharacterSheet.GetHydratedInventory();
+
+            // 3. Fill our collection
+            foreach (var item in refreshedItems)
+            {
+                Inventory.Add(item);
+            }
+
+            // 4. Recalculate Stats
+            TriggerFullRecalc();
+        }
+
+        public void Initialize()
+        {
+            // Check for auto save from crash
+            // Prompt to save or load - this will probably be a new page
+            if (ActiveCharacterSheet is null)
+            {
+                InitializeNewCharacter();
+            }
+        }
+
+        public void InitializeNewCharacter()
+        {
+            ActiveCharacterSheet = new CharacterSheet(_characterStateService.ActiveCharacter, _rulesEngine);
+            RebuildState();
+        }
+
+        partial void OnWoundsChanged(int value) => ApplyVitalsChange();
+        partial void OnNonLethalDamageChanged(int value) => ApplyVitalsChange();
+        partial void OnTemporaryHpChanged(int value) => ApplyVitalsChange();
+
+        private void ApplyVitalsChange()
+        {
+            if (_characterStateService.ActiveSheet == null) return;
+
+            // Tell domain to update it's HP
+            _characterStateService.ActiveSheet.UpdateVitals(Wounds, NonLethalDamage, TemporaryHp);
+
+            // Tell UI that current hp probably changed
+            OnPropertyChanged(nameof(CurrentHp));
         }
     }
 }

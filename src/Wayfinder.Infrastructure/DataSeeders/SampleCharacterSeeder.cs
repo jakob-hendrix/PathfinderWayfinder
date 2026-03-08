@@ -34,13 +34,15 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     {
                         ClassName = "Fighter",
                         CharacterLevel = 1,
-                        SelectedFavoredClassBonus = FavoredClassBonus.HitPoint
+                        SelectedFavoredClassBonus = FavoredClassBonus.HitPoint,
+                        HpGained = 10,
                     },
                     new ClassLevelChoice
                     {
                         ClassName = "Fighter",
                         CharacterLevel = 2,
-                        SelectedFavoredClassBonus = FavoredClassBonus.AlternateRacial
+                        SelectedFavoredClassBonus = FavoredClassBonus.AlternateRacial,
+                        HpGained = 5
                     },
                 },
 

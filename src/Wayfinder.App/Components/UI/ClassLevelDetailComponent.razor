@@ -5,135 +5,161 @@
 
 @if (DraftVM != null)
 {
-    <div class="card shadow-sm border-primary">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Level @DraftVM.CharacterLevel Details</h5>
-            @if (DraftVM.IsReadOnly)
-            {
-                <span class="badge bg-secondary">Locked (History)</span>
-            }
-        </div>
-        <div class="card-body">
-
-            @if (DraftVM.IsReadOnly)
-            {
-                <div class="alert alert-secondary py-2 mb-4">
-                    <small>This level is locked. To change choices made here, you must delete levels from the top of the stack down to this point.</small>
-                </div>
-            }
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Class</label>
-                <select class="form-select" @bind="DraftVM.ClassName" @bind:after="DraftVM.Validate" disabled="@DraftVM.IsReadOnly">
-                    <option value="">-- Choose a Class --</option>
-                    @foreach (var c in AvailableClasses)
-                    {
-                        <option value="@c.Name">@c.Name</option>
-                    }
-                </select>
-            </div>
-
-            @if (DraftVM.GrantsAbilityScoreIncrease)
-            {
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Ability Score Increase</label>
-                    <select class="form-select" @bind="DraftVM.AbilityScoreIncrease" @bind:after="DraftVM.Validate" disabled="@DraftVM.IsReadOnly">
-                        <option value="">-- Select Score --</option>
-                        @foreach (AbilityScore score in Enum.GetValues(typeof(AbilityScore)))
-                        {
-                            <option value="@score">@score</option>
-                        }
-                    </select>
-                </div>
-            }
-
-            @if (DraftVM.IsFavoredClass)
-            {
-                <div class="mb-4 p-3 border rounded bg-light border-success border-opacity-50">
-                    <h6 class="fw-bold text-success mb-2">
-                        <i class="bi bi-star-fill me-1"></i> Favored Class Bonus
-                    </h6>
-                    <p class="small text-muted mb-3">Because this is your favored class, you gain a bonus every time you take a level in it.</p>
-
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="fcbChoice" id="fcbHp"
-                               checked="@(DraftVM.FcbChoice == FavoredClassBonus.HitPoint)"
-                               @onchange="@(() => { DraftVM.FcbChoice = FavoredClassBonus.HitPoint; DraftVM.Validate(); })"
-                               disabled="@DraftVM.IsReadOnly">
-                        <label class="form-check-label" for="fcbHp">
-                            <strong>+1 Hit Point</strong>
-                        </label>
-                    </div>
-
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="fcbChoice" id="fcbSkill"
-                               checked="@(DraftVM.FcbChoice == FavoredClassBonus.SkillPoint)"
-                               @onchange="@(() => { DraftVM.FcbChoice = FavoredClassBonus.SkillPoint; DraftVM.Validate(); })"
-                               disabled="@DraftVM.IsReadOnly">
-                        <label class="form-check-label" for="fcbSkill">
-                            <strong>+1 Skill Point</strong>
-                        </label>
-                    </div>
-
-                    @if (!string.IsNullOrWhiteSpace(DraftVM.AvailableRacialFcbDescription))
-                    {
-                        <div class="form-check mt-3 pt-2 border-top">
-                            <input class="form-check-input" type="radio" name="fcbChoice" id="fcbAlternate"
-                                   checked="@(DraftVM.FcbChoice == FavoredClassBonus.AlternateRacial)"
-                                   @onchange="@(() => { DraftVM.FcbChoice = FavoredClassBonus.AlternateRacial; DraftVM.Validate(); })"
-                                   disabled="@DraftVM.IsReadOnly">
-                            <label class="form-check-label" for="fcbAlternate">
-                                <span class="badge bg-info text-dark mb-1">Alternate Racial Bonus</span><br />
-                                <small>@DraftVM.AvailableRacialFcbDescription</small>
-                            </label>
-                        </div>
-                    }
-                </div>
-            }
-
-            @* Class Features Display (Works identically for Draft and Read-Only) *@
-            @if (DraftVM.GainedFeatures.Any())
-            {
-                <div class="mt-4 mb-3 p-3 bg-light border rounded">
-                    <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Features Gained</h6>
-                    <ul class="list-unstyled mb-0">
-                        @foreach (var feature in DraftVM.GainedFeatures)
-                        {
-                            <li class="mb-2">
-                                <strong class="text-dark">@feature.Name:</strong>
-                                <span class="text-muted">@feature.Rank</span>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            }
-
-            @if (!DraftVM.IsReadOnly && !DraftVM.IsValid)
-            {
-                <div class="alert alert-warning py-2 mt-3">
-                    <ul class="mb-0 ps-3">
-                        @foreach (var error in DraftVM.ValidationErrors)
-                        {
-                            <li class="small">@error</li>
-                        }
-                    </ul>
-                </div>
-            }
-
-            @if (!DraftVM.IsReadOnly)
-            {
-                <button class="btn btn-success w-100 mt-3"
-                        disabled="@(!DraftVM.IsValid)"
-                        @onclick="OnSaveClicked">
-                    Save & Apply Level @DraftVM.CharacterLevel
-                </button>
-            }
-        </div>
+  <div class="card shadow-sm border-primary">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Level @DraftVM.CharacterLevel Details</h5>
+      @if (DraftVM.IsReadOnly)
+      {
+        <span class="badge bg-secondary">Locked (History)</span>
+      }
     </div>
+    <div class="card-body">
+
+      @if (DraftVM.IsReadOnly)
+      {
+        <div class="alert alert-secondary py-2 mb-4">
+          <small>This level is locked. To change choices made here, you must delete levels from the top of the stack down to this point.</small>
+        </div>
+      }
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Class</label>
+        <select class="form-select" @bind="DraftVM.ClassName" @bind:after="DraftVM.Validate" disabled="@DraftVM.IsReadOnly">
+          <option value="">-- Choose a Class --</option>
+          @foreach (var c in AvailableClasses)
+          {
+            <option value="@c.Name">@c.Name</option>
+          }
+        </select>
+      </div>
+
+      @if (DraftVM.ClassHitDie > 0)
+      {
+        <div class="mb-3 p-3 bg-light border rounded">
+          <label class="form-label fw-bold">Hit Points Gained</label>
+          <div class="input-group">  
+              <span class="input-group-text">Roll d@(DraftVM.ClassHitDie)</span>
+              <input type="number" class="form-control"
+                    @bind="DraftVM.HpGained"
+                    @bind:after="DraftVM.Validate"
+                    max="@(DraftVM.ClassHitDie)"
+                    min="1"
+                    disabled="@(DraftVM.IsReadOnly || DraftVM.IsFirstLevel)"/>
+          </div>
+          @if (DraftVM.IsFirstLevel)
+          {
+              <div class="form-text text-success">
+                  <i class="bi bi-info-circle"></i> Max HP is automatically granted at level 1.
+              </div>
+          }
+          else if (!DraftVM.IsReadOnly)
+          {
+            <div class="form-text">Enter the roll</div>
+          }
+        </div>
+      }
+
+      @if (DraftVM.GrantsAbilityScoreIncrease)
+      {
+        <div class="mb-3">
+          <label class="form-label fw-bold">Ability Score Increase</label>
+          <select class="form-select" @bind="DraftVM.AbilityScoreIncrease" @bind:after="DraftVM.Validate" disabled="@DraftVM.IsReadOnly">
+            <option value="">-- Select Score --</option>
+            @foreach (AbilityScore score in Enum.GetValues(typeof(AbilityScore)))
+            {
+              <option value="@score">@score</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (DraftVM.IsFavoredClass)
+      {
+        <div class="mb-4 p-3 border rounded bg-light border-success border-opacity-50">
+          <h6 class="fw-bold text-success mb-2">
+            <i class="bi bi-star-fill me-1"></i> Favored Class Bonus
+          </h6>
+          <p class="small text-muted mb-3">Because this is your favored class, you gain a bonus every time you take a level in it.</p>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="fcbChoice" id="fcbHp"
+                   checked="@(DraftVM.FcbChoice == FavoredClassBonus.HitPoint)"
+                   @onchange="@(() => { DraftVM.FcbChoice = FavoredClassBonus.HitPoint; DraftVM.Validate(); })"
+                   disabled="@DraftVM.IsReadOnly">
+            <label class="form-check-label" for="fcbHp">
+              <strong>+1 Hit Point</strong>
+            </label>
+          </div>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="fcbChoice" id="fcbSkill"
+                   checked="@(DraftVM.FcbChoice == FavoredClassBonus.SkillPoint)"
+                   @onchange="@(() => { DraftVM.FcbChoice = FavoredClassBonus.SkillPoint; DraftVM.Validate(); })"
+                   disabled="@DraftVM.IsReadOnly">
+            <label class="form-check-label" for="fcbSkill">
+              <strong>+1 Skill Point</strong>
+            </label>
+          </div>
+
+          @if (!string.IsNullOrWhiteSpace(DraftVM.AvailableRacialFcbDescription))
+          {
+            <div class="form-check mt-3 pt-2 border-top">
+              <input class="form-check-input" type="radio" name="fcbChoice" id="fcbAlternate"
+                     checked="@(DraftVM.FcbChoice == FavoredClassBonus.AlternateRacial)"
+                     @onchange="@(() => { DraftVM.FcbChoice = FavoredClassBonus.AlternateRacial; DraftVM.Validate(); })"
+                     disabled="@DraftVM.IsReadOnly">
+              <label class="form-check-label" for="fcbAlternate">
+                <span class="badge bg-info text-dark mb-1">Alternate Racial Bonus</span><br />
+                <small>@DraftVM.AvailableRacialFcbDescription</small>
+              </label>
+            </div>
+          }
+        </div>
+      }
+
+      @* Class Features Display (Works identically for Draft and Read-Only) *@
+      @if (DraftVM.GainedFeatures.Any())
+      {
+        <div class="mt-4 mb-3 p-3 bg-light border rounded">
+          <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Features Gained</h6>
+          <ul class="list-unstyled mb-0">
+            @foreach (var feature in DraftVM.GainedFeatures)
+            {
+              <li class="mb-2">
+                <strong class="text-dark">@feature.Name:</strong>
+                <span class="text-muted">@feature.Rank</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (!DraftVM.IsReadOnly && !DraftVM.IsValid)
+      {
+        <div class="alert alert-warning py-2 mt-3">
+          <ul class="mb-0 ps-3">
+            @foreach (var error in DraftVM.ValidationErrors)
+            {
+              <li class="small">@error</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (!DraftVM.IsReadOnly)
+      {
+        <button class="btn btn-success w-100 mt-3"
+                disabled="@(!DraftVM.IsValid)"
+                @onclick="OnSaveClicked">
+          Save & Apply Level @DraftVM.CharacterLevel
+        </button>
+      }
+    </div>
+  </div>
 }
 
 @code {
-    [Parameter, EditorRequired] public ClassLevelDetailViewModel DraftVM { get; set; } = null!;
-    [Parameter, EditorRequired] public IEnumerable<ClassDefinition> AvailableClasses { get; set; } = new List<ClassDefinition>();
-    [Parameter] public EventCallback OnSaveClicked { get; set; }
+  [Parameter, EditorRequired] public ClassLevelDetailViewModel DraftVM { get; set; } = null!;
+  [Parameter, EditorRequired] public IEnumerable<ClassDefinition> AvailableClasses { get; set; } = new List<ClassDefinition>();
+  [Parameter] public EventCallback OnSaveClicked { get; set; }
 }

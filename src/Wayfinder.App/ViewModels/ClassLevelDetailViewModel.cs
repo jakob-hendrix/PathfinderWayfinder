@@ -19,6 +19,7 @@ public partial class ClassLevelDetailViewModel : ObservableObject
     [ObservableProperty] private AbilityScore? _abilityScoreIncrease;
     [ObservableProperty] private List<string> _validationErrors = new();
     [ObservableProperty] private FavoredClassBonus _fcbChoice;
+    [ObservableProperty] private int _hpGained;
 
     // Make this an observable property so we can set it explicitly
     [ObservableProperty] private IEnumerable<ClassFeatureDefinition> _gainedFeatures = Enumerable.Empty<ClassFeatureDefinition>();
@@ -28,6 +29,8 @@ public partial class ClassLevelDetailViewModel : ObservableObject
     public bool GrantsAbilityScoreIncrease { get; }
     public bool IsFavoredClass { get; private set; }
     public string? AvailableRacialFcbDescription { get; private set; }
+    public int ClassHitDie { get; private set; }
+    public bool IsFirstLevel => CharacterLevel == 1; // TODO: move this to Hp Calculator
 
     // --- CONSTRUCTOR 1: DRAFT MODE ---
     public ClassLevelDetailViewModel(
@@ -59,6 +62,8 @@ public partial class ClassLevelDetailViewModel : ObservableObject
         ClassName = pastLevel.ClassDefinition.Name;
         AbilityScoreIncrease = pastLevel.IncreasedAbilityScore;
         GrantsAbilityScoreIncrease = pastLevel.GrantsAbilityScoreIncrease;
+        HpGained = pastLevel.HpGained;
+        ClassHitDie = pastLevel.ClassDefinition.HitDie;
 
         // Directly load the features using the known internal class level
         IsFavoredClass = pastLevel.IsFavoredClass;
@@ -76,10 +81,20 @@ public partial class ClassLevelDetailViewModel : ObservableObject
         GainedFeatures = levelDef?.ClassFeatures ?? Enumerable.Empty<ClassFeatureDefinition>();
     }
 
+    // MVVM - maps to class name
     partial void OnClassNameChanged(string value)
     {
         if (IsReadOnly) return; // Don't recalculate if we are just viewing history
 
+        var classDef = _classLibrary.GetClassDefinition(value);
+        if (classDef != null)
+        {
+            ClassHitDie = classDef.HitDie;
+            if (IsFirstLevel)
+            {
+                HpGained = ClassHitDie;
+            }
+        }
         UpdateFavoredClassStatus();
         Validate();
         UpdateGainedFeaturesForDraft();
@@ -140,12 +155,20 @@ public partial class ClassLevelDetailViewModel : ObservableObject
         GainedFeatures = levelDef?.ClassFeatures ?? Enumerable.Empty<ClassFeatureDefinition>();
     }
 
+    // TODO: move these rules to the domain
     public void Validate()
     {
         if (IsReadOnly || _engine == null) return;
 
         var choice = ToChoice();
         ValidationErrors = _engine.ValidateChoice(choice);
+
+        // HP Rules
+        if (IsFirstLevel && HpGained != ClassHitDie)
+            ValidationErrors.Add("For the first level, the HP must be the max possible");
+
+        if (!IsFirstLevel && (HpGained < 1 || HpGained > ClassHitDie))
+            ValidationErrors.Add($"HP gained must be between 1 and {ClassHitDie}");
 
         // Enforce FCB rules
         if (IsFavoredClass && FcbChoice == FavoredClassBonus.None)
@@ -169,7 +192,8 @@ public partial class ClassLevelDetailViewModel : ObservableObject
             CharacterLevel = CharacterLevel,
             ClassName = ClassName,
             AbilityScoreIncrease = AbilityScoreIncrease,
-            SelectedFavoredClassBonus = FcbChoice
+            SelectedFavoredClassBonus = FcbChoice,
+            HpGained = HpGained
         };
     }
 }

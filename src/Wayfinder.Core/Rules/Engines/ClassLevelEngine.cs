@@ -43,6 +43,7 @@ public class ClassLevelEngine : IClassLevelEngine
                     l => l.ClassDefinition.Name == choice.ClassName) + 1,
                 ClassDefinition = classDef,
                 BaseSkillPointsGranted = classDef.SkillPointsPerLevel,
+                HpGained = choice.HpGained,
             };
 
             // FCB logic

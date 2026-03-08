@@ -11,6 +11,7 @@ public class HydratedClassLevel
     public List<GrantedFeatSlot> GrantedFeatSlots { get; set; } = new();
     public bool GrantsAbilityScoreIncrease { get; set; }
     public AbilityScore? IncreasedAbilityScore { get; set; }
+    public int HpGained { get; set; }
     public int BaseSkillPointsGranted { get; set; }
     public bool IsFavoredClass { get; set; }
     public FavoredClassBonus AppliedFavoredClassBonus { get; set; }
