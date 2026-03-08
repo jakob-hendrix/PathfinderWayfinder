@@ -35,7 +35,7 @@ public class CharacterSheet
 
     public int BaseAttackBonus => BabCalculator.Calculate(ClassLevels);
     public int FortitudeSave => SaveCalculator.Calculate(ClassLevels, SaveType.Fortitude, Constitution);
-    public int ReflexSave => SaveCalculator.Calculate(ClassLevels, SaveType.Reflex, ReflexSave);
+    public int ReflexSave => SaveCalculator.Calculate(ClassLevels, SaveType.Reflex, Dexterity);
     public int WillSave => SaveCalculator.Calculate(ClassLevels, SaveType.Will, Wisdom);
 
     // Ability Scores

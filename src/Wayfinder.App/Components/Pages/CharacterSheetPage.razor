@@ -1,182 +1,223 @@
 @page "/"
 @using Wayfinder.Core.Extensions
 @using Wayfinder.Core.Rules.Calculators
-@inject CharacterSheetViewModel ViewModel
+@inject CharacterSheetViewModel VM
 
 <div class="container py-4">
-  @if (ViewModel.ActiveCharacterSheet == null)
-  {
-    <div class="alert alert-warning">No character active. Please load or create a character first.</div>
-  }
-  else
-  {
-    <div class="row">
-      @* @/* --- LEFT COLUMN: Identity & Demographics --- */ *@
-      <div class="col-md-4">
-        <section class="mb-4">
-          <h2 class="display-6 border-bottom">@ViewModel.ActiveCharacterSheet.BaseCharacter.Name</h2>
-          <h5 class="text-primary mt-1">
-            @ViewModel.ActiveCharacterSheet.ClassSummary
-          </h5>
+    @if (VM.ActiveCharacterSheet == null)
+    {
+        <div class="alert alert-warning">No character active. Please load or create a character first.</div>
+    }
+    else
+    {
+        <div class="row">
+            @* @/* --- LEFT COLUMN: Identity & Demographics --- */ *@
+            <div class="col-md-4">
+                <section class="mb-4">
+                    <h2 class="display-6 border-bottom">@VM.ActiveCharacterSheet.BaseCharacter.Name</h2>
+                    <h5 class="text-primary mt-1">
+                        @VM.ActiveCharacterSheet.ClassSummary
+                    </h5>
 
-          @* HP inputs *@
-          <div class="row align-items-end mb-4 bg-light p-2 rounded border">
-            <div class="col-auto pe-4 border-end">
-              <span class="text-muted x-small text-uppercase d-block mb-1">Hit Points</span>
-              <span class="fs-4 fw-bold @(ViewModel.CurrentHp <= 0 ? "text-danger" : "")">
-                @ViewModel.CurrentHp
-              </span>
-              <span class="text-muted fs-5"> / @ViewModel.MaxHp</span>
-            </div>
+                    @* HP inputs *@
+                    <div class="row align-items-end mb-4 bg-light p-2 rounded border">
+                        <div class="col-auto pe-4 border-end">
+                            <span class="text-muted x-small text-uppercase d-block mb-1">Hit Points</span>
+                            <span class="fs-4 fw-bold @(VM.CurrentHp <= 0 ? "text-danger" : "")">
+                                @VM.CurrentHp
+                            </span>
+                            <span class="text-muted fs-5"> / @VM.MaxHp</span>
+                        </div>
 
-            @* Inputs *@
-            <div class="col-auto ps-4">
-              <label class="form-label mb-0 small fw-bold">Wounds</label>
-              <input type="number" class="form-control" min="0" @bind="ViewModel.Wounds" @bind:event="oninput" style="width: 90px;" />
-            </div>
+                        @* Inputs *@
+                        <div class="col-auto ps-4">
+                            <label class="form-label mb-0 small fw-bold">Wounds</label>
+                            <input type="number" class="form-control" min="0" @bind="VM.Wounds" @bind:event="oninput" style="width: 90px;" />
+                        </div>
 
-            <div class="col-auto ps-4">
-              <label class="form-label mb-0 small fw-bold">Non-Lethal Damage</label>
-              <input type="number" class="form-control" min="0" @bind="ViewModel.NonLethalDamage" @bind:event="oninput" style="width: 90px;" />
-            </div>
+                        <div class="col-auto ps-4">
+                            <label class="form-label mb-0 small fw-bold">Non-Lethal Damage</label>
+                            <input type="number" class="form-control" min="0" @bind="VM.NonLethalDamage" @bind:event="oninput" style="width: 90px;" />
+                        </div>
 
-            <div class="col-auto ps-4">
-              <label class="form-label mb-0 small fw-bold">Temporary Hp</label>
-              <input type="number" class="form-control" min="0" @bind="ViewModel.TemporaryHp" @bind:event="oninput" style="width: 90px;" />
-            </div>
-          </div>
+                        <div class="col-auto ps-4">
+                            <label class="form-label mb-0 small fw-bold">Temporary Hp</label>
+                            <input type="number" class="form-control" min="0" @bind="VM.TemporaryHp" @bind:event="oninput" style="width: 90px;" />
+                        </div>
+                    </div>
 
-          <div class="stat-group mt-3">
-            <div class="stat-line"><strong>Race:</strong> @ViewModel.RaceFullTitle</div>
-            <div class="stat-line"><strong>Alignment:</strong> @ViewModel.Alignment</div>
-            <div class="stat-line"><strong>Gender:</strong> @ViewModel.Gender</div>
-            <div class="stat-line"><strong>Age:</strong> @ViewModel.Age</div>
-            <div class="stat-line"><strong>Deity:</strong> @ViewModel.Deity</div>
-          </div>
-        </section>
+                    <div class="stat-group mt-3">
+                        <div class="stat-line"><strong>Race:</strong> @VM.RaceFullTitle</div>
+                        <div class="stat-line"><strong>Alignment:</strong> @VM.Alignment</div>
+                        <div class="stat-line"><strong>Gender:</strong> @VM.Gender</div>
+                        <div class="stat-line"><strong>Age:</strong> @VM.Age</div>
+                        <div class="stat-line"><strong>Deity:</strong> @VM.Deity</div>
+                    </div>
+                </section>
 
-        @* @/* --- ABILITY SCORES --- */ *@
-        <section class="mb-4 p-3 bg-light rounded shadow-sm">
-          <h4 class="text-secondary border-bottom pb-2">Ability Scores</h4>
-          <div class="ability-grid">
-            <div class="stat-line">
-              <strong>Strength:</strong>
-              <span class="fw-bold">@ViewModel.Strength (@FormatMod(ViewModel.Strength))</span>
-            </div>
-            <div class="stat-line">
-              <strong>Dexterity:</strong>
-              <span class="fw-bold">@ViewModel.Dexterity (@FormatMod(ViewModel.Dexterity))</span>
-            </div>
-            <div class="stat-line">
-              <strong>Constitution:</strong>
-              <span class="fw-bold">@ViewModel.Constitution (@FormatMod(ViewModel.Constitution))</span>
-            </div>
-            <div class="stat-line">
-              <strong>Intelligence:</strong>
-              <span class="fw-bold">@ViewModel.Intelligence (@FormatMod(ViewModel.Intelligence))</span>
-            </div>
-            <div class="stat-line">
-              <strong>Wisdom:</strong>
-              <span class="fw-bold">@ViewModel.Wisdom (@FormatMod(ViewModel.Wisdom))</span>
-            </div>
-            <div class="stat-line">
-              <strong>Charisma:</strong>
-              <span class="fw-bold">@ViewModel.Charisma (@FormatMod(ViewModel.Charisma))</span>
-            </div>
-          </div>
-        </section>
-      </div>
+                @* @/* --- Core Stats --- */ *@
 
-      @* @/* --- RIGHT COLUMN: Heritage & Detailed Features --- */ *@
-      <div class="col-md-8">
+                <div class="row text-center align-items-center bg-light p-3 rounded border mb-4 shadow-sm">
 
-        @* @/* Racial Traits Section */ *@
-        <section class="mb-4">
-          <h4 class="text-secondary border-bottom pb-2">Racial Heritage</h4>
-          @if (ViewModel.ActiveTraits.Any())
-          {
-            @if (ViewModel.CurrentRace?.Subrace != null)
-            {
-              <div class="alert alert-secondary py-2 small mb-3">
-                <strong>Subrace: @ViewModel.CurrentRace.Subrace.Name</strong> —
-                @ViewModel.CurrentRace.Subrace.Description
-              </div>
-            }
+                    @* Base Attack Bonus *@
+                    <div class="col border-end">
+                        <span class="text-muted small text-uppercase fw-bold d-block mb-1">BAB</span>
+                        <span class="fs-4 fw-bold">@FormatBonus(VM.BaseAttackBonus)</span>
+                    </div>
 
-            <div class="row">
-              @foreach (var trait in ViewModel.ActiveTraits)
-              {
-                <div class="col-12 mb-3 border-start border-3 border-primary ps-3">
-                  <div class="d-flex justify-content-between">
-                    <span class="fw-bold text-dark"><strong>@trait.Name</strong></span>
-                    @if (ViewModel.CurrentRace?.ActiveAlternativeRacialTraits.Any(a => a.Name == trait.Name) == true)
-                    {
-                      <span class="badge bg-warning text-dark x-small">Alternative</span>
-                    }
-                  </div>
-                  <div class="text-muted small">@trait.Description</div>
+                    @* Fortitude Save *@
+                    <div class="col border-end">
+                        <span class="text-muted small text-uppercase fw-bold d-block mb-1">Fortitude</span>
+                        <span class="fs-4 fw-bold @(VM.FortitudeSave < 0 ? "text-danger" : "text-success")">
+                            @FormatBonus(VM.FortitudeSave)
+                        </span>
+                        <span class="d-block small text-muted">(CON)</span>
+                    </div>
+
+                    @* Reflex Save *@
+                    <div class="col border-end">
+                        <span class="text-muted small text-uppercase fw-bold d-block mb-1">Reflex</span>
+                        <span class="fs-4 fw-bold @(VM.ReflexSave < 0 ? "text-danger" : "text-success")">
+                            @FormatBonus(VM.ReflexSave)
+                        </span>
+                        <span class="d-block small text-muted">(DEX)</span>
+                    </div>
+
+                    @* Will Save *@
+                    <div class="col">
+                        <span class="text-muted small text-uppercase fw-bold d-block mb-1">Will</span>
+                        <span class="fs-4 fw-bold @(VM.WillSave < 0 ? "text-danger" : "text-success")">
+                            @FormatBonus(VM.WillSave)
+                        </span>
+                        <span class="d-block small text-muted">(WIS)</span>
+                    </div>
+
                 </div>
-              }
-            </div>
-          }
-          else
-          {
-            <div class="text-muted italic">No race data available. Ensure a race is selected in the character foundations.</div>
-          }
-        </section>
 
-        @* @/* Biography & Physical Description */ *@
-        <section class="mb-4">
-          <h4 class="text-secondary border-bottom pb-2">Story</h4>
-          <div class="mb-3">
-            <label class="text-uppercase small fw-bold text-muted">Physical Description</label>
-            <p class="border p-2 bg-white rounded">@ViewModel.ActiveCharacterSheet.BaseCharacter.PhysicalDescription</p>
-          </div>
-          <div>
-            <label class="text-uppercase small fw-bold text-muted">Biography</label>
-            <div class="border p-2 bg-white rounded biography-box">
-              @((MarkupString)(ViewModel.ActiveCharacterSheet.BaseCharacter.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
+                @* @/* --- ABILITY SCORES --- */ *@
+
+                <section class="mb-4 p-3 bg-light rounded shadow-sm">
+                    <h4 class="text-secondary border-bottom pb-2">Ability Scores</h4>
+                    <div class="ability-grid">
+                        <div class="stat-line">
+                            <strong>Strength:</strong>
+                            <span class="fw-bold">@VM.Strength (@FormatMod(VM.Strength))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Dexterity:</strong>
+                            <span class="fw-bold">@VM.Dexterity (@FormatMod(VM.Dexterity))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Constitution:</strong>
+                            <span class="fw-bold">@VM.Constitution (@FormatMod(VM.Constitution))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Intelligence:</strong>
+                            <span class="fw-bold">@VM.Intelligence (@FormatMod(VM.Intelligence))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Wisdom:</strong>
+                            <span class="fw-bold">@VM.Wisdom (@FormatMod(VM.Wisdom))</span>
+                        </div>
+                        <div class="stat-line">
+                            <strong>Charisma:</strong>
+                            <span class="fw-bold">@VM.Charisma (@FormatMod(VM.Charisma))</span>
+                        </div>
+                    </div>
+                </section>
             </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  }
+
+            @* @/* --- RIGHT COLUMN: Heritage & Detailed Features --- */ *@
+            <div class="col-md-8">
+
+                @* @/* Racial Traits Section */ *@
+                <section class="mb-4">
+                    <h4 class="text-secondary border-bottom pb-2">Racial Heritage</h4>
+                    @if (VM.ActiveTraits.Any())
+                    {
+                        @if (VM.CurrentRace?.Subrace != null)
+                        {
+                            <div class="alert alert-secondary py-2 small mb-3">
+                                <strong>Subrace: @VM.CurrentRace.Subrace.Name</strong> —
+                                @VM.CurrentRace.Subrace.Description
+                            </div>
+                        }
+
+                        <div class="row">
+                            @foreach (var trait in VM.ActiveTraits)
+                            {
+                                <div class="col-12 mb-3 border-start border-3 border-primary ps-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold text-dark"><strong>@trait.Name</strong></span>
+                                        @if (VM.CurrentRace?.ActiveAlternativeRacialTraits.Any(a => a.Name == trait.Name) == true)
+                                        {
+                                            <span class="badge bg-warning text-dark x-small">Alternative</span>
+                                        }
+                                    </div>
+                                    <div class="text-muted small">@trait.Description</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted italic">No race data available. Ensure a race is selected in the character foundations.</div>
+                    }
+                </section>
+
+                @* @/* Biography & Physical Description */ *@
+                <section class="mb-4">
+                    <h4 class="text-secondary border-bottom pb-2">Story</h4>
+                    <div class="mb-3">
+                        <label class="text-uppercase small fw-bold text-muted">Physical Description</label>
+                        <p class="border p-2 bg-white rounded">@VM.ActiveCharacterSheet.BaseCharacter.PhysicalDescription</p>
+                    </div>
+                    <div>
+                        <label class="text-uppercase small fw-bold text-muted">Biography</label>
+                        <div class="border p-2 bg-white rounded biography-box">
+                            @((MarkupString)(VM.ActiveCharacterSheet.BaseCharacter.Biography?.Replace("\n", "<br />") ?? "<em>No history recorded.</em>"))
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
-  private string FormatMod(int stat)
-  {
-    var mod = AbilityScoreCalculator.CalculateModifier(stat);
-    return mod >= 0 ? $"+{mod}" : mod.ToString();
-  }
+    private string FormatMod(int stat)
+    {
+        var mod = AbilityScoreCalculator.CalculateModifier(stat);
+        return FormatBonus(mod); // mod >= 0 ? $"+{mod}" : mod.ToString();
+    }
+    private string FormatBonus(int value) => value >= 0 ? $"+{value}" : value.ToString();
 
-  protected override void OnInitialized()
-  {
-    // Subscribe to state changes so the UI refreshes if the user switches characters or updates facts
-    ViewModel.PropertyChanged += (s, e) => StateHasChanged();
-  }
+    protected override void OnInitialized()
+    {
+        // Subscribe to state changes so the UI refreshes if the user switches characters or updates facts
+        VM.PropertyChanged += (s, e) => StateHasChanged();
+    }
 }
 
 <style>
-  .stat-line {
-    display: flex;
-    justify-content: flex-start;
-    padding: 5px 0;
-    border-bottom: 1px solid #eee;
-  }
-
-    .stat-line strong {
-      min-width: 120px;
-      color: #555;
+    .stat-line {
+        display: flex;
+        justify-content: flex-start;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
     }
 
-  .biography-box {
-    min-height: 150px;
-    line-height: 1.6;
-  }
+        .stat-line strong {
+            min-width: 120px;
+            color: #555;
+        }
 
-  .x-small {
-    font-size: 0.65rem;
-  }
+    .biography-box {
+        min-height: 150px;
+        line-height: 1.6;
+    }
+
+    .x-small {
+        font-size: 0.65rem;
+    }
 </style>
