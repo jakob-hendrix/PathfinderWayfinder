@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Wayfinder.Core.DomainModels.Characters;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Infrastructure.DataSeeders;
 
 namespace Wayfinder.App.Services
@@ -30,6 +30,24 @@ namespace Wayfinder.App.Services
         // The living domain
         [ObservableProperty]
         private CharacterSheet? _activeSheet;
+
+        public void CreateNewCharacter()
+        {
+            var newCharacter = new CharacterEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = "New Character",
+                BaseStrength = 10,
+                BaseDexterity = 10,
+                BaseConstitution = 10,
+                BaseIntelligence = 10,
+                BaseWisdom = 10,
+                BaseCharisma = 10
+            };
+
+            ActiveSheet = new CharacterSheet(newCharacter, _engine);
+            RefreshDomain();
+        }
 
         public void LoadCharacter(CharacterEntity entity)
         {

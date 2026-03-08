@@ -1,6 +1,7 @@
-﻿using Wayfinder.Core.DomainModels.Characters;
-using Wayfinder.Core.DomainModels.Characters.RaceModels;
+﻿
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Models.Characters;
 
 namespace Wayfinder.Infrastructure.DataSeeders
 {
@@ -23,29 +24,34 @@ namespace Wayfinder.Infrastructure.DataSeeders
             {
                 Name = "Sosuke Bosuke",
                 Gender = "Male",
-                ClassLevels = new List<ClassLevel>
+                RaceChoices = new RaceChoices
                 {
-                    new ClassLevel
+                    RaceName = "Human"
+                },
+                ClassLevelChoices = new List<ClassLevelChoice>
+                {
+                    new ClassLevelChoice
                     {
-                        Class = _engine.ClassFactory.GetClass("Fighter"),
-                        Level = 1
+                        ClassName = "Fighter",
+                        CharacterLevel = 1,
+                        SelectedFavoredClassBonus = FavoredClassBonus.HitPoint,
+                        HpGained = 10,
                     },
-                    new ClassLevel
+                    new ClassLevelChoice
                     {
-                        Class = _engine.ClassFactory.GetClass("Fighter"),
-                        Level = 2
+                        ClassName = "Fighter",
+                        CharacterLevel = 2,
+                        SelectedFavoredClassBonus = FavoredClassBonus.AlternateRacial,
+                        HpGained = 5
                     },
                 },
+
                 BaseStrength = 10,
                 BaseDexterity = 13,
                 BaseConstitution = 15,
                 BaseIntelligence = 5,
                 BaseWisdom = 9,
                 BaseCharisma = 19,
-                RaceChoices = new RaceChoices
-                {
-                    RaceName = "Human"
-                }
             };
 
             // Build inventory

@@ -1,8 +1,9 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters.RaceModels;
+using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Factories;
-using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Models.Characters;
+using Wayfinder.Core.Models.Results;
+using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core

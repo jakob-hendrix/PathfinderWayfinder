@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters.RaceModels;
+using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Infrastructure.DataValidators;
 
 namespace Wayfinder.Tests.Infrastructure.Validation;

@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.Data.Definitions;
+﻿using Wayfinder.Core.DataDefinitions;
 
 namespace Wayfinder.Core.Interfaces
 {
@@ -6,5 +6,6 @@ namespace Wayfinder.Core.Interfaces
     {
         public void Register(ClassDefinition classDefinition);
         public ClassDefinition GetClassDefinition(string className);
+        IEnumerable<ClassDefinition>? GetAll();
     }
 }

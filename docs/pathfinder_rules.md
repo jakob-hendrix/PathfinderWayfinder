@@ -56,8 +56,59 @@ This structure is taken from years of playing using YAPCG. Might change based on
 - Class Features
 - Capstone
 - Favored Class Bonus
+  - +1 HP or Skill or Racial Class Bonus
 - Archetypes
 
+## Feats
+
+- show level feat was gained
+- show from where (class level - Fighter 1 - Combat Feat, GM Boon)
+- show restriction (Combat Feat)
+- validate later levels' prereqs vs prior levels
+
+## Traits
+
+- restrict to 1 per type
+- show source (extra trait feat, GM Boon)
+
+## Skills
+
+- show summary at the top
+- calculate as currency to spend at level 0-20 based on class levels, int modifier
+- show class skills
+- allow adding custom skills
+- show bonus, calculated as ranks change and include +3 for class skill ranks
+- allow ranks - validate limit based on level
+- allow background toggle
+
+## Weapon Loadout
+
+- set up main-hand/off-hand combination that can be swapped on the character sheet
+- set up variants where certain feats are used
+  - Power Attack
+  - TWF
+  - Bull Rush
+- Show bonuses from Active Effects
+  - constants
+    - +1 Sacred [Sacred Weapon]
+  - conditional
+    - +1 vs Orcs [Favored Enemy (Orcs)]
+- Show damage calc
+  - Raw damage
+  - DR piercing
+  - bonus - 1d6 flaming, 1d6 from Jabbing Style for non-1st attacks in a round
+- Show iterative attacks - 11/10/1, including with Haste 11/11/10/1
+
+## Buffs & Conditions
+
+- able to toggle effects (in the future we'll tie duration in with timeline)
+  - spells (Haste, Monkey Fish - include CL, spell level) (in the future we'll have a Dispel Helper)
+  - abilities (Crane Style, Fighting Defensively)
+  - conditions (prone, negative level, grappled, Hex (AC))
+
+## Companions (Animal, Eidolons, Mounts)
+
+- TODO
 
 ## Fun Addons
 

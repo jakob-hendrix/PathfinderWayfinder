@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.Data.Definitions;
+﻿using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.DataServices
@@ -8,6 +8,7 @@ namespace Wayfinder.Core.DataServices
         private readonly Dictionary<string, ClassDefinition> _definitions = new();
 
         public void Clear() => _definitions.Clear();
+        public IEnumerable<ClassDefinition>? GetAll() => _definitions.Values;
 
         public ClassDefinition GetClassDefinition(string className)
         {
@@ -22,5 +23,6 @@ namespace Wayfinder.Core.DataServices
         {
             _definitions[classDefinition.Name] = classDefinition;
         }
+
     }
 }

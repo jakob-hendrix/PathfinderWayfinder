@@ -1,6 +1,7 @@
-﻿using Wayfinder.Core.Data.Definitions;
-using Wayfinder.Core.DomainModels.Characters.RaceModels;
+﻿using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Extensions;
+using Wayfinder.Core.Models.Characters;
 using Wayfinder.Infrastructure.DTOs;
 
 namespace Wayfinder.Infrastructure.DataSeeders
@@ -9,17 +10,28 @@ namespace Wayfinder.Infrastructure.DataSeeders
     {
         public ClassDefinition MapClassToDomain(ClassYamlDto dto)
         {
-            return new ClassDefinition
+            var definition = new ClassDefinition
             {
                 Name = dto.Name,
-                BabRate = dto.BabRate,
+                BabRate = PathfinderEnumMapper.ToBabProgression(dto.BabRate),
                 HitDie = dto.HitDie,
                 SkillPointsPerLevel = dto.SkillPointsPerLevel,
-                FortitudeRate = dto.FortitudeRate,
-                ReflexRate = dto.ReflexRate,
-                WillRate = dto.WillRate,
-                Levels = dto.Levels
+                FortitudeRate = PathfinderEnumMapper.ToSaveProgression(dto.FortitudeRate),
+                ReflexRate = PathfinderEnumMapper.ToSaveProgression(dto.ReflexRate),
+                WillRate = PathfinderEnumMapper.ToSaveProgression(dto.WillRate),
+                Levels = dto.Levels,
             };
+
+            if (dto.RacialFcbOptions != null)
+            {
+                definition.RacialFcbOptions = dto.RacialFcbOptions.Select(fcb => new RacialFavoredClassBonus
+                {
+                    RaceName = fcb.RaceName,
+                    Description = fcb.Description
+                }).ToList();
+            }
+
+            return definition;
         }
 
         public ItemDefinition MapItemToDomain(ItemYamlDto dto)

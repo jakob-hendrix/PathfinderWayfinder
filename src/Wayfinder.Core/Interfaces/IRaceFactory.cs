@@ -1,5 +1,5 @@
-﻿using Wayfinder.Core.DomainModels.Characters.RaceModels;
-using Wayfinder.Core.Rules.Services;
+﻿using Wayfinder.Core.Models.Characters;
+using Wayfinder.Core.Models.Results;
 
 namespace Wayfinder.Core.Interfaces
 {

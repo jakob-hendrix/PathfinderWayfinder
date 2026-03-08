@@ -1,6 +1,6 @@
-@using Wayfinder.Core.Data.Definitions
-@using Wayfinder.Core.DomainModels.Characters.RaceModels
-@using Wayfinder.Core.Rules.Services
+@using Wayfinder.Core.DataDefinitions
+@using Wayfinder.Core.Models.Characters
+@using Wayfinder.Core.Rules.Engines
 
 <div class="card shadow-sm border-primary sticky-top" style="top: 20px;">
     <div class="card-header bg-primary text-white">
@@ -122,7 +122,7 @@
         private bool IsTraitReplaced(string traitName)
         {
             if (VM.ActiveSheet?.Race == null) return false;
-            if (!VM.ActiveSheet.Race.RaceDefinition.Name.EqualsIgnoreCase(SelectedDefinition?.Name)) return false;
+            if (!VM.ActiveSheet.Race.Name.EqualsIgnoreCase(SelectedDefinition?.Name)) return false;
             return !VM.ActiveSheet.Race.SelectedRacialTraits.Any(t => t.Name.EqualsIgnoreCase(traitName));
         }
 

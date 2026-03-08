@@ -3,10 +3,11 @@ using Wayfinder.App.Services;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
-using Wayfinder.Core.Rules.Services;
+using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
 using Wayfinder.Infrastructure.Persistence;
+using Wayfinder.UI.ViewModels;
 
 namespace Wayfinder.App
 {
@@ -38,6 +39,8 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
             builder.Services.AddScoped<CharacterSheetViewModel>();
             builder.Services.AddScoped<BaseCharacterViewModel>();
+            builder.Services.AddScoped<ClassLevelsViewModel>();
+            builder.Services.AddScoped<ClassLevelDetailViewModel>();
             #endregion
 
             #region Pathfinder services
@@ -54,6 +57,7 @@ namespace Wayfinder.App
 
             // Set up bundled subsystems
             builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();
+            builder.Services.AddSingleton<IClassLevelEngine, ClassLevelEngine>();
             builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();
             #endregion
 #if DEBUG

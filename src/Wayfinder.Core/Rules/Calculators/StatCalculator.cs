@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.DomainModels.Common;
+﻿using Wayfinder.Core.Models.Common;
 
 namespace Wayfinder.Core.Rules.Calculators
 {

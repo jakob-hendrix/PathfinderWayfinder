@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.DomainModels.Items;
+﻿using Wayfinder.Core.Models.Items;
 
 namespace Wayfinder.Core.Interfaces
 {
