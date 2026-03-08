@@ -14,10 +14,10 @@ public class DynamicCharacterClass : BaseCharacterClass
         Description = string.Empty; // TODO - add to definition
         HitDie = definition.HitDie;
         SkillPointsPerLevel = definition.SkillPointsPerLevel;
-        BabRate = PathfinderEnumMapper.ToBabProgression(definition.BabRate);
-        FortitudeRate = PathfinderEnumMapper.ToSaveProgression(definition.FortitudeRate);
-        WillRate = PathfinderEnumMapper.ToSaveProgression(definition.WillRate);
-        ReflexRate = PathfinderEnumMapper.ToSaveProgression(definition.ReflexRate);
+        BabRate = definition.BabRate;
+        FortitudeRate = definition.FortitudeRate;
+        WillRate = definition.WillRate;
+        ReflexRate = definition.ReflexRate;
     }
 
     public override string Name { get; }

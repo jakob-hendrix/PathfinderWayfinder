@@ -75,6 +75,10 @@ namespace Wayfinder.App.Services
         public int Wisdom => SafeCalculate(() => ActiveCharacterSheet.Wisdom, "Wisdom Calculation");
         public int Charisma => SafeCalculate(() => ActiveCharacterSheet.Charisma, "Charisma Calculation");
 
+        public int BaseAttackBonus => ActiveCharacterSheet?.BaseAttackBonus ?? 0;
+        public int FortitudeSave => ActiveCharacterSheet?.FortitudeSave ?? 0;
+        public int ReflexSave => ActiveCharacterSheet?.ReflexSave ?? 0;
+        public int WillSave => ActiveCharacterSheet?.WillSave ?? 0;
 
         // Mutable - bound to UI
         [ObservableProperty] private int _wounds;

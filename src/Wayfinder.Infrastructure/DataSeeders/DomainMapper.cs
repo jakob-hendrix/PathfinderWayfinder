@@ -1,4 +1,5 @@
 ﻿using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Infrastructure.DTOs;
@@ -12,12 +13,12 @@ namespace Wayfinder.Infrastructure.DataSeeders
             var definition = new ClassDefinition
             {
                 Name = dto.Name,
-                BabRate = dto.BabRate,
+                BabRate = PathfinderEnumMapper.ToBabProgression(dto.BabRate),
                 HitDie = dto.HitDie,
                 SkillPointsPerLevel = dto.SkillPointsPerLevel,
-                FortitudeRate = dto.FortitudeRate,
-                ReflexRate = dto.ReflexRate,
-                WillRate = dto.WillRate,
+                FortitudeRate = PathfinderEnumMapper.ToSaveProgression(dto.FortitudeRate),
+                ReflexRate = PathfinderEnumMapper.ToSaveProgression(dto.ReflexRate),
+                WillRate = PathfinderEnumMapper.ToSaveProgression(dto.WillRate),
                 Levels = dto.Levels,
             };
 

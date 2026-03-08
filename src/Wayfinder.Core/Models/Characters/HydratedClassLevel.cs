@@ -7,6 +7,7 @@ public class HydratedClassLevel
 {
     public int CharacterLevel { get; set; }
     public int ClassLevel { get; set; }
+    public string? ClassName => ClassDefinition?.Name ?? string.Empty;
     public ClassDefinition ClassDefinition { get; set; } = null!;
     public List<GrantedFeatSlot> GrantedFeatSlots { get; set; } = new();
     public bool GrantsAbilityScoreIncrease { get; set; }

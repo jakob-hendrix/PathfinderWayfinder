@@ -19,15 +19,56 @@ namespace Wayfinder.Tests.Core
         public void Setup()
         {
             _classRegistry = new ClassLibrary();
-            _classRegistry.Register(new ClassDefinition() { Name = "Fighter", FortitudeRate = "Fast", WillRate = "Slow", ReflexRate = "Slow" });
-            _classRegistry.Register(new ClassDefinition() { Name = "Rogue", FortitudeRate = "Slow", WillRate = "Slow", ReflexRate = "Fast" });
-            _classRegistry.Register(new ClassDefinition() { Name = "Wizard", FortitudeRate = "Slow", WillRate = "Fast", ReflexRate = "Slow" });
+            _classRegistry.Register(new ClassDefinition()
+            {
+                Name = "Fighter",
+                FortitudeRate = SaveProgressionRate.Fast,
+                WillRate = SaveProgressionRate.Slow,
+                ReflexRate = SaveProgressionRate.Slow
+            });
 
-            _classRegistry.Register(new ClassDefinition() { Name = "AllFast1", FortitudeRate = "Fast", WillRate = "Fast", ReflexRate = "Fast" });
-            _classRegistry.Register(new ClassDefinition() { Name = "AllFast2", FortitudeRate = "Fast", WillRate = "Fast", ReflexRate = "Fast" });
-
-            _classRegistry.Register(new ClassDefinition() { Name = "AllSlow1", FortitudeRate = "Slow", WillRate = "Slow", ReflexRate = "Slow" });
-            _classRegistry.Register(new ClassDefinition() { Name = "AllSlow2", FortitudeRate = "Slow", WillRate = "Slow", ReflexRate = "Slow" });
+            _classRegistry.Register(new ClassDefinition()
+            {
+                Name = "Rogue",
+                FortitudeRate = SaveProgressionRate.Slow,
+                WillRate = SaveProgressionRate.Slow,
+                ReflexRate = SaveProgressionRate.Fast
+            });
+            _classRegistry.Register(new ClassDefinition()
+            {
+                Name = "Wizard",
+                FortitudeRate = SaveProgressionRate.Slow,
+                WillRate = SaveProgressionRate.Fast,
+                ReflexRate = SaveProgressionRate.Slow
+            });
+            _classRegistry.Register(new ClassDefinition()
+            {
+                Name = "AllFast1",
+                FortitudeRate = SaveProgressionRate.Fast,
+                WillRate = SaveProgressionRate.Fast,
+                ReflexRate = SaveProgressionRate.Fast
+            });
+            _classRegistry.Register(new ClassDefinition()
+            {
+                Name = "AllFast2",
+                FortitudeRate = SaveProgressionRate.Fast,
+                WillRate = SaveProgressionRate.Fast,
+                ReflexRate = SaveProgressionRate.Fast
+            });
+            _classRegistry.Register(new ClassDefinition()
+            {
+                Name = "AllSlow1",
+                FortitudeRate = SaveProgressionRate.Slow,
+                WillRate = SaveProgressionRate.Slow,
+                ReflexRate = SaveProgressionRate.Slow
+            });
+            _classRegistry.Register(new ClassDefinition()
+            {
+                Name = "AllSlow2",
+                FortitudeRate = SaveProgressionRate.Slow,
+                WillRate = SaveProgressionRate.Slow,
+                ReflexRate = SaveProgressionRate.Slow
+            });
 
             _classFactory = new ClassFactory(_classRegistry);
         }
@@ -35,10 +76,36 @@ namespace Wayfinder.Tests.Core
         [Test]
         public void CalculateSave_ShouldReturn0_WhenNoLevels()
         {
-            var levels = new List<ClassLevel>();
-            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will), Is.EqualTo(0));
-            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(0));
-            Assert.That(SaveCalculator.Calculate(levels, SaveType.Reflex), Is.EqualTo(0));
+            var levels = new List<HydratedClassLevel>();
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will, 10), Is.EqualTo(0));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude, 10), Is.EqualTo(0));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Reflex, 10), Is.EqualTo(0));
+        }
+
+        [TestCase(1, 10, 2)]
+        [TestCase(2, 11, 3)]
+        [TestCase(3, 12, 4)]
+        [TestCase(4, 13, 5)]    // 2 + 0.5*4 (2) + 1 = 5
+        [TestCase(5, 14, 6)]
+        [TestCase(6, 9, 4)]
+        [TestCase(7, 8, 4)]
+        [TestCase(8, 7, 4)]
+        [TestCase(9, 1, 1)]
+        [TestCase(10, 20, 12)]
+        public void CalculateSave_SingleClass_FastRate_AddsAbilityScoreMod(int levelCount, int abilityScore, int expectedSave)
+        {
+            var levels = new List<HydratedClassLevel>();
+
+            for (int i = 1; i <= levelCount; i++)
+            {
+                levels.Add(new HydratedClassLevel
+                {
+                    ClassDefinition = _classRegistry.GetClassDefinition("Fighter"),
+                    ClassLevel = i
+                });
+            }
+            var result = SaveCalculator.Calculate(levels, SaveType.Fortitude, abilityScore);
+            Assert.That(result, Is.EqualTo(expectedSave));
         }
 
         [TestCase(1, 2)]
@@ -63,18 +130,18 @@ namespace Wayfinder.Tests.Core
         [TestCase(20, 12)]
         public void CalculateSave_SingleClass_FastRate_ShouldReturnCorrectSave(int levelCount, int expectedSave)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
             for (int i = 1; i <= levelCount; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Fighter"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Fighter"),
+                    ClassLevel = i
                 });
             }
 
-            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude, 10), Is.EqualTo(expectedSave));
         }
 
         [TestCase(1, 0)]
@@ -99,18 +166,18 @@ namespace Wayfinder.Tests.Core
         [TestCase(20, 6)]
         public void CalculateSave_SingleClass_SlowRate_ShouldReturnCorrectSave(int levelCount, int expectedSave)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
             for (int i = 1; i <= levelCount; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Fighter"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Fighter"),
+                    ClassLevel = i
                 });
             }
 
-            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will, 10), Is.EqualTo(expectedSave));
         }
 
         [TestCase(1, 0, 2)]
@@ -124,29 +191,29 @@ namespace Wayfinder.Tests.Core
         [TestCase(4, 4, 8)]
         public void CalculateSave_MulticlassWithFastRates_ShouldReturnCorrectSave(int classALevels, int classBLevels, int expectedSave)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
-            var classA = _classFactory.GetClass("AllFast1");
+            var classA = _classRegistry.GetClassDefinition("AllFast1");
             for (int i = 1; i <= classALevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = classA,
-                    Level = i
+                    ClassDefinition = classA,
+                    ClassLevel = i
                 });
             }
 
-            var classB = _classFactory.GetClass("AllFast2");
+            var classB = _classRegistry.GetClassDefinition("AllFast2");
             for (int i = 1; i <= classBLevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = classB,
-                    Level = i
+                    ClassDefinition = classB,
+                    ClassLevel = i
                 });
             }
 
-            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Fortitude, 10), Is.EqualTo(expectedSave));
         }
 
         [TestCase(1, 0, 0)]
@@ -166,29 +233,29 @@ namespace Wayfinder.Tests.Core
         [TestCase(9, 6, 5)]
         public void CalculateSave_MulticlassWithSlowRates_ShouldReturnCorrectSave(int classALevels, int classBLevels, int expectedSave)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
-            var classA = _classFactory.GetClass("AllSlow1");
+            var classA = _classRegistry.GetClassDefinition("AllSlow1");
             for (int i = 1; i <= classALevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = classA,
-                    Level = i
+                    ClassDefinition = classA,
+                    ClassLevel = i
                 });
             }
 
-            var classB = _classFactory.GetClass("AllSlow2");
+            var classB = _classRegistry.GetClassDefinition("AllSlow2");
             for (int i = 1; i <= classBLevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = classB,
-                    Level = i
+                    ClassDefinition = classB,
+                    ClassLevel = i
                 });
             }
 
-            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will), Is.EqualTo(expectedSave));
+            Assert.That(SaveCalculator.Calculate(levels, SaveType.Will, 10), Is.EqualTo(expectedSave));
         }
     }
 }

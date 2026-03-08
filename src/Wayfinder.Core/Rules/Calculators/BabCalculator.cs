@@ -1,5 +1,5 @@
-﻿using Wayfinder.Core.Models.Characters;
-using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.Enums;
+using Wayfinder.Core.Models.Characters;
 
 namespace Wayfinder.Core.Rules.Calculators
 {
@@ -10,7 +10,7 @@ namespace Wayfinder.Core.Rules.Calculators
     /// </summary>
     public static class BabCalculator
     {
-        public static int Calculate(IEnumerable<ClassLevel> levels)
+        public static int Calculate(IEnumerable<HydratedClassLevel> levels)
         {
             if (levels == null || !levels.Any()) return 0;
 
@@ -18,12 +18,12 @@ namespace Wayfinder.Core.Rules.Calculators
 
             // Group class from class level by class name
             var classGroups = levels
-                .Where(l => l.Class != null)
-                .GroupBy(l => l.Class!.Name);
+                .Where(l => l.ClassName != null)
+                .GroupBy(l => l.ClassName);
 
             foreach (var group in classGroups)
             {
-                var babRate = group.First()?.Class?.BabRate;
+                var babRate = group.First()?.ClassDefinition?.BabRate;
                 int classLevelCount = group.Count();
                 int classBab = 0;
 

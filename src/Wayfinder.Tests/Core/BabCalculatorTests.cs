@@ -20,19 +20,19 @@ namespace Wayfinder.Tests.Core
         {
             _classRegistry = new ClassLibrary();
 
-            _classRegistry.Register(new ClassDefinition() { Name = "Fighter", BabRate = "Fast" });
-            _classRegistry.Register(new ClassDefinition() { Name = "Fighter2", BabRate = "Fast" });
-            _classRegistry.Register(new ClassDefinition() { Name = "Rogue", BabRate = "Medium" });
-            _classRegistry.Register(new ClassDefinition() { Name = "Rogue2", BabRate = "Medium" });
-            _classRegistry.Register(new ClassDefinition() { Name = "Wizard", BabRate = "Slow" });
-            _classRegistry.Register(new ClassDefinition() { Name = "Wizard2", BabRate = "Slow" });
+            _classRegistry.Register(new ClassDefinition() { Name = "Fighter", BabRate = BabProgressionRate.Fast });
+            _classRegistry.Register(new ClassDefinition() { Name = "Fighter2", BabRate = BabProgressionRate.Fast });
+            _classRegistry.Register(new ClassDefinition() { Name = "Rogue", BabRate = BabProgressionRate.Medium });
+            _classRegistry.Register(new ClassDefinition() { Name = "Rogue2", BabRate = BabProgressionRate.Medium });
+            _classRegistry.Register(new ClassDefinition() { Name = "Wizard", BabRate = BabProgressionRate.Slow });
+            _classRegistry.Register(new ClassDefinition() { Name = "Wizard2", BabRate = BabProgressionRate.Slow });
             _classFactory = new ClassFactory(_classRegistry);
         }
 
         [Test]
         public void CalculateBab_ShouldReturn0_WhenNoLevels()
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
             Assert.That(BabCalculator.Calculate(levels), Is.EqualTo(0));
         }
 
@@ -44,14 +44,14 @@ namespace Wayfinder.Tests.Core
         [TestCase(20, 20)]
         public void CalculateBab_FastRate_ShouldReturnCorrectBab(int levelCount, int expectedBab)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
             for (int i = 1; i <= levelCount; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Fighter"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Fighter"),
+                    ClassLevel = i
                 });
             }
 
@@ -80,14 +80,14 @@ namespace Wayfinder.Tests.Core
         [TestCase(20, 15)]
         public void CalculateBab_MediumRate_ShouldReturnCorrectBab(int levelCount, int expectedBab)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
             for (int i = 1; i <= levelCount; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Rogue"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Rogue"),
+                    ClassLevel = i
                 });
             }
 
@@ -116,14 +116,14 @@ namespace Wayfinder.Tests.Core
         [TestCase(20, 10)]
         public void CalculateBab_SlowRate_ShouldReturnCorrectBab(int levelCount, int expectedBab)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
             for (int i = 1; i <= levelCount; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Wizard"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Wizard"),
+                    ClassLevel = i
                 });
             }
 
@@ -140,7 +140,7 @@ namespace Wayfinder.Tests.Core
         [TestCase(2, 3, 0, 3)]
         public void CalculateBab_MulticlassWithDifferentRates_ShouldReturnCorrectBab(int slowRateLevels, int mediumRateLevels, int fastRateLevels, int expectedBab)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
             // A test case of 1,1,0,0 might be 1 Wizard level (slow) and 1 Rogue level (medium),
             // which is the base rules is 0.75 (round down to 0) and 05. (round down to 0) for a
@@ -148,28 +148,28 @@ namespace Wayfinder.Tests.Core
 
             for (int i = 1; i <= fastRateLevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Fighter"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Fighter"),
+                    ClassLevel = i
                 });
             }
 
             for (int i = 1; i <= mediumRateLevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Rogue"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Rogue"),
+                    ClassLevel = i
                 });
             }
 
             for (int i = 1; i <= slowRateLevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = _classFactory.GetClass("Wizard"),
-                    Level = i
+                    ClassDefinition = _classRegistry.GetClassDefinition("Wizard"),
+                    ClassLevel = i
                 });
             }
 
@@ -188,37 +188,37 @@ namespace Wayfinder.Tests.Core
         [TestCase(BabProgressionRate.Slow, 3, 3, 2)]
         public void CalculateBab_MulticlassWithSameRates_ShouldReturnCorrectBab(BabProgressionRate babRate, int classALevels, int classBLevels, int expectedBab)
         {
-            var levels = new List<ClassLevel>();
+            var levels = new List<HydratedClassLevel>();
 
             var classA = babRate switch
             {
-                BabProgressionRate.Fast => _classFactory.GetClass("Fighter"),
-                BabProgressionRate.Medium => _classFactory.GetClass("Rogue"),
-                BabProgressionRate.Slow => _classFactory.GetClass("Wizard"),
+                BabProgressionRate.Fast => _classRegistry.GetClassDefinition("Fighter"),
+                BabProgressionRate.Medium => _classRegistry.GetClassDefinition("Rogue"),
+                BabProgressionRate.Slow => _classRegistry.GetClassDefinition("Wizard"),
             };
 
             for (int i = 1; i <= classALevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = classA,
-                    Level = i
+                    ClassDefinition = classA,
+                    ClassLevel = i
                 });
             }
 
             var classB = babRate switch
             {
-                BabProgressionRate.Fast => _classFactory.GetClass("Fighter2"),
-                BabProgressionRate.Medium => _classFactory.GetClass("Rogue2"),
-                BabProgressionRate.Slow => _classFactory.GetClass("Wizard2"),
+                BabProgressionRate.Fast => _classRegistry.GetClassDefinition("Fighter2"),
+                BabProgressionRate.Medium => _classRegistry.GetClassDefinition("Rogue2"),
+                BabProgressionRate.Slow => _classRegistry.GetClassDefinition("Wizard2"),
             };
 
             for (int i = 1; i <= classBLevels; i++)
             {
-                levels.Add(new ClassLevel
+                levels.Add(new HydratedClassLevel
                 {
-                    Class = classB,
-                    Level = i
+                    ClassDefinition = classB,
+                    ClassLevel = i
                 });
             }
 
