@@ -36,7 +36,7 @@ public class SkillEngineTests
         };
 
         // Act
-        SkillValidationResult result = SkillEngine.ValidateSkillRanks(1, proposed, history, _availableSkills);
+        SkillValidationResult result = SkillEngine.ValidateSkillRanksForLevel(1, proposed, history, _availableSkills);
 
         // Assert
         Assert.That(result.IsValid, Is.True);
@@ -59,7 +59,7 @@ public class SkillEngineTests
         };
 
         // Act
-        SkillValidationResult result = SkillEngine.ValidateSkillRanks(1, proposed, history, _availableSkills);
+        SkillValidationResult result = SkillEngine.ValidateSkillRanksForLevel(1, proposed, history, _availableSkills);
 
         // Assert
         Assert.That(result.IsValid, Is.False);
@@ -81,7 +81,7 @@ public class SkillEngineTests
         };
 
         // Act
-        SkillValidationResult result = SkillEngine.ValidateSkillRanks(1, proposed, history, _availableSkills);
+        SkillValidationResult result = SkillEngine.ValidateSkillRanksForLevel(2, proposed, history, _availableSkills);
 
         // Assert
         Assert.That(result.IsValid, Is.False);
@@ -97,10 +97,53 @@ public class SkillEngineTests
         };
 
         // Act
-        SkillValidationResult result = SkillEngine.ValidateSkillRanks(1, proposed, new List<SkillRankChoice>(), _availableSkills);
+        SkillValidationResult result = SkillEngine.ValidateSkillRanksForLevel(1, proposed, new List<SkillRankChoice>(), _availableSkills);
 
         // Assert
         Assert.That(result.IsValid, Is.False);
         Assert.That(result.Errors[0], Does.Contain("not a recognized skill"));
+    }
+
+    [Test]
+    public void ValidateSkillRanksForLevel_WithFutureHistory_IgnoresFutureLevels()
+    {
+        // Arrange: Validating Level 2.
+        // History contains a rank bought at Level 3 (the "future").
+        var history = new List<SkillRankChoice>
+        {
+            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 1, Ranks = 1 },
+            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 3, Ranks = 1 } // Future!
+        };
+
+        var proposed = new List<SkillRankChoice>
+        {
+            // Adding 1 rank at level 2. 
+            // If the engine counts the future level 3 rank, total would be 3 (which exceeds the level 2 cap) and fail.
+            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 2, Ranks = 1 }
+        };
+
+        // Act
+        SkillValidationResult result = SkillEngine.ValidateSkillRanksForLevel(2, proposed, history, _availableSkills);
+
+        // Assert
+        Assert.That(result.IsValid, Is.True, "Should ignore history from levels > targetLevel.");
+    }
+
+    [Test]
+    public void ValidateSkillRanksForLevel_ProposedLevelMismatch_ReturnsError()
+    {
+        // Arrange: Validating Level 2, but accidentally passing a choice tagged as Level 3.
+        var history = new List<SkillRankChoice>();
+        var proposed = new List<SkillRankChoice>
+        {
+            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 3, Ranks = 1 }
+        };
+
+        // Act
+        SkillValidationResult result = SkillEngine.ValidateSkillRanksForLevel(2, proposed, history, _availableSkills);
+
+        // Assert
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("tagged as Level 3, but we are validating Level 2"));
     }
 }
