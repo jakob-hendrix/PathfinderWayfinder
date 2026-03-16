@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Models.Items;
 
 namespace Wayfinder.Core.Models.Characters;
@@ -48,7 +49,9 @@ public class CharacterEntity
 
     // Skills - skill points per level are derived from class levels, but the chosen ranks
     // are stored here
-    public List<SkillRank> SkillRanks { get; set; } = new();
+    public List<SkillRankChoice> SkillRanksChoices { get; set; } = new();
+    public List<SkillDefinition> CustomSkills { get; set; }
+
     // Equipment. Item instance will track things like charges/max charges
     public List<ItemInstance> Inventory { get; set; } = new();
     public Dictionary<EquipmentSlot, Guid> EquippedItems { get; set; } = new();
