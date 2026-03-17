@@ -1,4 +1,5 @@
 ﻿using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic.Interfaces;
 
 namespace Wayfinder.Core.Services
 {
@@ -16,20 +17,22 @@ namespace Wayfinder.Core.Services
 
         public IClassLevelEngine ClassLevelEngine { get; }
 
+        public ISkillEngine SkillEngine { get; }
+
         public PathfinderRulesEngine(
-            //IClassLibrary classRegistry,
             IEquipmentManager equipmentManager,
             IClassFactory classFactory,
             IItemFactory itemFactory,
             IRaceFactory raceFactory,
-            IClassLevelEngine classLevelEngine)
+            IClassLevelEngine classLevelEngine,
+            ISkillEngine skillEngine)
         {
-            //ClassRegistry = classRegistry;
             EquipmentManager = equipmentManager;
             ClassFactory = classFactory;
             ItemFactory = itemFactory;
             RaceFactory = raceFactory;
             ClassLevelEngine = classLevelEngine;
+            SkillEngine = skillEngine;
         }
     }
 }

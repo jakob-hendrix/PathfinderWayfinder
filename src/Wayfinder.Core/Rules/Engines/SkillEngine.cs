@@ -2,13 +2,74 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.DomainModels.Skills;
+using Wayfinder.Core.Enums;
+using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Results;
+using Wayfinder.Core.Rules.Calculators;
 
-public static class SkillEngine
+public class SkillEngine : ISkillEngine
 {
-    public static SkillValidationResult ValidateSkillRanksForLevel(
+    private readonly ISkillLibrary _skillLibrary;
+
+    public SkillEngine(ISkillLibrary skillLibrary)
+    {
+        _skillLibrary = skillLibrary;
+    }
+
+    public IEnumerable<SkillDefinition> GetAvailableSkills(IEnumerable<SkillDefinition> customSkills)
+    {
+        var baseLibrary = _skillLibrary.GetAllBaseSkills();
+
+        // Custom skills are concatenated FIRST. By grouping by Name (case-insensitive) 
+        // and taking the First(), custom skills will perfectly override base skills.
+        return customSkills
+            .Concat(baseLibrary)
+            .GroupBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First());
+    }
+
+    public IReadOnlyList<CalculatedSkill> CalculateSkills(
+        IEnumerable<SkillRankChoice> choices,
+        IEnumerable<HydratedClassLevel> classLevels,
+        IEnumerable<SkillDefinition> availableSkills,
+        Func<AbilityScore, int> getAbilityScore)
+    {
+        var calculatedSkills = new List<CalculatedSkill>();
+
+        var allClassSkills = classLevels
+            .SelectMany(l => l.ClassDefinition.ClassSkills)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToHashSet();
+
+        var ranksByName = choices
+            .GroupBy(c => c.SkillName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Sum(c => c.Ranks), StringComparer.OrdinalIgnoreCase);
+
+        foreach (var def in availableSkills)
+        {
+            int ranks = ranksByName.TryGetValue(def.Name, out var r) ? r : 0;
+            int score = getAbilityScore(def.DefaultAbility);
+
+            calculatedSkills.Add(new CalculatedSkill
+            {
+                Name = def.Name,
+                KeyAbility = def.DefaultAbility,
+                IsClassSkill = allClassSkills.Contains(def.Name),
+                IsTrainedOnly = def.IsTrainedOnly,
+                IsBackground = def.IsBackground,
+                TotalRanks = ranks,
+                AbilityModifier = AbilityScoreCalculator.CalculateModifier(score)
+            });
+        }
+
+        return calculatedSkills.OrderBy(s => s.Name).ToList();
+    }
+
+    public SkillValidationResult ValidateSkillRanksForLevel(
         int targetLevel,
         IEnumerable<SkillRankChoice> proposedChoicesForThisLevel,
         IEnumerable<SkillRankChoice> historicalChoices,

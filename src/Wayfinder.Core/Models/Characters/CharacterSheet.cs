@@ -1,4 +1,6 @@
-﻿using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.DomainModels.Skills;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Items;
 using Wayfinder.Core.Rules.Calculators;
@@ -11,6 +13,7 @@ namespace Wayfinder.Core.Models.Characters;
 public class CharacterSheet
 {
     private readonly IPathfinderRulesEngine _rulesEngine;
+
     public CharacterEntity BaseCharacter { get; }
 
     public CharacterSheet(CharacterEntity baseCharacterFacts, IPathfinderRulesEngine rulesEngine)
@@ -45,6 +48,16 @@ public class CharacterSheet
     public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacter.BaseIntelligence);
     public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacter.BaseWisdom);
     public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacter.BaseCharisma);
+
+    public IEnumerable<SkillDefinition> AvailableSkills =>
+        _rulesEngine.SkillEngine.GetAvailableSkills(BaseCharacter.CustomSkills);
+
+    public IReadOnlyList<CalculatedSkill> Skills =>
+        _rulesEngine.SkillEngine.CalculateSkills(
+            BaseCharacter.SkillRanksChoices,
+            ClassLevels,
+            AvailableSkills,
+            GetAbilityScore);
 
     #endregion
 
@@ -174,4 +187,18 @@ public class CharacterSheet
     /// <param name="baseScore"></param>
     /// <returns></returns>
     private int CalculateAbilityScore(AbilityScore scoreType, int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, scoreType, ClassLevels);
+
+    private int GetAbilityScore(AbilityScore ability)
+    {
+        return ability switch
+        {
+            AbilityScore.Strength => Strength,
+            AbilityScore.Dexterity => Dexterity,
+            AbilityScore.Constitution => Constitution,
+            AbilityScore.Intelligence => Intelligence,
+            AbilityScore.Wisdom => Wisdom,
+            AbilityScore.Charisma => Charisma,
+            _ => 10
+        };
+    }
 }
