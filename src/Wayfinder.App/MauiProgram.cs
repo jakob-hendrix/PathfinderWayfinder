@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Wayfinder.App.Services;
+using Wayfinder.Core.Data;
+using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
@@ -32,15 +35,16 @@ namespace Wayfinder.App
             #endregion
 
             #region UI Services
-            builder.Services.AddSingleton<AppStateService>();
-            builder.Services.AddSingleton<CharacterStateService>();
+            builder.Services.AddScoped<AppStateService>();
+            builder.Services.AddScoped<CharacterStateService>();
             builder.Services.AddSingleton<IAppLogger, AppLoggingService>();
             builder.Services.AddSingleton<DataSeederService>();
             builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
-            builder.Services.AddScoped<CharacterSheetViewModel>();
-            builder.Services.AddScoped<BaseCharacterViewModel>();
-            builder.Services.AddScoped<ClassLevelsViewModel>();
-            builder.Services.AddScoped<ClassLevelDetailViewModel>();
+            builder.Services.AddTransient<CharacterSheetViewModel>();
+            builder.Services.AddTransient<BaseCharacterViewModel>();
+            builder.Services.AddTransient<ClassLevelsViewModel>();
+            builder.Services.AddTransient<ClassLevelDetailViewModel>();
+            builder.Services.AddTransient<SkillViewModel>();
             #endregion
 
             #region Pathfinder services
@@ -48,6 +52,7 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<IItemLibrary, ItemLibrary>();
             builder.Services.AddSingleton<IClassLibrary, ClassLibrary>();
             builder.Services.AddSingleton<IRaceLibrary, RaceLibrary>();
+            builder.Services.AddSingleton<ISkillLibrary, SkillLibrary>();
             builder.Services.AddSingleton<IPathfinderDataLibrary, PathfinderDataLibrary>();
 
             // The factories
@@ -58,6 +63,7 @@ namespace Wayfinder.App
             // Set up bundled subsystems
             builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();
             builder.Services.AddSingleton<IClassLevelEngine, ClassLevelEngine>();
+            builder.Services.AddSingleton<ISkillEngine, SkillEngine>();
             builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();
             #endregion
 #if DEBUG

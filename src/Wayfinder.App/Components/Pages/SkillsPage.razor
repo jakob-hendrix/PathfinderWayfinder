@@ -1,4 +1,226 @@
 @page "/skills"
-@inject CharacterSheetViewModel CharacterViewModel
+@using Wayfinder.Core.Extensions
+@using Wayfinder.UI.ViewModels
+@implements IDisposable
+@inject SkillViewModel VM
 
-<h3>Skills</h3>
+<style>
+    /* Local Scoped CSS for high-density data table */
+    .skill-grid-container {
+        max-height: 75vh;
+        overflow-y: auto;
+        overflow-x: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        background-color: #fff;
+    }
+
+    .skill-table {
+        font-size: 0.85rem;
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+
+        .skill-table th, .skill-table td {
+            padding: 0.25rem 0.4rem;
+            vertical-align: middle;
+        }
+
+    /* Custom Green Theme for the Header */
+    .theme-green {
+        background-color: #2e7d32 !important; /* Deep, readable forest green */
+        color: #ffffff !important;
+        border-color: #1b5e20 !important;
+    }
+
+    /* Sticky Left Column (Skill Name) */
+    .sticky-col {
+        position: sticky;
+        left: 0;
+        min-width: 180px;
+        max-width: 180px;
+        border-right: 2px solid #adb5bd !important;
+    }
+
+    .sticky-header {
+        z-index: 3 !important;
+        background-color: #1b5e20 !important; /* Slightly darker green for the corner intersection */
+        color: #ffffff !important;
+    }
+
+    .sticky-body {
+        z-index: 1;
+        background-color: #f8f9fa;
+    }
+
+    /* Property Columns (Narrow) */
+    .prop-col {
+        min-width: 50px;
+        text-align: center;
+    }
+
+    /* Level Economy Headers */
+    .level-header {
+        min-width: 100px;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    /* Input Styling */
+    .rank-input {
+        width: 55px;
+        height: 1.5rem;
+        padding: 0.1rem;
+        font-size: 0.85rem;
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    /* Dimmed Row for unusable skills */
+    .skill-dimmed {
+        opacity: 0.6;
+        background-color: #e9ecef !important;
+    }
+</style>
+
+<div class="skill-grid-container shadow-sm mb-3">
+    <table class="table table-hover table-bordered skill-table">
+        <thead class="theme-green">
+            <tr>
+                @* Sticky Left Column Header *@
+                <th class="sticky-col sticky-header text-start align-middle">
+                    Skill Name
+                </th>
+
+                @* NEW: Explicit Totals Columns *@
+                <th class="prop-col align-middle" title="Total Bonus">Total</th>
+                <th class="prop-col align-middle" title="Total Ranks">Ranks</th>
+
+                @* Explicit Property Columns *@
+                <th class="prop-col align-middle" title="Key Ability Score">Ability</th>
+                <th class="prop-col align-middle" title="Class Skill">CS</th>
+                <th class="prop-col align-middle" title="Trained Only">Trn</th>
+                <th class="prop-col align-middle" title="Background Skill">BG</th>
+
+                @* Columns for each Character Level *@
+                @for (int l = 1; l <= VM.CurrentLevel; l++)
+                {
+                    var col = VM.Columns[l];
+                    // Keep error columns red, otherwise use the new green theme
+                    <th class="level-header @(col.IsValid ? "theme-green" : "bg-danger text-white")">
+                        Level @l
+                        <div class="fw-normal text-white-50" style="font-size: 0.7rem;">
+                            Std: @col.SpentStandardPoints / @col.MaxStandardPoints <br />
+                            Bg:  @col.SpentBackgroundPoints / @col.MaxBackgroundPoints
+                        </div>
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in VM.Rows)
+            {
+                string rowClass = (row.SkillInfo.IsTrainedOnly && row.DraftTotalRanks == 0) ? "skill-dimmed" : "";
+
+                <tr class="@rowClass">
+                    @* Sticky Left Column: Just the Skill Name now *@
+                    <td class="sticky-col sticky-body @rowClass">
+                        <span class="fw-bold text-truncate @(row.SkillInfo.IsClassSkill ? "text-primary" : "text-dark")">
+                            @row.SkillInfo.Name
+                        </span>
+                    </td>
+
+                    @* NEW: Math Cells *@
+                    <td class="text-center align-middle">
+                        <span class="badge bg-secondary fs-6 shadow-sm">
+                            @(row.DraftTotalBonus >= 0 ? "+" : "")@row.DraftTotalBonus
+                        </span>
+                    </td>
+                    <td class="text-center align-middle text-muted fw-bold">
+                        @row.DraftTotalRanks
+                    </td>
+
+                    @* Property Cells *@
+                    <td class="prop-col fw-bold text-muted align-middle" style="font-size: 0.75rem;">
+                        @row.SkillInfo.KeyAbility.AbbreviateAbilityScore()
+                    </td>
+                    <td class="prop-col align-middle">
+                        @if (row.SkillInfo.IsClassSkill)
+                        {
+                            <i class="bi bi-check-circle-fill text-primary" title="Class Skill (+3 Bonus with 1 rank)"></i>
+                        }
+                    </td>
+                    <td class="prop-col align-middle">
+                        @if (row.SkillInfo.IsTrainedOnly)
+                        {
+                            <i class="bi bi-mortarboard-fill text-secondary" title="Trained Only"></i>
+                        }
+                    </td>
+                    <td class="prop-col align-middle">
+                        @if (row.SkillInfo.IsBackground)
+                        {
+                            <i class="bi bi-book-half text-info" title="Background Skill"></i>
+                        }
+                    </td>
+
+                    @* Inputs for each Level *@
+                    @for (int l = 1; l <= VM.CurrentLevel; l++)
+                    {
+                        var currentLevelCapture = l;
+                        <td class="text-center align-middle @(VM.Columns[l].IsValid ? "" : "table-danger")">
+                            <input type="number"
+                                   class="form-control rank-input shadow-sm"
+                                   min="0"
+                                   @bind="row.RanksPerLevel[currentLevelCapture]"
+                                   @bind:after="() => VM.OnRankChanged(currentLevelCapture)" />
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* Validation Error Display Footer *@
+@if (!VM.CanSave)
+{
+    <div class="alert alert-danger py-2 mb-3 shadow-sm border-danger">
+        <h6 class="alert-heading mb-1 fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Validation Errors</h6>
+        <ul class="mb-0 small">
+            @foreach (var col in VM.Columns.Values.Where(c => !c.IsValid))
+            {
+                foreach (var err in col.Errors)
+                {
+                    <li><strong>Level @col.Level:</strong> @err</li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+<div class="d-flex justify-content-end align-items-center mt-2">
+    @if (!VM.CanSave)
+    {
+        <span class="text-danger small fw-bold me-3">Resolve errors to save.</span>
+    }
+    <button class="btn btn-success px-4 fw-bold shadow-sm" @onclick="VM.Save" disabled="@(!VM.CanSave)">
+        <i class="bi bi-save me-2"></i> Save Skills
+    </button>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        VM.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        VM.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}

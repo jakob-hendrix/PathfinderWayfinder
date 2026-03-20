@@ -1,4 +1,6 @@
-﻿using Wayfinder.Core.DataDefinitions;
+﻿using Wayfinder.Core.Data;
+using Wayfinder.Core.Data.Interfaces;
+using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Rules.Engines;
@@ -12,6 +14,7 @@ public class TestRulesContext
     public InMemoryRaceLibrary RaceLibrary { get; }
     public InMemoryItemLibrary ItemLibrary { get; }
     public IPathfinderRulesEngine Engine { get; }
+    public ISkillLibrary SkillLibrary { get; set; }
 
     public TestRulesContext()
     {
@@ -19,6 +22,7 @@ public class TestRulesContext
         ClassLibrary = new InMemoryClassLibrary();
         RaceLibrary = new InMemoryRaceLibrary();
         ItemLibrary = new InMemoryItemLibrary();
+        SkillLibrary = new SkillLibrary();
 
         // 2. Seed standard baseline test data
         SeedStandardData();
@@ -29,6 +33,7 @@ public class TestRulesContext
         var itemFactory = new ItemFactory(ItemLibrary); // No item library needed for these tests
         var raceFactory = new RaceFactory(RaceLibrary);
         var equipmentManager = new EquipmentManager();
+        var skillEngine = new SkillEngine(SkillLibrary);
 
         // 4. Assemble the facade
         Engine = new PathfinderRulesEngine(
@@ -36,7 +41,8 @@ public class TestRulesContext
             classFactory,
             itemFactory,
             raceFactory,
-            classEngine);
+            classEngine,
+            skillEngine);
     }
 
     private void SeedStandardData()
@@ -53,5 +59,8 @@ public class TestRulesContext
         {
             Name = "Human"
         });
+
+        // Set default skill
+        SkillLibrary.Seed(StandardSkills.GetCoreSkills());
     }
 }

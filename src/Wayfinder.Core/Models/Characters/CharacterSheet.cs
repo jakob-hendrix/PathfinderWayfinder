@@ -1,4 +1,7 @@
-﻿using Wayfinder.Core.Enums;
+﻿using System.Data;
+using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.DomainModels.Skills;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Items;
 using Wayfinder.Core.Rules.Calculators;
@@ -11,6 +14,7 @@ namespace Wayfinder.Core.Models.Characters;
 public class CharacterSheet
 {
     private readonly IPathfinderRulesEngine _rulesEngine;
+
     public CharacterEntity BaseCharacter { get; }
 
     public CharacterSheet(CharacterEntity baseCharacterFacts, IPathfinderRulesEngine rulesEngine)
@@ -28,7 +32,7 @@ public class CharacterSheet
     public int MaxHp => HitPointCalculator.CalculateMaxHp(ClassLevels, Constitution);
     // TODO: ATM this is just basic math.
     // I'd like to add a status indicator for "unconcious" or "dead" or "dying"
-    public int CurrentHp => MaxHp + TemporaryHp - Wounds;
+    public int CurrentHp => MaxHp - Wounds;
     public int TemporaryHp => BaseCharacter.TemporaryHp;
     public int Wounds => BaseCharacter.Wounds;
     public int NonLethalDamage => BaseCharacter.NonLethalDamage;
@@ -45,6 +49,27 @@ public class CharacterSheet
     public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacter.BaseIntelligence);
     public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacter.BaseWisdom);
     public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacter.BaseCharisma);
+
+    public IEnumerable<SkillDefinition> AvailableSkills =>
+        _rulesEngine.SkillEngine.GetAvailableSkills(BaseCharacter.CustomSkills);
+
+    public IReadOnlyList<CalculatedSkill> Skills =>
+        _rulesEngine.SkillEngine.CalculateSkills(
+            BaseCharacter.SkillRankChoices,
+            ClassLevels,
+            AvailableSkills,
+            GetAbilityScore);
+
+    public IReadOnlyList<SkillLevelEconomy> SkillEconomy =>
+        _rulesEngine.SkillEngine.CalculateSkillEconomy(ClassLevels, Intelligence);
+
+    public void CommitSkillChoices(IEnumerable<SkillRankChoice> newChoices)
+    {
+        var levelsBeingUpdated = newChoices.Select(c => c.CharacterLevel).Distinct().ToHashSet();
+
+        BaseCharacter.SkillRankChoices.RemoveAll(c => levelsBeingUpdated.Contains(c.CharacterLevel));
+        BaseCharacter.SkillRankChoices.AddRange(newChoices);
+    }
 
     #endregion
 
@@ -174,4 +199,18 @@ public class CharacterSheet
     /// <param name="baseScore"></param>
     /// <returns></returns>
     private int CalculateAbilityScore(AbilityScore scoreType, int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, scoreType, ClassLevels);
+
+    private int GetAbilityScore(AbilityScore ability)
+    {
+        return ability switch
+        {
+            AbilityScore.Strength => Strength,
+            AbilityScore.Dexterity => Dexterity,
+            AbilityScore.Constitution => Constitution,
+            AbilityScore.Intelligence => Intelligence,
+            AbilityScore.Wisdom => Wisdom,
+            AbilityScore.Charisma => Charisma,
+            _ => 10
+        };
+    }
 }

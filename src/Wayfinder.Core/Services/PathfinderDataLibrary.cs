@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Interfaces;
+﻿using Wayfinder.Core.Data.Interfaces;
+using Wayfinder.Core.Interfaces;
 
 namespace Wayfinder.Core.Services
 {
@@ -10,11 +11,18 @@ namespace Wayfinder.Core.Services
 
         public IRaceLibrary RaceLibrary { get; }
 
-        public PathfinderDataLibrary(IClassLibrary classLibrary, IItemLibrary itemLibrary, IRaceLibrary raceLibrary)
+        public ISkillLibrary SkillLibrary { get; }
+
+        public PathfinderDataLibrary(
+            IClassLibrary classLibrary,
+            IItemLibrary itemLibrary,
+            IRaceLibrary raceLibrary,
+            ISkillLibrary skillLibrary)
         {
             ClassLibrary = classLibrary;
             ItemLibrary = itemLibrary;
             RaceLibrary = raceLibrary;
+            SkillLibrary = skillLibrary;
         }
     }
 }

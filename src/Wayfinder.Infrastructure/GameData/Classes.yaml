@@ -12,6 +12,17 @@
       Description: "Add +1 to the fighter's CMD when resisting a bull rush or trip attempt."
     - RaceName: Elf
       Description: "Add +1 to the fighter's CMD when resisting a disarm or sunder attempt."
+  ClassSkills:
+    - "Climb"
+    - "Craft"
+    - "Handle Animal"
+    - "Intimidate"
+    - "Knowledge (dungeoneering)"
+    - "Knowledge (engineering)"
+    - "Profession"
+    - "Ride"
+    - "Survival"
+    - "Swim"
   Levels:
     1:
       ClassFeatures: 

@@ -2,12 +2,10 @@
 
 namespace Wayfinder.Core.Models.Results
 {
-    public class RaceResolutionResult
+    public class RaceResolutionResult : Result
     {
         public Race? HydratedRace { get; set; }
 
         public List<RacialTrait> ActiveRacialTraits { get; set; } = new();
-        public List<string> Errors { get; set; } = new();
-        public bool IsValid => !Errors.Any();
     }
 }

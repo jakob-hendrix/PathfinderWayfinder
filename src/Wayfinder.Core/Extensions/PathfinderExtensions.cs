@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Wayfinder.Core.Enums;
 
 namespace Wayfinder.Core.Extensions
 {
@@ -41,6 +42,20 @@ namespace Wayfinder.Core.Extensions
         {
             if (collection == null || level < 1 || level > 20) return null;
             return collection.ElementAtOrDefault(level - 1);
+        }
+
+        public static string AbbreviateAbilityScore(this AbilityScore score)
+        {
+            return score switch
+            {
+                AbilityScore.Strength => "STR",
+                AbilityScore.Dexterity => "DEX",
+                AbilityScore.Constitution => "CON",
+                AbilityScore.Intelligence => "INT",
+                AbilityScore.Wisdom => "WIS",
+                AbilityScore.Charisma => "CHA",
+                _ => score.ToString()
+            };
         }
     }
 }

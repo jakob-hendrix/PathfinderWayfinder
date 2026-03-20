@@ -20,6 +20,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 ReflexRate = PathfinderEnumMapper.ToSaveProgression(dto.ReflexRate),
                 WillRate = PathfinderEnumMapper.ToSaveProgression(dto.WillRate),
                 Levels = dto.Levels,
+                ClassSkills = dto.ClassSkills
             };
 
             if (dto.RacialFcbOptions != null)

@@ -1,6 +1,6 @@
-﻿using Wayfinder.Core.DataServices;
+﻿using Wayfinder.Core.Data;
+using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.Interfaces;
-using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataValidators;
 using Wayfinder.Infrastructure.DTOs;
 using YamlDotNet.Serialization;
@@ -14,6 +14,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
         private readonly IClassLibrary _classLibrary;
         private readonly IItemLibrary _itemLibrary;
         private readonly IRaceLibrary _raceLibrary;
+        private readonly ISkillLibrary _skillLibrary;
         private readonly IDeserializer _deserializer;
         private readonly DomainMapper _mapper;
 
@@ -24,7 +25,8 @@ namespace Wayfinder.Infrastructure.DataSeeders
             IClassLibrary classLibrary,
             IItemLibrary itemLibrary,
             DomainMapper mapper,
-            IRaceLibrary raceLibrary)
+            IRaceLibrary raceLibrary,
+            ISkillLibrary skillLibrary)
         {
             _logger = logger;
             _classLibrary = classLibrary;
@@ -34,6 +36,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
             _itemLibrary = itemLibrary;
             _mapper = mapper;
             _raceLibrary = raceLibrary;
+            _skillLibrary = skillLibrary;
         }
 
         public void SeedAll()
@@ -55,6 +58,12 @@ namespace Wayfinder.Infrastructure.DataSeeders
             SeedClasses();
             SeedItems();
             SeedRaces();
+            SeedSkills();
+        }
+
+        private void SeedSkills()
+        {
+            _skillLibrary.Seed(StandardSkills.GetCoreSkills());
         }
 
         private void SeedRaces()

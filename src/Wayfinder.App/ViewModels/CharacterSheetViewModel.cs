@@ -79,9 +79,68 @@ namespace Wayfinder.App.Services
         public int WillSave => ActiveCharacterSheet?.WillSave ?? 0;
 
         // Mutable - bound to UI
-        [ObservableProperty] private int _wounds;
-        [ObservableProperty] private int _nonLethalDamage;
-        [ObservableProperty] private int _temporaryHp;
+        public int Wounds
+        {
+            // Look directly at the source of truth
+            get => ActiveCharacterSheet?.BaseCharacter.Wounds ?? 0;
+            set
+            {
+                if (ActiveCharacterSheet != null && ActiveCharacterSheet.BaseCharacter.Wounds != value)
+                {
+                    // Mutate the source of truth directly
+                    ActiveCharacterSheet.BaseCharacter.Wounds = value;
+
+                    // Alert Blazor that the UI needs to redraw
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ActiveCharacterSheet));
+
+                    // Alert the global app that we need to save to the database!
+                    _characterStateService.NotifyStateChanged();
+                }
+            }
+        }
+
+        public int NonLethalDamage
+        {
+            // Look directly at the source of truth
+            get => ActiveCharacterSheet?.BaseCharacter.NonLethalDamage ?? 0;
+            set
+            {
+                if (ActiveCharacterSheet != null && ActiveCharacterSheet.BaseCharacter.NonLethalDamage != value)
+                {
+                    // Mutate the source of truth directly
+                    ActiveCharacterSheet.BaseCharacter.NonLethalDamage = value;
+
+                    // Alert Blazor that the UI needs to redraw
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ActiveCharacterSheet));
+
+                    // Alert the global app that we need to save to the database!
+                    _characterStateService.NotifyStateChanged();
+                }
+            }
+        }
+
+        public int TemporaryHp
+        {
+            // Look directly at the source of truth
+            get => ActiveCharacterSheet?.BaseCharacter.TemporaryHp ?? 0;
+            set
+            {
+                if (ActiveCharacterSheet != null && ActiveCharacterSheet.BaseCharacter.TemporaryHp != value)
+                {
+                    // Mutate the source of truth directly
+                    ActiveCharacterSheet.BaseCharacter.TemporaryHp = value;
+
+                    // Alert Blazor that the UI needs to redraw
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ActiveCharacterSheet));
+
+                    // Alert the global app that we need to save to the database!
+                    _characterStateService.NotifyStateChanged();
+                }
+            }
+        }
 
         public int MaxHp => ActiveCharacterSheet?.MaxHp ?? 0;
         public int CurrentHp => ActiveCharacterSheet?.CurrentHp ?? 0;
@@ -189,21 +248,6 @@ namespace Wayfinder.App.Services
         {
             _characterStateService.CreateNewCharacter();
             RebuildState();
-        }
-
-        partial void OnWoundsChanged(int value) => ApplyVitalsChange();
-        partial void OnNonLethalDamageChanged(int value) => ApplyVitalsChange();
-        partial void OnTemporaryHpChanged(int value) => ApplyVitalsChange();
-
-        private void ApplyVitalsChange()
-        {
-            if (_characterStateService.ActiveSheet == null) return;
-
-            // Tell domain to update it's HP
-            _characterStateService.ActiveSheet.UpdateVitals(Wounds, NonLethalDamage, TemporaryHp);
-
-            // Tell UI that current hp probably changed
-            OnPropertyChanged(nameof(CurrentHp));
         }
     }
 }

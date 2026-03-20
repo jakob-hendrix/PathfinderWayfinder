@@ -18,6 +18,8 @@ namespace Wayfinder.Infrastructure.DTOs
         public string ReflexRate { get; set; } = "Slow";
         [YamlMember(Alias = "Will")]
         public string WillRate { get; set; } = "Slow";
+        [YamlMember(Alias = "ClassSkills")]
+        public List<string> ClassSkills { get; set; } = new();
 
         public Dictionary<int, LevelDefinition> Levels { get; set; } = new();
         [YamlMember(Alias = "RacialFCBs")]
