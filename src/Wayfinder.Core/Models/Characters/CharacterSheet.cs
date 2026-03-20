@@ -32,7 +32,7 @@ public class CharacterSheet
     public int MaxHp => HitPointCalculator.CalculateMaxHp(ClassLevels, Constitution);
     // TODO: ATM this is just basic math.
     // I'd like to add a status indicator for "unconcious" or "dead" or "dying"
-    public int CurrentHp => MaxHp + TemporaryHp - Wounds;
+    public int CurrentHp => MaxHp - Wounds;
     public int TemporaryHp => BaseCharacter.TemporaryHp;
     public int Wounds => BaseCharacter.Wounds;
     public int NonLethalDamage => BaseCharacter.NonLethalDamage;
