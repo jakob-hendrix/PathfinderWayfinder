@@ -120,7 +120,7 @@
         <tbody>
             @foreach (var row in VM.Rows)
             {
-                string rowClass = !row.SkillInfo.IsUsable ? "skill-dimmed" : "";
+                string rowClass = (row.SkillInfo.IsTrainedOnly && row.DraftTotalRanks == 0) ? "skill-dimmed" : "";
 
                 <tr class="@rowClass">
                     @* Sticky Left Column: Just the Skill Name now *@
