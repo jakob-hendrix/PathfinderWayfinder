@@ -1,0 +1,15 @@
+- Name: "Chain Shirt"
+  Type: "Armor"
+  Cost: 100
+  Weight: 25.0
+  Description: >
+    Covering the torso, this shirt is made up of thousands of interlocking metal rings.
+  URL: "https://www.d20pfsrd.com/equipment/armor/chain-shirt"
+  Properties:
+    Category: Light
+    ArmorBonus: 4
+    MaxDex: 4
+    ACP: -2
+    SpellFailure: 20
+    Speed30: 30
+    Speed20: 20

@@ -1,4 +1,5 @@
 @using Microsoft.Maui.ApplicationModel
+@inject DataSeederService DataSeeder
 
 <div class="top-menu-container d-flex align-items-center px-2">
 
@@ -16,7 +17,7 @@
                 <li><button class="dropdown-item" @onclick="CloseMenu"><i class="bi bi-save me-2"></i>Save Character</button></li>
                 <li><button class="dropdown-item" @onclick="CloseMenu"><i class="bi bi-folder2-open me-2"></i>Load Character</button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><button class="dropdown-item" @onclick="CloseMenu"><i class="bi bi-arrow-clockwise me-2"></i>Reload Data Files</button></li>
+                <li><button class="dropdown-item" @onclick="ReseedData"><i class="bi bi-arrow-clockwise me-2"></i>Reload Data Files</button></li>
             </ul>
         }
     </div>
@@ -52,6 +53,12 @@
     }
 
     private void CloseMenu() => _activeMenu = null;
+
+    private async Task ReseedData()
+    {
+        CloseMenu();
+        await DataSeeder.ReloadSeedDataAsync();
+    }
 
     private async Task OpenGithub()
     {

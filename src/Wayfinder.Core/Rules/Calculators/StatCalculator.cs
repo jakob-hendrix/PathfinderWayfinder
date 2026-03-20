@@ -1,0 +1,24 @@
+﻿using Wayfinder.Core.Models.Common;
+
+namespace Wayfinder.Core.Rules.Calculators
+{
+    public static class StatCalculator
+    {
+        public static int CalculateStat(int baseStat, IEnumerable<Bonus> bonuses)
+        {
+            // Only some bonus types stack. 
+            var stackableBonusesSum = bonuses
+                .Where(b => b.IsStackable)
+                .Sum(b => b.Value);
+
+            // Otherwise we take the largest bonus of each type
+            var unstackableBonusesSum = bonuses
+                .Where(b => !b.IsStackable)
+                .GroupBy(c => c.Type)
+                .Select(d => d.Max(e => e.Value))
+                .Sum();
+
+            return baseStat + stackableBonusesSum + unstackableBonusesSum;
+        }
+    }
+}

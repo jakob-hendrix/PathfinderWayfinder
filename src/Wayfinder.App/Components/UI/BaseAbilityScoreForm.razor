@@ -1,0 +1,39 @@
+@using Wayfinder.Core.Rules.Calculators
+
+<div class="row align-items-center mb-2">
+    <div class="col-3">
+        <label class="fw-bold">@Label</label>
+    </div>
+    
+    <div class="col-4">
+        <input type="number" 
+               class="form-control" 
+               value="@Score"
+               min="0"
+               @oninput="HandleInput" />
+    </div>
+
+    <div class="col-2">
+        <span class="badge @(Modifier >= 0 ? "bg-success" : "bg-danger") fs-6">
+            @(Modifier >= 0 ? "+" : "")@Modifier
+        </span>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public int Score { get; set; }
+    [Parameter] public EventCallback<int> ScoreChanged { get; set; }
+
+    private int Modifier => AbilityScoreCalculator.CalculateModifier(Score);
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var result))
+        {
+            // 1. Tell the parent (ViewModel) about the new value
+            // This triggers the ViewModel's 'set' logic and NotifyStateChanged()
+            await ScoreChanged.InvokeAsync(result);
+        }
+    }
+}

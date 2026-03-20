@@ -1,0 +1,92 @@
+- Name: Fighter
+  BAB: Fast
+  HD: 10
+  SkillPoints: 2
+  Fortitude: Fast
+  Reflex: Slow
+  Will: Slow
+  RacialFCBs:
+    - RaceName: Human
+      Description: "Add +1 to the fighter's CMD when resisting two combat maneuvers of the character's choice."
+    - RaceName: Dwarf
+      Description: "Add +1 to the fighter's CMD when resisting a bull rush or trip attempt."
+    - RaceName: Elf
+      Description: "Add +1 to the fighter's CMD when resisting a disarm or sunder attempt."
+  ClassSkills:
+    - "Climb"
+    - "Craft"
+    - "Handle Animal"
+    - "Intimidate"
+    - "Knowledge (dungeoneering)"
+    - "Knowledge (engineering)"
+    - "Profession"
+    - "Ride"
+    - "Survival"
+    - "Swim"
+  Levels:
+    1:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat"}
+    2:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+        - { Id: "bravery", Name: "Bravery (Ex)", Rank: 1 }
+    3:
+      ClassFeatures: 
+        - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 1 }
+    4:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+    5:
+      ClassFeatures: 
+        - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 1 }
+    6:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+        - { Id: "bravery", Name: "Bravery (Ex)", Rank: 2 }
+    7:
+      ClassFeatures: 
+        - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 2 } # TODO: really this is a 2nd choice, and rank 2 of the 1st choice
+    8:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+    9:
+      ClassFeatures: 
+        - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 2 } # or advanced weapon training
+    10:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+        - { Id: "bravery", Name: "Bravery (Ex)", Rank: 3 }
+    11:
+      ClassFeatures: 
+        - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 3 } 
+    12:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+    13:
+      ClassFeatures: 
+        - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 3 } 
+    14:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+        - { Id: "bravery", Name: "Bravery (Ex)", Rank: 4 }
+    15:
+      ClassFeatures: 
+        - { Id: "armor-training", Name: "Armor Training (Ex)", Rank: 4 } 
+    16:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+    17:
+      ClassFeatures: 
+        - { Id: "weapon-training", Name: "Weapon Training (Ex)", Rank: 4 } 
+    18:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+        - { Id: "bravery", Name: "Bravery (Ex)", Rank: 5 }
+    19:
+      ClassFeatures: 
+        - { Id: "armor-mastery", Name: "Armor Mastery (Ex)" }
+    20:
+      ClassFeatures: 
+        - { Id: "bonus-combat-feat", Name: "Bonus Feat" }
+        - { Id: "weapon-mastery", Name: "Weapon Mastery (Ex)" }
