@@ -1,0 +1,164 @@
+@using Wayfinder.Core.DomainModels.Skills
+@using Wayfinder.Core.Extensions
+
+<style>
+    /* Classic Tabletop RPG Sheet Styling */
+    .pf-skill-section {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        border: 2px solid #212529;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+
+    .pf-skill-header {
+        background-color: #212529;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 1px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .pf-table {
+        width: 100%;
+        font-size: 0.85rem;
+        border-collapse: collapse;
+    }
+
+        .pf-table th {
+            border-bottom: 2px solid #212529;
+            padding: 4px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #495057;
+        }
+
+        .pf-table td {
+            padding: 2px 4px;
+            vertical-align: middle;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* Alternating row colors for easy reading across the line */
+        .pf-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+    /* The Class Skill Checkbox */
+    .cs-box {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 1px solid #212529;
+        text-align: center;
+        line-height: 12px;
+        font-size: 10px;
+        font-weight: bold;
+        margin-right: 6px;
+    }
+
+    /* The Total Box */
+    .total-box {
+        font-weight: bold;
+        font-size: 0.95rem;
+        text-align: center;
+        width: 40px;
+        border: 1px solid #212529;
+        background-color: #e9ecef;
+    }
+
+    /* Standard Math Boxes */
+    .math-box {
+        text-align: center;
+        width: 40px;
+        border-bottom: 1px solid #6c757d;
+    }
+
+    .math-operator {
+        color: #6c757d;
+        font-weight: bold;
+        padding: 0 2px;
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="pf-skill-section shadow-sm">
+    <div class="pf-skill-header">
+        Skills
+    </div>
+
+    <table class="pf-table">
+        <thead>
+            <tr>
+                <th style="text-align: left; width: 40%;">Skill Name</th>
+                <th>Total</th>
+                <th></th>
+                <th title="Ability Modifier">Ability Mod</th>
+                <th></th>
+                <th>Ranks</th>
+                <th></th>
+                <th title="Miscellaneous Modifier (Class Bonus, Items, Buffs)">Misc Mod</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* ONLY show skills that have ranks OR can be used untrained *@
+            @foreach (var skill in Skills.Where(s => s.IsUsable))
+            {
+                // Calculate "Misc" dynamically: Total - Ranks - Ability Mod
+                // This naturally catches the +3 Class Skill Bonus, plus any future buffs!
+                int miscMod = skill.TotalBonus - skill.TotalRanks - skill.AbilityModifier;
+
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            @* Class Skill Indicator *@
+                            <span class="cs-box" title="Class Skill">
+                                @(skill.IsClassSkill ? "X" : "")
+                            </span>
+
+                            @* Skill Name and Ability *@
+                            <span class="fw-bold @(skill.IsTrainedOnly ? "fst-italic" : "")">
+                                @skill.Name
+                                <span class="text-muted fw-normal" style="font-size: 0.75rem;">
+                                    (@skill.KeyAbility.AbbreviateAbilityScore())
+                                </span>
+                            </span>
+
+                            @if (skill.IsBackground)
+                            {
+                                <i class="bi bi-book-half text-info ms-1" style="font-size: 0.7rem;" title="Background Skill"></i>
+                            }
+                        </div>
+                    </td>
+
+                    @* The Math Row *@
+                    <td class="total-box">
+                        @(skill.TotalBonus >= 0 ? "+" : "")@skill.TotalBonus
+                    </td>
+                    <td class="math-operator">=</td>
+                    <td class="math-box">
+                        @(skill.AbilityModifier >= 0 ? "+" : "")@skill.AbilityModifier
+                    </td>
+                    <td class="math-operator">+</td>
+                    <td class="math-box">
+                        @skill.TotalRanks
+                    </td>
+                    <td class="math-operator">+</td>
+                    <td class="math-box text-muted">
+                        @miscMod
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="p-1 text-muted text-end" style="font-size: 0.7rem; background-color: #f8f9fa;">
+        <span class="fst-italic me-2">Italics = Trained Only</span>
+        <span class="cs-box" style="margin-right: 2px;">X</span> = Class Skill
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<CalculatedSkill> Skills { get; set; } = new List<CalculatedSkill>();
+}
