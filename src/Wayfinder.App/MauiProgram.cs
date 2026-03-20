@@ -1,16 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Wayfinder.App.Services;
-using Wayfinder.Core.Data;
-using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataServices;
-using Wayfinder.Core.Factories;
-using Wayfinder.Core.Interfaces;
-using Wayfinder.Core.Logic.Interfaces;
-using Wayfinder.Core.Rules.Engines;
-using Wayfinder.Core.Services;
-using Wayfinder.Infrastructure.DataSeeders;
+using Wayfinder.Core.Rules.Services;
+using Wayfinder.Infrastructure.DataServices;
 using Wayfinder.Infrastructure.Persistence;
-using Wayfinder.UI.ViewModels;
 
 namespace Wayfinder.App
 {
@@ -28,60 +22,37 @@ namespace Wayfinder.App
 
             builder.Services.AddMauiBlazorWebView();
 
-            #region Data Services
-            builder.Services.AddScoped<ICharacterStorage, CharacterStorageService>();
-            builder.Services.AddSingleton<DataSeeder>();
-            builder.Services.AddSingleton<DomainMapper>();
-            #endregion
+            // Set up database
+            builder.Services.AddDbContext<WayfinderDbContext>(options =>
+                options.UseInMemoryDatabase("WayfinderDb"));
 
-            #region UI Services
-            builder.Services.AddScoped<AppStateService>();
-            builder.Services.AddScoped<CharacterStateService>();
-            builder.Services.AddSingleton<IAppLogger, AppLoggingService>();
-            builder.Services.AddSingleton<DataSeederService>();
-            builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
-            builder.Services.AddTransient<CharacterSheetViewModel>();
-            builder.Services.AddTransient<BaseCharacterViewModel>();
-            builder.Services.AddTransient<ClassLevelsViewModel>();
-            builder.Services.AddTransient<ClassLevelDetailViewModel>();
-            builder.Services.AddTransient<SkillViewModel>();
-            #endregion
+            // Set up data services
+            builder.Services.AddScoped<IRaceService, RaceService>();
 
-            #region Pathfinder services
-            // The compendiums seeded from user files
-            builder.Services.AddSingleton<IItemLibrary, ItemLibrary>();
-            builder.Services.AddSingleton<IClassLibrary, ClassLibrary>();
-            builder.Services.AddSingleton<IRaceLibrary, RaceLibrary>();
-            builder.Services.AddSingleton<ISkillLibrary, SkillLibrary>();
-            builder.Services.AddSingleton<IPathfinderDataLibrary, PathfinderDataLibrary>();
+            // Set up other services
+            builder.Services.AddSingleton<IStatCalculator, StatCalculator>();
+            builder.Services.AddScoped<CharacterSessionService>();
 
-            // The factories
-            builder.Services.AddSingleton<IClassFactory, ClassFactory>();
-            builder.Services.AddSingleton<IItemFactory, ItemFactory>();
-            builder.Services.AddSingleton<IRaceFactory, RaceFactory>();
-
-            // Set up bundled subsystems
-            builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();
-            builder.Services.AddSingleton<IClassLevelEngine, ClassLevelEngine>();
-            builder.Services.AddSingleton<ISkillEngine, SkillEngine>();
-            builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();
-            #endregion
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
-            builder.Logging.SetMinimumLevel(LogLevel.Debug);
 #endif
 
             var app = builder.Build();
 
-            // Initial seed of data
-            using (var scope = app.Services.CreateScope())
-            {
-                var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-                seeder.SeedAll(); //TODO: provide the path from user settings or ask the user
-            }
+            // Seed the DB from data files
+            SeedDataFromDataFiles(app);
 
             return app;
+        }
+
+        private static void SeedDataFromDataFiles(MauiApp app)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<WayfinderDbContext>();
+                DbInitializer.SeedData(dbContext);
+            }
         }
     }
 }
