@@ -49,7 +49,7 @@ public class CharacterEntity
 
     // Skills - skill points per level are derived from class levels, but the chosen ranks
     // are stored here
-    public List<SkillRankChoice> SkillRanksChoices { get; set; } = new();
+    public List<SkillRankChoice> SkillRankChoices { get; set; } = new();
     public List<SkillDefinition> CustomSkills { get; set; }
 
     // Equipment. Item instance will track things like charges/max charges

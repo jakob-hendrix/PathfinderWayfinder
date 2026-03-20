@@ -25,7 +25,8 @@ namespace Wayfinder.Infrastructure.DataSeeders
             IClassLibrary classLibrary,
             IItemLibrary itemLibrary,
             DomainMapper mapper,
-            IRaceLibrary raceLibrary)
+            IRaceLibrary raceLibrary,
+            ISkillLibrary skillLibrary)
         {
             _logger = logger;
             _classLibrary = classLibrary;
@@ -35,6 +36,7 @@ namespace Wayfinder.Infrastructure.DataSeeders
             _itemLibrary = itemLibrary;
             _mapper = mapper;
             _raceLibrary = raceLibrary;
+            _skillLibrary = skillLibrary;
         }
 
         public void SeedAll()
@@ -56,10 +58,10 @@ namespace Wayfinder.Infrastructure.DataSeeders
             SeedClasses();
             SeedItems();
             SeedRaces();
-            SeeSkills();
+            SeedSkills();
         }
 
-        private void SeeSkills()
+        private void SeedSkills()
         {
             _skillLibrary.Seed(StandardSkills.GetCoreSkills());
         }

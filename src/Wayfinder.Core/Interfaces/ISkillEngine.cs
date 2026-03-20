@@ -26,4 +26,8 @@ public interface ISkillEngine
         IEnumerable<HydratedClassLevel> classLevels,
         IEnumerable<SkillDefinition> availableSkills,
         Func<AbilityScore, int> getAbilityScore); // Delegate to ask the sheet for current ability scores
+
+    IReadOnlyList<SkillLevelEconomy> CalculateSkillEconomy(
+        IEnumerable<HydratedClassLevel> classLevels,
+        int intelligenceScore);
 }

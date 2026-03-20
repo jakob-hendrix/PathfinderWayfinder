@@ -6,6 +6,7 @@ using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DomainModels.Skills;
 using Wayfinder.Core.Enums;
+using Wayfinder.Core.Logic;
 using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Results;
@@ -20,13 +21,14 @@ public class SkillEngine : ISkillEngine
         _skillLibrary = skillLibrary;
     }
 
-    public IEnumerable<SkillDefinition> GetAvailableSkills(IEnumerable<SkillDefinition> customSkills)
+    public IEnumerable<SkillDefinition> GetAvailableSkills(IEnumerable<SkillDefinition>? customSkills)
     {
         var baseLibrary = _skillLibrary.GetAllBaseSkills();
 
-        // Custom skills are concatenated FIRST. By grouping by Name (case-insensitive) 
-        // and taking the First(), custom skills will perfectly override base skills.
-        return customSkills
+        // Defensively handle nulls before concatenating
+        var safeCustomSkills = customSkills ?? Enumerable.Empty<SkillDefinition>();
+
+        return safeCustomSkills
             .Concat(baseLibrary)
             .GroupBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First());
@@ -141,5 +143,24 @@ public class SkillEngine : ISkillEngine
         }
 
         return result;
+    }
+
+    public IReadOnlyList<SkillLevelEconomy> CalculateSkillEconomy(
+        IEnumerable<HydratedClassLevel> classLevels,
+        int intelligenceScore)
+    {
+        var economyList = new List<SkillLevelEconomy>();
+
+        foreach (var level in classLevels)
+        {
+            economyList.Add(new SkillLevelEconomy
+            {
+                Level = level.ClassLevel,
+                MaxStandardPoints = SkillPointCalculator.CalculateStandardSkillPoints(level, intelligenceScore),
+                MaxBackgroundPoints = SkillPointCalculator.CalculateBackgroundSkillPoints()
+            });
+        }
+
+        return economyList;
     }
 }

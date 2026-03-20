@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.DataDefinitions;
+﻿using System.Data;
+using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DomainModels.Skills;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
@@ -54,10 +55,21 @@ public class CharacterSheet
 
     public IReadOnlyList<CalculatedSkill> Skills =>
         _rulesEngine.SkillEngine.CalculateSkills(
-            BaseCharacter.SkillRanksChoices,
+            BaseCharacter.SkillRankChoices,
             ClassLevels,
             AvailableSkills,
             GetAbilityScore);
+
+    public IReadOnlyList<SkillLevelEconomy> SkillEconomy =>
+        _rulesEngine.SkillEngine.CalculateSkillEconomy(ClassLevels, Intelligence);
+
+    public void CommitSkillChoices(IEnumerable<SkillRankChoice> newChoices)
+    {
+        var levelsBeingUpdated = newChoices.Select(c => c.CharacterLevel).Distinct().ToHashSet();
+
+        BaseCharacter.SkillRankChoices.RemoveAll(c => levelsBeingUpdated.Contains(c.CharacterLevel));
+        BaseCharacter.SkillRankChoices.AddRange(newChoices);
+    }
 
     #endregion
 

@@ -54,6 +54,13 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 BaseCharisma = 19,
             };
 
+            entity.SkillRankChoices.Add(new SkillRankChoice
+            {
+                CharacterLevel = 1,
+                SkillName = "Climb",
+                Ranks = 1
+            });
+
             // Build inventory
             entity.Inventory.Add(_engine.ItemFactory.CreateItem("chain_shirt"));
 
