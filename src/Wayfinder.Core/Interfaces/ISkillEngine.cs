@@ -30,4 +30,6 @@ public interface ISkillEngine
     IReadOnlyList<SkillLevelEconomy> CalculateSkillEconomy(
         IEnumerable<HydratedClassLevel> classLevels,
         int intelligenceScore);
+
+    int CalculateProposedTotalBonus(CalculatedSkill baseSkillState, int proposedTotalRanks);
 }

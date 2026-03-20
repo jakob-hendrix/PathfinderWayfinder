@@ -1,25 +1,32 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.Core.DomainModels.Skills;
+using Wayfinder.Core.Interfaces;
 
-namespace Wayfinder.App.ViewModels;
-
-// Represents a single row in the UI matrix
 public partial class SkillDraftRow : ObservableObject
 {
     public CalculatedSkill SkillInfo { get; }
-
-    // The ranks drafted for each level (1-indexed for convenience, so index 0 is empty/ignored)
     public int[] RanksPerLevel { get; }
 
-    // Dynamically calculates the total ranks based on the user's current draft
     public int DraftTotalRanks => RanksPerLevel.Sum();
 
-    // Estimates the new total bonus (Base Bonus - Old Ranks + New Draft Ranks)
-    public int DraftTotalBonus => SkillInfo.TotalBonus - SkillInfo.TotalRanks + DraftTotalRanks;
+    // Now it's just a dumb observable property!
+    [ObservableProperty]
+    private int _draftTotalBonus;
 
     public SkillDraftRow(CalculatedSkill skillInfo, int maxLevel)
     {
         SkillInfo = skillInfo;
-        RanksPerLevel = new int[maxLevel + 1]; // +1 so Level 1 = Index 1
+        RanksPerLevel = new int[maxLevel + 1];
+        DraftTotalBonus = skillInfo.TotalBonus; // Set initial state
+    }
+
+    // The UI model asks the Engine to do the math
+    public void Recalculate(IPathfinderRulesEngine rules)
+    {
+        // Tell the UI the sum has changed
+        OnPropertyChanged(nameof(DraftTotalRanks));
+
+        // Ask the engine for the new official total
+        DraftTotalBonus = rules.SkillEngine.CalculateProposedTotalBonus(SkillInfo, DraftTotalRanks);
     }
 }

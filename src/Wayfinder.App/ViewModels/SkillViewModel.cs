@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Wayfinder.App.Services;
-using Wayfinder.App.ViewModels;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 
@@ -78,7 +77,10 @@ public partial class SkillViewModel : ObservableObject, IDisposable
     public void OnRankChanged(int levelEdited)
     {
         // Tell the UI that row totals have changed
-        foreach (var row in Rows) OnPropertyChanged(nameof(row.DraftTotalRanks));
+        foreach (var row in Rows)
+        {
+            row.Recalculate(_rules);
+        }
 
         ValidateLevel(levelEdited);
         OnPropertyChanged(nameof(CanSave)); // Re-evaluate the Save button

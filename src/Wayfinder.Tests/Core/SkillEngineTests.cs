@@ -207,4 +207,102 @@ public class SkillEngineTests
         Assert.That(result.StandardRanksSpent, Is.EqualTo(1));
         Assert.That(result.BackgroundRanksSpent, Is.EqualTo(2));
     }
+
+    [Test]
+    public void CalculateSkills_ClassSkillWithRanks_GrantsPlusThreeBonus()
+    {
+        // Arrange
+        // Provide the explicit available skill so the engine evaluates it
+        var availableSkills = new List<SkillDefinition>
+        {
+            new SkillDefinition { Name = "Acrobatics", DefaultAbility = AbilityScore.Dexterity }
+        };
+
+        var classLevels = new List<HydratedClassLevel>
+        {
+            new HydratedClassLevel
+            {
+                ClassLevel = 1,
+                ClassDefinition = new ClassDefinition { Name = "Rogue", ClassSkills = new List<string> { "Acrobatics" } }
+            }
+        };
+
+        var choices = new List<SkillRankChoice>
+        {
+            new SkillRankChoice { SkillName = "Acrobatics", Ranks = 1, CharacterLevel = 1 }
+        };
+
+        // Act
+        var results = _engine.CalculateSkills(choices, classLevels, availableSkills, ability => 10);
+        var acrobatics = results.First(s => s.Name == "Acrobatics");
+
+        // Assert
+        Assert.That(acrobatics.IsClassSkill, Is.True);
+        Assert.That(acrobatics.ClassSkillBonus, Is.EqualTo(3));
+        Assert.That(acrobatics.TotalBonus, Is.EqualTo(4), "1 Rank + 0 Mod + 3 Class Skill Bonus = 4");
+    }
+
+    [Test]
+    public void CalculateSkills_ClassSkillWithZeroRanks_GrantsNoBonus()
+    {
+        // Arrange
+        var availableSkills = new List<SkillDefinition>
+        {
+            new SkillDefinition { Name = "Acrobatics", DefaultAbility = AbilityScore.Dexterity }
+        };
+
+        var classLevels = new List<HydratedClassLevel>
+        {
+            new HydratedClassLevel
+            {
+                ClassLevel = 1,
+                ClassDefinition = new ClassDefinition { Name = "Rogue", ClassSkills = new List<string> { "Acrobatics" } }
+            }
+        };
+
+        var choices = new List<SkillRankChoice>(); // 0 Ranks
+
+        // Act
+        var results = _engine.CalculateSkills(choices, classLevels, availableSkills, ability => 10);
+        var acrobatics = results.First(s => s.Name == "Acrobatics");
+
+        // Assert
+        Assert.That(acrobatics.IsClassSkill, Is.True);
+        Assert.That(acrobatics.ClassSkillBonus, Is.EqualTo(0), "Cannot get class skill bonus without at least 1 rank.");
+        Assert.That(acrobatics.TotalBonus, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void CalculateSkills_NonClassSkillWithRanks_GrantsNoBonus()
+    {
+        // Arrange
+        var availableSkills = new List<SkillDefinition>
+        {
+            new SkillDefinition { Name = "Knowledge (Arcana)", DefaultAbility = AbilityScore.Intelligence }
+        };
+
+        var classLevels = new List<HydratedClassLevel>
+        {
+            new HydratedClassLevel
+            {
+                ClassLevel = 1, 
+                // Rogue does NOT have Knowledge (Arcana)
+                ClassDefinition = new ClassDefinition { Name = "Rogue", ClassSkills = new List<string> { "Acrobatics" } }
+            }
+        };
+
+        var choices = new List<SkillRankChoice>
+        {
+            new SkillRankChoice { SkillName = "Knowledge (Arcana)", Ranks = 1, CharacterLevel = 1 }
+        };
+
+        // Act
+        var results = _engine.CalculateSkills(choices, classLevels, availableSkills, ability => 10);
+        var arcana = results.First(s => s.Name == "Knowledge (Arcana)");
+
+        // Assert
+        Assert.That(arcana.IsClassSkill, Is.False);
+        Assert.That(arcana.ClassSkillBonus, Is.EqualTo(0));
+        Assert.That(arcana.TotalBonus, Is.EqualTo(1), "1 Rank + 0 Mod + 0 Class Bonus = 1");
+    }
 }

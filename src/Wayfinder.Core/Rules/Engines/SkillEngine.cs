@@ -55,16 +55,25 @@ public class SkillEngine : ISkillEngine
         {
             int ranks = ranksByName.TryGetValue(def.Name, out var r) ? r : 0;
             int score = getAbilityScore(def.DefaultAbility);
+            int abilityMod = AbilityScoreCalculator.CalculateModifier(score);
+
+            // 1. Determine if it's a class skill
+            bool isClassSkill = allClassSkills.Contains(def.Name);
+
+            // 2. Enforce the Pathfinder Rule: +3 ONLY if it's a class skill AND you have ranks
+            int classSkillBonus = GetClassSkillBonus(isClassSkill, ranks);
 
             calculatedSkills.Add(new CalculatedSkill
             {
                 Name = def.Name,
                 KeyAbility = def.DefaultAbility,
-                IsClassSkill = allClassSkills.Contains(def.Name),
+                IsClassSkill = isClassSkill,
                 IsTrainedOnly = def.IsTrainedOnly,
                 IsBackground = def.IsBackground,
                 TotalRanks = ranks,
-                AbilityModifier = AbilityScoreCalculator.CalculateModifier(score)
+                AbilityModifier = abilityMod,
+                ClassSkillBonus = classSkillBonus,
+                TotalBonus = ranks + abilityMod + classSkillBonus
             });
         }
 
@@ -163,4 +172,25 @@ public class SkillEngine : ISkillEngine
 
         return economyList;
     }
+
+    public int CalculateProposedTotalBonus(CalculatedSkill baseSkillState, int proposedTotalRanks)
+    {
+        // 1. Isolate all the static bonuses (Ability Modifiers, Racial Traits, etc.)
+        // by stripping away the saved ranks and saved class bonuses from the base state.
+        int baseMiscBonus = baseSkillState.TotalBonus - baseSkillState.TotalRanks - baseSkillState.ClassSkillBonus;
+
+        // 2. Safely apply the core domain rule: +3 ONLY if it's a class skill AND you have ranks
+        int proposedClassSkillBonus = GetClassSkillBonus(baseSkillState.IsClassSkill, proposedTotalRanks);
+
+        // 3. Return the clean math
+        return baseMiscBonus + proposedTotalRanks + proposedClassSkillBonus;
+    }
+
+    /// <summary>
+    /// Return the one-time class skill with any ranks bonus
+    /// </summary>
+    /// <param name="isClassSkill"></param>
+    /// <param name="ranks"></param>
+    /// <returns></returns>
+    private static int GetClassSkillBonus(bool isClassSkill, int ranks) => (isClassSkill && ranks > 0) ? 3 : 0;
 }
