@@ -1,48 +1,68 @@
-﻿using Wayfinder.Core.Data;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Wayfinder.Core.Configuration;
+using Wayfinder.Core.Data;
 using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
+// ... your other using statements ...
 
 namespace Wayfinder.Tests.Core.Fakes;
 
 public class TestRulesContext
 {
-    public InMemoryClassLibrary ClassLibrary { get; }
-    public InMemoryRaceLibrary RaceLibrary { get; }
-    public InMemoryItemLibrary ItemLibrary { get; }
-    public IPathfinderRulesEngine Engine { get; }
-    public ISkillLibrary SkillLibrary { get; set; }
+    // The Master DI Container for this specific test run
+    public ServiceProvider Provider { get; }
+
+    // Existing tests will continue to use these exactly as before!
+    // They now dynamically resolve from the DI container.
+    public InMemoryClassLibrary ClassLibrary => Provider.GetRequiredService<InMemoryClassLibrary>();
+    public InMemoryRaceLibrary RaceLibrary => Provider.GetRequiredService<InMemoryRaceLibrary>();
+    public InMemoryItemLibrary ItemLibrary => Provider.GetRequiredService<InMemoryItemLibrary>();
+    public ISkillLibrary SkillLibrary => Provider.GetRequiredService<ISkillLibrary>();
+    public IClassFeatureRegistry ClassFeatureRegistry => Provider.GetRequiredService<IClassFeatureRegistry>();
+    public IPathfinderRulesEngine Engine => Provider.GetRequiredService<IPathfinderRulesEngine>();
 
     public TestRulesContext()
     {
-        // 1. Initialize the fake data stores
-        ClassLibrary = new InMemoryClassLibrary();
-        RaceLibrary = new InMemoryRaceLibrary();
-        ItemLibrary = new InMemoryItemLibrary();
-        SkillLibrary = new SkillLibrary();
+        var services = new ServiceCollection();
 
-        // 2. Seed standard baseline test data
+        // 1. ADD THE PATHFINDER CORE (This runs the Reflection magic to find all Class Features!)
+        services.AddClassFeatures();
+
+        // 2. REGISTER FAKE DATA STORES (Singletons for the lifespan of this test)
+        // We register both the concrete InMemory class (for our test assertions) 
+        // AND map it to the interface so the real engines know how to use it.
+        services.AddSingleton<InMemoryClassLibrary>();
+        services.AddSingleton<IClassLibrary>(x => x.GetRequiredService<InMemoryClassLibrary>());
+
+        services.AddSingleton<InMemoryRaceLibrary>();
+        services.AddSingleton<IRaceLibrary>(x => x.GetRequiredService<InMemoryRaceLibrary>());
+
+        services.AddSingleton<InMemoryItemLibrary>();
+        services.AddSingleton<IItemLibrary>(x => x.GetRequiredService<InMemoryItemLibrary>());
+
+        services.AddSingleton<ISkillLibrary, SkillLibrary>();
+
+        // 3. REGISTER THE REAL ENGINES & FACTORIES
+        services.AddTransient<IClassLevelEngine, ClassLevelEngine>();
+        services.AddTransient<IClassFactory, ClassFactory>();
+        services.AddTransient<IItemFactory, ItemFactory>();
+        services.AddTransient<IRaceFactory, RaceFactory>();
+        services.AddTransient<IEquipmentManager, EquipmentManager>();
+        services.AddTransient<ISkillEngine, SkillEngine>();
+
+        // 4. REGISTER THE FACADE
+        services.AddTransient<IPathfinderRulesEngine, PathfinderRulesEngine>();
+
+        // 5. BUILD THE CONTAINER
+        Provider = services.BuildServiceProvider();
+
+        // 6. SEED STANDARD DATA
         SeedStandardData();
-
-        // 3. Instantiate the REAL engines
-        var classEngine = new ClassLevelEngine(ClassLibrary);
-        var classFactory = new ClassFactory(ClassLibrary);
-        var itemFactory = new ItemFactory(ItemLibrary); // No item library needed for these tests
-        var raceFactory = new RaceFactory(RaceLibrary);
-        var equipmentManager = new EquipmentManager();
-        var skillEngine = new SkillEngine(SkillLibrary);
-
-        // 4. Assemble the facade
-        Engine = new PathfinderRulesEngine(
-            equipmentManager,
-            classFactory,
-            itemFactory,
-            raceFactory,
-            classEngine,
-            skillEngine);
     }
 
     private void SeedStandardData()

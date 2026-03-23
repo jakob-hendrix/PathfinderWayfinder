@@ -24,11 +24,12 @@ public class CharacterSheet
         Refresh();
     }
 
-    #region Character Stats
+    // The Global Effect Bus
+    public List<ActiveEffect> ActiveEffects { get; } = new();
 
     public Race? Race { get; private set; }
-    public List<HydratedClassLevel>? ClassLevels { get; private set; }
 
+    #region HP
     public int MaxHp => HitPointCalculator.CalculateMaxHp(ClassLevels, Constitution);
     // TODO: ATM this is just basic math.
     // I'd like to add a status indicator for "unconcious" or "dead" or "dying"
@@ -36,19 +37,27 @@ public class CharacterSheet
     public int TemporaryHp => BaseCharacter.TemporaryHp;
     public int Wounds => BaseCharacter.Wounds;
     public int NonLethalDamage => BaseCharacter.NonLethalDamage;
+    #endregion
 
     public int BaseAttackBonus => BabCalculator.Calculate(ClassLevels);
+
+    #region Saving Throws
     public int FortitudeSave => SaveCalculator.Calculate(ClassLevels, SaveType.Fortitude, Constitution);
     public int ReflexSave => SaveCalculator.Calculate(ClassLevels, SaveType.Reflex, Dexterity);
     public int WillSave => SaveCalculator.Calculate(ClassLevels, SaveType.Will, Wisdom);
 
-    // Ability Scores
+    #endregion
+
+    #region Ability Scores
     public int Strength => CalculateAbilityScore(AbilityScore.Strength, BaseCharacter.BaseStrength);
     public int Dexterity => CalculateAbilityScore(AbilityScore.Dexterity, BaseCharacter.BaseDexterity);
     public int Constitution => CalculateAbilityScore(AbilityScore.Constitution, BaseCharacter.BaseConstitution);
     public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacter.BaseIntelligence);
     public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacter.BaseWisdom);
     public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacter.BaseCharisma);
+    #endregion
+
+    #region Skills
 
     public IEnumerable<SkillDefinition> AvailableSkills =>
         _rulesEngine.SkillEngine.GetAvailableSkills(BaseCharacter.CustomSkills);
@@ -80,6 +89,9 @@ public class CharacterSheet
         BaseCharacter.TemporaryHp = Math.Max(0, temporaryHp);
     }
 
+    #region Class Levels
+    public List<HydratedClassLevel>? ClassLevels { get; private set; }
+
     // Display the state of current class levels as Fighter 1 Wizard 2 etc
     public string ClassSummary
     {
@@ -97,6 +109,31 @@ public class CharacterSheet
             return string.Join(" ", summaryParts);
         }
     }
+    // Get a hydrated Race instance
+    public void RebuildClasses()
+    {
+        // The Factory builds it, and the Domain stores it
+        var result = _rulesEngine.ClassLevelEngine.HydrateLevels(BaseCharacter.ClassLevelChoices);
+
+        if (!result.IsValid)
+        {
+            ClassLevels = null;
+            return;
+        }
+
+        ClassLevels = result.HydratedLevels;
+
+        // Remove all class features from effect bus
+        ActiveEffects.RemoveAll(e => e.Category == EffectCategory.ClassFeature);
+
+        var newClassFeatureEffects = _rulesEngine.ClassLevelEngine.GenerateClassFeatureEffects(ClassLevels);
+
+        ActiveEffects.AddRange(newClassFeatureEffects);
+
+        // More recalcs?
+    }
+
+    #endregion
 
     // Get a hydrated Race instance
     public void RebuildRace()
@@ -111,22 +148,6 @@ public class CharacterSheet
         {
             // TODO: throw error?
             Race = null;
-        }
-    }
-
-    // Get a hydrated Race instance
-    public void RebuildClasses()
-    {
-        // The Factory builds it, and the Domain stores it
-        var result = _rulesEngine.ClassLevelEngine.HydrateLevels(BaseCharacter.ClassLevelChoices);
-        if (result.IsValid)
-        {
-            ClassLevels = result.HydratedLevels;
-        }
-        else
-        {
-            // TODO: throw error?
-            ClassLevels = null;
         }
     }
 

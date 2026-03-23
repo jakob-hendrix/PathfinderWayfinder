@@ -1,5 +1,7 @@
-﻿using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Results;
 
@@ -7,11 +9,39 @@ namespace Wayfinder.Core.Rules.Engines;
 
 public class ClassLevelEngine : IClassLevelEngine
 {
+    private readonly IClassFeatureRegistry _featureRegistry;
     private readonly IClassLibrary _classLibrary;
 
-    public ClassLevelEngine(IClassLibrary classLibrary)
+    public ClassLevelEngine(IClassLibrary classLibrary, IClassFeatureRegistry featureRegistry)
     {
         _classLibrary = classLibrary;
+        _featureRegistry = featureRegistry;
+    }
+
+    public IEnumerable<ActiveEffect> GenerateClassFeatureEffects(IEnumerable<HydratedClassLevel> classLevels)
+    {
+        var generatedEffects = new List<ActiveEffect>();
+
+        var featureRanks = classLevels
+                    .SelectMany(l => l.ClassDefinition.Levels.TryGetValue(l.ClassLevel, out var levelDef)
+                        ? levelDef.ClassFeatures
+                        : Enumerable.Empty<ClassFeatureDefinition>())
+                    .GroupBy(f => f.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+
+        // 2. Ask the registry to build the math
+        foreach (var kvp in featureRanks)
+        {
+            string featureName = kvp.Key;
+            int rank = kvp.Value;
+
+            if (_featureRegistry.TryGetBehavior(featureName, out var behavior))
+            {
+                generatedEffects.AddRange(behavior.GenerateEffects(rank));
+            }
+        }
+
+        return generatedEffects;
     }
 
     public ClassHydrationResult HydrateLevels(IEnumerable<ClassLevelChoice> levelChoices)
@@ -28,12 +58,6 @@ public class ClassLevelEngine : IClassLevelEngine
                 result.Errors.Add($"Level {choice.CharacterLevel}: Class name '{choice.ClassName}' not found in library");
                 break;
             }
-
-            //// Keep track of total levels in *this* class
-            //if (!classLevelTracker.ContainsKey(classDef.Name))
-            //    classLevelTracker[classDef.Name] = 0;
-
-            //classLevelTracker[classDef.Name]++;
 
             // Build base hydrated level
             var hydratedLevel = new HydratedClassLevel

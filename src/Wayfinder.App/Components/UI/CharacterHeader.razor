@@ -76,7 +76,7 @@
             <div class="col-md-6 col-8">
                 <div class="pf-header-field">
                     <div class="pf-header-value">
-                        @FormattedClassString <span class="text-muted ms-2 fs-6">(Level @TotalLevel)</span>
+                        @VM.ActiveCharacterSheet.ClassSummary <span class="text-muted ms-2 fs-6">(Level @TotalLevel)</span>
                     </div>
                     <div class="pf-header-label">Class and Level</div>
                 </div>
@@ -123,20 +123,20 @@
     private int TotalLevel => VM?.ActiveCharacterSheet?.ClassLevels?.Count() ?? 0;
 
     // 2. Group the individual hydrated levels into a classic Multi-class string
-    private string FormattedClassString
-    {
-        get
-        {
-            if (VM?.ActiveCharacterSheet == null || !VM.ActiveCharacterSheet.ClassLevels.Any())
-                return "No Class Selected";
+    // private string FormattedClassString
+    // {
+    //     get
+    //     {
+    //         if (VM?.ActiveCharacterSheet == null || !VM.ActiveCharacterSheet.ClassLevels.Any())
+    //             return "No Class Selected";
 
-            // Groups all levels by Class Name, counts them, and joins them with " / "
-            // Result: "Rogue 3 / Fighter 1"
-            var classGroupings = VM.ActiveCharacterSheet.ClassLevels
-                .GroupBy(l => l.ClassDefinition.Name)
-                .Select(g => $"{g.Key} {g.Count()}");
+    //         // Groups all levels by Class Name, counts them, and joins them with " / "
+    //         // Result: "Rogue 3 / Fighter 1"
+    //         var classGroupings = VM.ActiveCharacterSheet.ClassLevels
+    //             .GroupBy(l => l.ClassDefinition.Name)
+    //             .Select(g => $"{g.Key} {g.Count()}");
 
-            return string.Join(" / ", classGroupings);
-        }
-    }
+    //         return string.Join(" / ", classGroupings);
+    //     }
+    // }
 }

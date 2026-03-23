@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using Wayfinder.App.Services;
+using Wayfinder.Core.Configuration;
 using Wayfinder.Core.Data;
 using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic.Features;
 using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
@@ -56,11 +58,13 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<IPathfinderDataLibrary, PathfinderDataLibrary>();
 
             // The factories
+            builder.Services.AddSingleton<IClassFeatureRegistry, ClassFeatureRegistry>();
             builder.Services.AddSingleton<IClassFactory, ClassFactory>();
             builder.Services.AddSingleton<IItemFactory, ItemFactory>();
             builder.Services.AddSingleton<IRaceFactory, RaceFactory>();
 
             // Set up bundled subsystems
+            builder.Services.AddClassFeatures();
             builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();
             builder.Services.AddSingleton<IClassLevelEngine, ClassLevelEngine>();
             builder.Services.AddSingleton<ISkillEngine, SkillEngine>();
