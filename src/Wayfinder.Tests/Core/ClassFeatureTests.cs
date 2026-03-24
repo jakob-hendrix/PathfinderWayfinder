@@ -34,7 +34,7 @@ public class ClassFeatureTests
         Assert.That(effect.SourceName, Is.EqualTo($"Bravery (Rank {rank})"));
         Assert.That(effect.TargetStat, Is.EqualTo(StatType.Will));
         Assert.That(effect.Value, Is.EqualTo(rank), "Bravery bonus should perfectly match its rank.");
-        Assert.That(effect.Type, Is.EqualTo(BonusType.Untyped));
+        Assert.That(effect.Type, Is.EqualTo(ModifierType.Untyped));
         Assert.That(effect.Category, Is.EqualTo(EffectCategory.ClassFeature));
         Assert.That(effect.IsConditional, Is.True);
         Assert.That(effect.ConditionDescription, Is.EqualTo("vs. Fear"));

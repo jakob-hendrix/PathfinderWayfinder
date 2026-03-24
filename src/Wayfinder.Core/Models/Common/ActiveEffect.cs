@@ -6,7 +6,7 @@ public class ActiveEffect
     public EffectCategory Category { get; set; }
     public StatType TargetStat { get; init; }
     public int Value { get; init; }         // e.g., 2
-    public BonusType Type { get; init; } = BonusType.Untyped; // e.g., ModifierType.Deflection
+    public ModifierType Type { get; init; } = ModifierType.Untyped; // e.g., ModifierType.Deflection
     public bool IsConditional { get; init; } = false; // e.g., "Only when tracking"
     public string? ConditionDescription { get; init; }
 }

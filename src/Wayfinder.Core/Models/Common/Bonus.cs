@@ -4,11 +4,11 @@ namespace Wayfinder.Core.Models.Common;
 
 public class Bonus
 {
-    public BonusType Type { get; set; }
+    public ModifierType Type { get; set; }
     public int Value { get; set; } = 0;
     public string Source { get; set; } = "Unknown";
 
-    //public Bonus(BonusType type, int value, string source)
+    //public Bonus(ModifierType type, int value, string source)
     //{
     //    Type = type;
     //    Value = value;
@@ -22,7 +22,7 @@ public class Bonus
         {
             switch (this.Type)
             {
-                case BonusType.Circumstance or BonusType.Dodge or BonusType.Untyped:
+                case ModifierType.Circumstance or ModifierType.Dodge or ModifierType.Untyped:
                     return true;
                 default:
                     return false;

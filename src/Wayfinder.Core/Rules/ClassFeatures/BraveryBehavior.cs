@@ -13,7 +13,7 @@ public class BraveryBehavior : IFeatureBehavior
             SourceName = $"Bravery (Rank {rank})",
             TargetStat = StatType.Will,
             Value = rank, // The math is just a 1-to-1 of the rank
-            Type = BonusType.Untyped,
+            Type = ModifierType.Untyped,
             IsConditional = true,
             ConditionDescription = "vs. Fear"
         };

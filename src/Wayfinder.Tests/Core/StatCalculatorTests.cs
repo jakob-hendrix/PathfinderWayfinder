@@ -19,8 +19,8 @@ namespace Wayfinder.Tests.Core
             var baseStat = 10;
             var bonuses = new List<Bonus>
             {
-                new Bonus { Type = BonusType.Enhancement, Value = 2 },
-                new Bonus { Type = BonusType.Enhancement, Value = 4 }
+                new Bonus { Type = ModifierType.Enhancement, Value = 2 },
+                new Bonus { Type = ModifierType.Enhancement, Value = 4 }
             };
             Assert.That(StatCalculator.CalculateStat(baseStat, bonuses), Is.EqualTo(14));
         }
@@ -31,8 +31,8 @@ namespace Wayfinder.Tests.Core
             var baseStat = 10;
             var bonuses = new List<Bonus>
             {
-                new Bonus { Type = BonusType.Enhancement, Value = 5 },
-                new Bonus { Type = BonusType.Enhancement, Value = 5 }
+                new Bonus { Type = ModifierType.Enhancement, Value = 5 },
+                new Bonus { Type = ModifierType.Enhancement, Value = 5 }
             };
             Assert.That(StatCalculator.CalculateStat(baseStat, bonuses), Is.EqualTo(15));
         }
@@ -43,8 +43,8 @@ namespace Wayfinder.Tests.Core
             var baseStat = 10;
             var bonuses = new List<Bonus>
             {
-                new Bonus { Type = BonusType.Dodge, Value = 2 },
-                new Bonus { Type = BonusType.Dodge, Value = 4 }
+                new Bonus { Type = ModifierType.Dodge, Value = 2 },
+                new Bonus { Type = ModifierType.Dodge, Value = 4 }
             };
             Assert.That(StatCalculator.CalculateStat(baseStat, bonuses), Is.EqualTo(16));
         }
@@ -55,10 +55,10 @@ namespace Wayfinder.Tests.Core
             var baseStat = 10;
             var bonuses = new List<Bonus>
             {
-                new Bonus { Type = BonusType.Dodge, Value = 1 },
-                new Bonus { Type = BonusType.Dodge, Value = 2 },
-                new Bonus { Type = BonusType.Enhancement, Value = 1 },
-                new Bonus { Type = BonusType.Enhancement, Value = 2 }
+                new Bonus { Type = ModifierType.Dodge, Value = 1 },
+                new Bonus { Type = ModifierType.Dodge, Value = 2 },
+                new Bonus { Type = ModifierType.Enhancement, Value = 1 },
+                new Bonus { Type = ModifierType.Enhancement, Value = 2 }
             };
             Assert.That(StatCalculator.CalculateStat(baseStat, bonuses), Is.EqualTo(15));
         }

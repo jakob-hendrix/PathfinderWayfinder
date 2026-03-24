@@ -1,7 +1,7 @@
 ﻿namespace Wayfinder.Core.Enums
 {
     // See: https://www.d20pfsrd.com/basics-ability-scores/glossary/
-    public enum BonusType
+    public enum ModifierType
     {
         Alchemical,
         Armor,
