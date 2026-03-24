@@ -1,8 +1,10 @@
 ﻿using System.Data;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DomainModels.Skills;
+using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic;
 using Wayfinder.Core.Models.Items;
 using Wayfinder.Core.Rules.Calculators;
 
@@ -42,9 +44,36 @@ public class CharacterSheet
     public int BaseAttackBonus => BabCalculator.Calculate(ClassLevels);
 
     #region Saving Throws
-    public int FortitudeSave => SaveCalculator.Calculate(ClassLevels, SaveType.Fortitude, Constitution);
-    public int ReflexSave => SaveCalculator.Calculate(ClassLevels, SaveType.Reflex, Dexterity);
-    public int WillSave => SaveCalculator.Calculate(ClassLevels, SaveType.Will, Wisdom);
+    public ModifiableStat Fortitude { get; private set; } = new ModifiableStat { Name = "Fortitude" };
+    public ModifiableStat Reflex { get; private set; } = new ModifiableStat { Name = "Reflex" };
+    public ModifiableStat Will { get; private set; } = new ModifiableStat { Name = "Will" };
+
+    public void RecalculateSaves()
+    {
+        Fortitude = SaveCalculator.CalculateSave(
+            saveName: "Fortitude",
+            statType: StatType.Fortitude,
+            classLevels: ClassLevels,
+            abilityScore: Constitution,
+            abilityName: "Constitution",
+            globalEffects: ActiveEffects);
+
+        Reflex = SaveCalculator.CalculateSave(
+            saveName: "Reflex",
+            statType: StatType.Reflex,
+            classLevels: ClassLevels,
+            abilityScore: Dexterity,
+            abilityName: "Dexterity",
+            globalEffects: ActiveEffects);
+
+        Will = SaveCalculator.CalculateSave(
+            saveName: "Will",
+            statType: StatType.Will,
+            classLevels: ClassLevels,
+            abilityScore: Wisdom,
+            abilityName: "Wisdom",
+            globalEffects: ActiveEffects);
+    }
 
     #endregion
 
@@ -55,6 +84,15 @@ public class CharacterSheet
     public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacter.BaseIntelligence);
     public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacter.BaseWisdom);
     public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacter.BaseCharisma);
+
+    /// <summary>
+    /// Calculate the current game-ready value of an ability score, taking into account levels, racial bonuses,
+    /// buff and conditions, etc
+    /// </summary>
+    /// <param name="scoreType"></param>
+    /// <param name="baseScore"></param>
+    /// <returns></returns>
+    private int CalculateAbilityScore(AbilityScore scoreType, int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, scoreType, ClassLevels);
     #endregion
 
     #region Skills
@@ -90,14 +128,14 @@ public class CharacterSheet
     }
 
     #region Class Levels
-    public List<HydratedClassLevel>? ClassLevels { get; private set; }
+    public List<HydratedClassLevel>? ClassLevels { get; private set; } = new();
 
     // Display the state of current class levels as Fighter 1 Wizard 2 etc
     public string ClassSummary
     {
         get
         {
-            if (ClassLevels == null || !ClassLevels.Any())
+            if (!ClassLevels.Any())
                 return "No Class Selected";
 
             // GroupBy naturally keeps the order of the first time it sees a key.
@@ -117,7 +155,7 @@ public class CharacterSheet
 
         if (!result.IsValid)
         {
-            ClassLevels = null;
+            ClassLevels = new();
             return;
         }
 
@@ -209,17 +247,8 @@ public class CharacterSheet
     {
         RebuildRace();
         RebuildClasses();
+        RecalculateSaves();
     }
-
-    // Helper functions
-    /// <summary>
-    /// Calculate the current game-ready value of an ability score, taking into account levels, racial bonuses,
-    /// buff and conditions, etc
-    /// </summary>
-    /// <param name="scoreType"></param>
-    /// <param name="baseScore"></param>
-    /// <returns></returns>
-    private int CalculateAbilityScore(AbilityScore scoreType, int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, scoreType, ClassLevels);
 
     private int GetAbilityScore(AbilityScore ability)
     {

@@ -66,7 +66,7 @@
     }
 </style>
 
-@if (VM.ActiveCharacterSheet != null)
+@if (VM.ActiveSheet != null)
 {
     <div class="pf-save-card shadow-sm mb-3">
         <div class="pf-save-header">
@@ -78,7 +78,7 @@
             <div class="save-name">
                 Fortitude <span class="save-ability">(Constitution)</span>
             </div>
-            <div class="save-total" title="Total Fortitude Save">@FormatMod(VM.FortitudeSave)</div>
+            <div class="save-total" title="Total Fortitude Save">@FormatMod(VM.FortitudeSave.Total)</div>
         </div>
 
         @* Reflex *@
@@ -86,7 +86,7 @@
             <div class="save-name">
                 Reflex <span class="save-ability">(Dexterity)</span>
             </div>
-            <div class="save-total" title="Total Reflex Save">@FormatMod(VM.ReflexSave)</div>
+            <div class="save-total" title="Total Reflex Save">@FormatMod(VM.ReflexSave.Total)</div>
         </div>
 
         @* Will *@
@@ -94,7 +94,7 @@
             <div class="save-name">
                 Will <span class="save-ability">(Wisdom)</span>
             </div>
-            <div class="save-total" title="Total Will Save">@FormatMod(VM.WillSave)</div>
+            <div class="save-total" title="Total Will Save">@FormatMod(VM.WillSave.Total)</div>
         </div>
     </div>
 }

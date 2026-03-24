@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class CalculatedStat
+public class ModifiableStat
 {
     public string Name { get; init; } = string.Empty;
     public IReadOnlyList<StatModifier> Modifiers { get; init; } = Array.Empty<StatModifier>();

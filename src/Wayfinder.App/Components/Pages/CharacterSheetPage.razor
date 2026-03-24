@@ -4,7 +4,7 @@
 @inject CharacterSheetViewModel VM
 
 <div class="container py-4">
-    @if (VM.ActiveCharacterSheet == null)
+    @if (VM.ActiveSheet == null)
     {
         <div class="alert alert-warning">No character active. Please load or create a character first.</div>
     }
@@ -43,7 +43,7 @@
 
                 @* RIGHT COLUMN: Skills (Takes up 5/12ths of the screen on desktop) *@
                 <div class="col-lg-5 col-xl-4">
-                    <CharacterSkillSection Skills="VM.ActiveCharacterSheet.Skills" />
+                    <CharacterSkillSection Skills="VM.ActiveSheet.Skills" />
                 </div>
             </div>
         </div>

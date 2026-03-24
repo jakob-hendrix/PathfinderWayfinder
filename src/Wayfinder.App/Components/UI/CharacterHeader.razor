@@ -49,7 +49,7 @@
     }
 </style>
 
-@if (VM?.ActiveCharacterSheet != null)
+@if (VM?.ActiveSheet != null)
 {
     <div class="pf-header-card shadow-sm mb-4">
         <div class="row g-3 pb-2">
@@ -58,7 +58,7 @@
             <div class="col-md-4 col-sm-12">
                 <div class="pf-header-field">
                     <div class="pf-header-value pf-name-value text-primary">
-                        @(string.IsNullOrWhiteSpace(VM.ActiveCharacterSheet.BaseCharacter.Name) ? "Unnamed Hero" : VM.ActiveCharacterSheet.BaseCharacter.Name)
+                        @(string.IsNullOrWhiteSpace(VM.ActiveSheet.BaseCharacter.Name) ? "Unnamed Hero" : VM.ActiveSheet.BaseCharacter.Name)
                     </div>
                     <div class="pf-header-label">Character Name</div>
                 </div>
@@ -76,7 +76,7 @@
             <div class="col-md-6 col-8">
                 <div class="pf-header-field">
                     <div class="pf-header-value">
-                        @VM.ActiveCharacterSheet.ClassSummary <span class="text-muted ms-2 fs-6">(Level @TotalLevel)</span>
+                        @VM.ActiveSheet.ClassSummary <span class="text-muted ms-2 fs-6">(Level @TotalLevel)</span>
                     </div>
                     <div class="pf-header-label">Class and Level</div>
                 </div>
@@ -120,7 +120,7 @@
     public CharacterSheetViewModel VM { get; set; }
 
     // 1. Calculate the total character level
-    private int TotalLevel => VM?.ActiveCharacterSheet?.ClassLevels?.Count() ?? 0;
+    private int TotalLevel => VM?.ActiveSheet?.ClassLevels?.Count() ?? 0;
 
     // 2. Group the individual hydrated levels into a classic Multi-class string
     // private string FormattedClassString

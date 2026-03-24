@@ -14,7 +14,7 @@ public static class StatCalculator
         ModifierType.Circumstance
     };
 
-    public static CalculatedStat Calculate(
+    public static ModifiableStat Calculate(
         string statName,
         StatType targetStat,
         int baseValue,
@@ -90,7 +90,7 @@ public static class StatCalculator
             }
         }
 
-        return new CalculatedStat
+        return new ModifiableStat
         {
             Name = statName,
             Modifiers = auditLog

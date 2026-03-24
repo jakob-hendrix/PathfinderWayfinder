@@ -1,58 +1,103 @@
-﻿using Wayfinder.Core.Enums;
+﻿namespace Wayfinder.Core.Logic;
+
+using System.Collections.Generic;
+using System.Linq;
+using Wayfinder.Core.DomainModels.Stats;
+using Wayfinder.Core.Enums;
 using Wayfinder.Core.Models.Characters;
+using Wayfinder.Core.Rules.Calculators;
 
-namespace Wayfinder.Core.Rules.Calculators
+public static class SaveCalculator
 {
-    public static class SaveCalculator
+    /// <summary>
+    /// Calculates the raw base save from class levels using Pathfinder 1e math.
+    /// Publicly exposed for rigorous unit testing.
+    /// </summary>
+    public static int CalculateBaseSave(IEnumerable<HydratedClassLevel> classLevels, StatType statType)
     {
-        public static int Calculate(IEnumerable<HydratedClassLevel> levels, SaveType saveType, int abilityScore)
+        EnsureValidSaveType(statType);
+
+        // 1. Group levels by Class Definition to calculate the math PER CLASS.
+        // E.g., A Fighter 2 / Rogue 1 will have two groups here.
+        var levelsByClass = classLevels.GroupBy(l => l.ClassDefinition);
+
+        int totalBaseSave = 0;
+
+        foreach (var classGroup in levelsByClass)
         {
+            var classDef = classGroup.Key;
 
-            int totalSave = 0;
-            int abilityModifier = AbilityScoreCalculator.CalculateModifier(abilityScore);
+            // The total number of levels the character has in THIS specific class
+            int classLevel = classGroup.Count();
 
-            // Account for class level progression
-            if (levels != null && levels.Any())
+            // Figure out if this class has a Fast or Slow progression for this specific save
+            SaveProgressionRate progression = statType switch
             {
+                StatType.Fortitude => classDef.FortitudeRate,
+                StatType.Reflex => classDef.ReflexRate,
+                StatType.Will => classDef.WillRate,
+                _ => throw new InvalidOperationException("Unreachable code reached.")
+            };
 
-                // Group class from class level by class name
-                var classGroups = levels
-                    .Where(l => l.ClassName != null)
-                    .GroupBy(l => l.ClassName);
-
-                foreach (var group in classGroups)
-                {
-                    var currentClass = group.First().ClassDefinition;
-                    int levelCount = group.Count();
-
-                    var rate = saveType switch
-                    {
-                        SaveType.Fortitude => currentClass!.FortitudeRate,
-                        SaveType.Reflex => currentClass!.ReflexRate,
-                        SaveType.Will => currentClass!.WillRate,
-                        _ => throw new ArgumentException("Invalid save type")
-
-                    };
-
-                    if (rate == SaveProgressionRate.Fast)
-                    {
-                        // Fast progression is 1/2 per level, rounded down
-                        // It also gains a bonus +2 once per class
-                        //
-                        // NOTE: for fractional save, the bonus +2 is applied
-                        // only once per save, but base rules have it applied
-                        // per class
-                        totalSave += 2 + (int)Math.Floor(levelCount / 2.0);
-                    }
-                    else
-                    {
-                        // Slow progression is 1/3 per level, rounded down
-                        totalSave += (int)Math.Floor(levelCount / 3.0);
-                    }
-                }
+            // Apply PF1e Math
+            if (progression == SaveProgressionRate.Fast)
+            {
+                // Fast: Base +2, plus 1 for every 2 levels
+                totalBaseSave += 2 + (classLevel / 2);
             }
+            else
+            {
+                // Slow: 1 for every 3 levels
+                totalBaseSave += classLevel / 3;
+            }
+        }
 
-            return totalSave + abilityModifier;
+        return totalBaseSave;
+    }
+
+    /// <summary>
+    /// Builds the final ModifiableStat, combining the base class math with Ability Scores and Active Effects.
+    /// </summary>
+    public static ModifiableStat CalculateSave(
+        string saveName,
+        StatType statType,
+        IEnumerable<HydratedClassLevel> classLevels,
+        int abilityScore,
+        string abilityName,
+        IEnumerable<ActiveEffect> globalEffects)
+    {
+        EnsureValidSaveType(statType);
+
+        // 1. Get the PF1e Base Save
+        int baseSaveValue = CalculateBaseSave(classLevels, statType);
+
+        // 2. Calculate the Ability Modifier
+        int abilityModValue = AbilityScoreCalculator.CalculateModifier(abilityScore);
+
+        var baseModifiers = new[]
+        {
+            new StatModifier(abilityName, abilityModValue, ModifierType.Ability, true)
+        };
+
+        // 3. Let the universal pipeline handle the final math and audit log
+        return StatCalculator.Calculate(
+            statName: saveName,
+            targetStat: statType,
+            baseValue: baseSaveValue,
+            globalEffects: globalEffects,
+            baseModifiers: baseModifiers
+        );
+    }
+
+    /// <summary>
+    /// Guard clause to ensure the provided StatType is a valid Saving Throw.
+    /// </summary>
+    private static void EnsureValidSaveType(StatType statType)
+    {
+        // C# 9+ Pattern Matching makes this incredibly readable
+        if (statType is not (StatType.Fortitude or StatType.Reflex or StatType.Will))
+        {
+            throw new ArgumentException($"StatType '{statType}' is not a valid saving throw. Expected Fortitude, Reflex, or Will.", nameof(statType));
         }
     }
 }
