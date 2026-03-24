@@ -1,6 +1,5 @@
 ﻿using Wayfinder.Core.Enums;
 using Wayfinder.Core.Models.Characters;
-using Wayfinder.Core.Models.Common;
 
 namespace Wayfinder.Tests.Core.Fakes;
 
@@ -37,9 +36,4 @@ public class CharacterTestClass : BaseCharacterClass
     public override SaveProgressionRate WillRate { get; } = default;
 
     public override SaveProgressionRate ReflexRate { get; } = default;
-
-    public override void ApplyClassFeature(int level, CharacterSheet sheet, List<Bonus> bonuses)
-    {
-
-    }
 }

@@ -3,13 +3,15 @@
     // See: https://www.d20pfsrd.com/basics-ability-scores/glossary/
     public enum ModifierType
     {
+        Base,       // the base value of a stat (think FORT from progression)
+        Ability,    // bonus from the ability score mod
         Alchemical,
         Armor,
         BAB,
-        Circumstance,   // stacks
+        Circumstance,
         Competence,
         Deflection,
-        Dodge,          // stacks
+        Dodge,
         Enhancement,
         Inherent,
         Insight,
@@ -23,6 +25,6 @@
         Shield,
         Size,
         Trait,
-        Untyped       // stacks
+        Untyped
     }
 }
