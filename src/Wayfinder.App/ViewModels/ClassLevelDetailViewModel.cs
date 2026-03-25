@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.App.Services;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Engines;

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Tests.Core.Fakes;
 

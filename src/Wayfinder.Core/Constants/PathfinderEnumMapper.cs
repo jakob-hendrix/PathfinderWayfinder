@@ -1,4 +1,4 @@
-﻿namespace Wayfinder.Core.Enums;
+﻿namespace Wayfinder.Core.Constants;
 
 public static class PathfinderEnumMapper
 {

@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.Constants;
 
 namespace Wayfinder.Core.DomainModels.Stats;
 

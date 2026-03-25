@@ -1,4 +1,4 @@
-﻿using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.Constants;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Items;

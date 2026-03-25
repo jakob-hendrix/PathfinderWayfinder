@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.Constants;
 
 namespace Wayfinder.Core.Extensions
 {
