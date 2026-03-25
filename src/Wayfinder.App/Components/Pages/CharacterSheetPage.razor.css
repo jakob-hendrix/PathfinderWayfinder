@@ -1,0 +1,38 @@
+﻿/* 1. The Main Outer Grid */
+.sheet-main-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile: Everything stacks */
+    gap: 1.5rem;
+    align-items: start; /* Prevents columns from artificially stretching each other vertically */
+}
+
+/* 2. The Inner Grid (Left side of the screen) */
+.sheet-left-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile: Everything stacks */
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* 3. The Desktop Breakpoint (Kicks in on standard laptops and larger) */
+@media (min-width: 992px) {
+    .sheet-main-grid {
+        /* Divides the screen into 12 invisible parts.
+                   Left side gets 7 parts, Right side gets 5 parts.
+                */
+        grid-template-columns: 7fr 5fr;
+    }
+
+    .sheet-left-grid {
+        /* Slices the left side perfectly in half (50/50) */
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Optional: On massive monitors, don't let the skills column get too wide */
+@media (min-width: 1400px) {
+    .sheet-main-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+

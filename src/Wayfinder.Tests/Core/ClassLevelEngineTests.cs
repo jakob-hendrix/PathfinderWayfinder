@@ -3,6 +3,7 @@ using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DataServices;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic.Features;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Engines;
 
@@ -10,6 +11,7 @@ namespace Wayfinder.Tests.Core;
 
 public class ClassLevelEngineTests
 {
+    private ClassFeatureRegistry _classFeatures;
     private IClassLibrary _classLibrary;
     private ClassLevelEngine _engine;
 
@@ -24,7 +26,7 @@ public class ClassLevelEngineTests
             SkillPointsPerLevel = 2
         });
 
-        _engine = new ClassLevelEngine(_classLibrary);
+        _engine = new ClassLevelEngine(_classLibrary, _classFeatures);
     }
 
     [Test]

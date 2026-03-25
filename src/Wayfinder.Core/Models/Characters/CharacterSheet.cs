@@ -1,8 +1,10 @@
 ﻿using System.Data;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DomainModels.Skills;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Logic;
 using Wayfinder.Core.Models.Items;
 using Wayfinder.Core.Rules.Calculators;
 
@@ -24,44 +26,96 @@ public class CharacterSheet
         Refresh();
     }
 
-    #region Character Stats
+    // The Global Effect Bus
+    public List<ActiveEffect> ActiveEffects { get; } = new();
 
     public Race? Race { get; private set; }
-    public List<HydratedClassLevel>? ClassLevels { get; private set; }
 
-    public int MaxHp => HitPointCalculator.CalculateMaxHp(ClassLevels, Constitution);
+    #region HP
+    public int MaxHp => HitPointCalculator.CalculateMaxHp(ClassLevels, Constitution.Total);
     // TODO: ATM this is just basic math.
     // I'd like to add a status indicator for "unconcious" or "dead" or "dying"
     public int CurrentHp => MaxHp - Wounds;
     public int TemporaryHp => BaseCharacter.TemporaryHp;
     public int Wounds => BaseCharacter.Wounds;
     public int NonLethalDamage => BaseCharacter.NonLethalDamage;
+    #endregion
 
     public int BaseAttackBonus => BabCalculator.Calculate(ClassLevels);
-    public int FortitudeSave => SaveCalculator.Calculate(ClassLevels, SaveType.Fortitude, Constitution);
-    public int ReflexSave => SaveCalculator.Calculate(ClassLevels, SaveType.Reflex, Dexterity);
-    public int WillSave => SaveCalculator.Calculate(ClassLevels, SaveType.Will, Wisdom);
 
-    // Ability Scores
-    public int Strength => CalculateAbilityScore(AbilityScore.Strength, BaseCharacter.BaseStrength);
-    public int Dexterity => CalculateAbilityScore(AbilityScore.Dexterity, BaseCharacter.BaseDexterity);
-    public int Constitution => CalculateAbilityScore(AbilityScore.Constitution, BaseCharacter.BaseConstitution);
-    public int Intelligence => CalculateAbilityScore(AbilityScore.Intelligence, BaseCharacter.BaseIntelligence);
-    public int Wisdom => CalculateAbilityScore(AbilityScore.Wisdom, BaseCharacter.BaseWisdom);
-    public int Charisma => CalculateAbilityScore(AbilityScore.Charisma, BaseCharacter.BaseCharisma);
+    #region Saving Throws
+    public ModifiableStat Fortitude { get; private set; } = new ModifiableStat { Name = "Fortitude" };
+    public ModifiableStat Reflex { get; private set; } = new ModifiableStat { Name = "Reflex" };
+    public ModifiableStat Will { get; private set; } = new ModifiableStat { Name = "Will" };
+
+    public void RecalculateSaves()
+    {
+        Fortitude = SaveCalculator.CalculateSave(
+            saveName: "Fortitude",
+            classLevels: ClassLevels,
+            abilityScore: Constitution.Total,
+            abilityName: "Constitution",
+            globalEffects: ActiveEffects);
+
+        Reflex = SaveCalculator.CalculateSave(
+            saveName: "Reflex",
+            classLevels: ClassLevels,
+            abilityScore: Dexterity.Total,
+            abilityName: "Dexterity",
+            globalEffects: ActiveEffects);
+
+        Will = SaveCalculator.CalculateSave(
+            saveName: "Will",
+            classLevels: ClassLevels,
+            abilityScore: Wisdom.Total,
+            abilityName: "Wisdom",
+            globalEffects: ActiveEffects);
+    }
+
+    #endregion
+
+    #region Ability Scores
+    public ModifiableStat Strength { get; private set; } = new ModifiableStat { Name = StatNames.Strength };
+    public ModifiableStat Dexterity { get; private set; } = new ModifiableStat { Name = StatNames.Dexterity };
+    public ModifiableStat Constitution { get; private set; } = new ModifiableStat { Name = StatNames.Constitution };
+    public ModifiableStat Intelligence { get; private set; } = new ModifiableStat { Name = StatNames.Intelligence };
+    public ModifiableStat Wisdom { get; private set; } = new ModifiableStat { Name = StatNames.Wisdom };
+    public ModifiableStat Charisma { get; private set; } = new ModifiableStat { Name = StatNames.Charisma };
+
+    public void RecalculateAbilityScores()
+    {
+        Strength = AbilityScoreCalculator.CalculateAbilityScore(StatNames.Strength, BaseCharacter.BaseStrength, ClassLevels, ActiveEffects);
+        Dexterity = AbilityScoreCalculator.CalculateAbilityScore(StatNames.Dexterity, BaseCharacter.BaseDexterity, ClassLevels, ActiveEffects);
+        Constitution = AbilityScoreCalculator.CalculateAbilityScore(StatNames.Constitution, BaseCharacter.BaseConstitution, ClassLevels, ActiveEffects);
+        Intelligence = AbilityScoreCalculator.CalculateAbilityScore(StatNames.Intelligence, BaseCharacter.BaseIntelligence, ClassLevels, ActiveEffects);
+        Wisdom = AbilityScoreCalculator.CalculateAbilityScore(StatNames.Wisdom, BaseCharacter.BaseWisdom, ClassLevels, ActiveEffects);
+        Charisma = AbilityScoreCalculator.CalculateAbilityScore(StatNames.Charisma, BaseCharacter.BaseCharisma, ClassLevels, ActiveEffects);
+    }
+
+    private int GetAbilityScore(AbilityScore ability)
+    {
+        return ability switch
+        {
+            AbilityScore.Strength => Strength.Total,
+            AbilityScore.Dexterity => Dexterity.Total,
+            AbilityScore.Constitution => Constitution.Total,
+            AbilityScore.Intelligence => Intelligence.Total,
+            AbilityScore.Wisdom => Wisdom.Total,
+            AbilityScore.Charisma => Charisma.Total,
+            _ => 10
+        };
+    }
+    #endregion
+
+    #region Skills
 
     public IEnumerable<SkillDefinition> AvailableSkills =>
         _rulesEngine.SkillEngine.GetAvailableSkills(BaseCharacter.CustomSkills);
 
-    public IReadOnlyList<CalculatedSkill> Skills =>
-        _rulesEngine.SkillEngine.CalculateSkills(
-            BaseCharacter.SkillRankChoices,
-            ClassLevels,
-            AvailableSkills,
-            GetAbilityScore);
+    public IReadOnlyList<CalculatedSkill> Skills { get; private set; } = new List<CalculatedSkill>();
 
     public IReadOnlyList<SkillLevelEconomy> SkillEconomy =>
-        _rulesEngine.SkillEngine.CalculateSkillEconomy(ClassLevels, Intelligence);
+        _rulesEngine.SkillEngine.CalculateSkillEconomy(ClassLevels, Intelligence.Total);
 
     public void CommitSkillChoices(IEnumerable<SkillRankChoice> newChoices)
     {
@@ -69,6 +123,18 @@ public class CharacterSheet
 
         BaseCharacter.SkillRankChoices.RemoveAll(c => levelsBeingUpdated.Contains(c.CharacterLevel));
         BaseCharacter.SkillRankChoices.AddRange(newChoices);
+
+        RecalculateSkills();
+    }
+
+    private void RecalculateSkills()
+    {
+        Skills = _rulesEngine.SkillEngine.CalculateSkills(
+            BaseCharacter.SkillRankChoices,
+            ClassLevels,
+            AvailableSkills,
+            GetAbilityScore,
+            ActiveEffects);
     }
 
     #endregion
@@ -80,12 +146,15 @@ public class CharacterSheet
         BaseCharacter.TemporaryHp = Math.Max(0, temporaryHp);
     }
 
+    #region Class Levels
+    public List<HydratedClassLevel>? ClassLevels { get; private set; } = new();
+
     // Display the state of current class levels as Fighter 1 Wizard 2 etc
     public string ClassSummary
     {
         get
         {
-            if (ClassLevels == null || !ClassLevels.Any())
+            if (!ClassLevels.Any())
                 return "No Class Selected";
 
             // GroupBy naturally keeps the order of the first time it sees a key.
@@ -97,6 +166,31 @@ public class CharacterSheet
             return string.Join(" ", summaryParts);
         }
     }
+    // Get a hydrated Race instance
+    public void RebuildClasses()
+    {
+        // The Factory builds it, and the Domain stores it
+        var result = _rulesEngine.ClassLevelEngine.HydrateLevels(BaseCharacter.ClassLevelChoices);
+
+        if (!result.IsValid)
+        {
+            ClassLevels = new();
+            return;
+        }
+
+        ClassLevels = result.HydratedLevels;
+
+        // Remove all class features from effect bus
+        ActiveEffects.RemoveAll(e => e.Category == EffectCategory.ClassFeature);
+
+        var newClassFeatureEffects = _rulesEngine.ClassLevelEngine.GenerateClassFeatureEffects(ClassLevels);
+
+        ActiveEffects.AddRange(newClassFeatureEffects);
+
+        // More recalcs?
+    }
+
+    #endregion
 
     // Get a hydrated Race instance
     public void RebuildRace()
@@ -111,22 +205,6 @@ public class CharacterSheet
         {
             // TODO: throw error?
             Race = null;
-        }
-    }
-
-    // Get a hydrated Race instance
-    public void RebuildClasses()
-    {
-        // The Factory builds it, and the Domain stores it
-        var result = _rulesEngine.ClassLevelEngine.HydrateLevels(BaseCharacter.ClassLevelChoices);
-        if (result.IsValid)
-        {
-            ClassLevels = result.HydratedLevels;
-        }
-        else
-        {
-            // TODO: throw error?
-            ClassLevels = null;
         }
     }
 
@@ -188,29 +266,9 @@ public class CharacterSheet
     {
         RebuildRace();
         RebuildClasses();
-    }
 
-    // Helper functions
-    /// <summary>
-    /// Calculate the current game-ready value of an ability score, taking into account levels, racial bonuses,
-    /// buff and conditions, etc
-    /// </summary>
-    /// <param name="scoreType"></param>
-    /// <param name="baseScore"></param>
-    /// <returns></returns>
-    private int CalculateAbilityScore(AbilityScore scoreType, int baseScore) => AbilityScoreCalculator.CalculateCurrentValue(baseScore, scoreType, ClassLevels);
-
-    private int GetAbilityScore(AbilityScore ability)
-    {
-        return ability switch
-        {
-            AbilityScore.Strength => Strength,
-            AbilityScore.Dexterity => Dexterity,
-            AbilityScore.Constitution => Constitution,
-            AbilityScore.Intelligence => Intelligence,
-            AbilityScore.Wisdom => Wisdom,
-            AbilityScore.Charisma => Charisma,
-            _ => 10
-        };
+        RecalculateAbilityScores();
+        RecalculateSkills();
+        RecalculateSaves();
     }
 }

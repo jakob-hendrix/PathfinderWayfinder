@@ -2,9 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DomainModels.Skills;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Results;
 
@@ -25,7 +25,8 @@ public interface ISkillEngine
         IEnumerable<SkillRankChoice> choices,
         IEnumerable<HydratedClassLevel> classLevels,
         IEnumerable<SkillDefinition> availableSkills,
-        Func<AbilityScore, int> getAbilityScore); // Delegate to ask the sheet for current ability scores
+        Func<AbilityScore, int> getAbilityScore,
+        IEnumerable<ActiveEffect> globalEffects);
 
     IReadOnlyList<SkillLevelEconomy> CalculateSkillEconomy(
         IEnumerable<HydratedClassLevel> classLevels,

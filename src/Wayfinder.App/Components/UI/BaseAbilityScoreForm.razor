@@ -10,12 +10,12 @@
                class="form-control" 
                value="@Score"
                min="0"
-               @oninput="HandleInput" />
+               @onchange="HandleInput" />
     </div>
 
     <div class="col-2">
         <span class="badge @(Modifier >= 0 ? "bg-success" : "bg-danger") fs-6">
-            @(Modifier >= 0 ? "+" : "")@Modifier
+            @Modifier.FormatModifier()
         </span>
     </div>
 </div>

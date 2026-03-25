@@ -1,5 +1,5 @@
-﻿using Wayfinder.Core.DataDefinitions;
-using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.Constants;
+using Wayfinder.Core.DataDefinitions;
 
 namespace Wayfinder.Infrastructure.DataValidators
 {

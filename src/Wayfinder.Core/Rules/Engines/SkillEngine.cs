@@ -2,10 +2,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DomainModels.Skills;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Logic;
 using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Models.Characters;
@@ -35,10 +36,11 @@ public class SkillEngine : ISkillEngine
     }
 
     public IReadOnlyList<CalculatedSkill> CalculateSkills(
-        IEnumerable<SkillRankChoice> choices,
-        IEnumerable<HydratedClassLevel> classLevels,
-        IEnumerable<SkillDefinition> availableSkills,
-        Func<AbilityScore, int> getAbilityScore)
+            IEnumerable<SkillRankChoice> choices,
+            IEnumerable<HydratedClassLevel> classLevels,
+            IEnumerable<SkillDefinition> availableSkills,
+            Func<AbilityScore, int> getAbilityScore,
+            IEnumerable<ActiveEffect> globalEffects)
     {
         var calculatedSkills = new List<CalculatedSkill>();
 
@@ -57,11 +59,26 @@ public class SkillEngine : ISkillEngine
             int score = getAbilityScore(def.DefaultAbility);
             int abilityMod = AbilityScoreCalculator.CalculateModifier(score);
 
-            // 1. Determine if it's a class skill
             bool isClassSkill = allClassSkills.Contains(def.Name);
 
-            // 2. Enforce the Pathfinder Rule: +3 ONLY if it's a class skill AND you have ranks
-            int classSkillBonus = GetClassSkillBonus(isClassSkill, ranks);
+            // 2. Build the base modifiers for the StatCalculator
+            var baseModifiers = new List<StatModifier>
+            {
+                new StatModifier(def.DefaultAbility.ToString(), abilityMod, ModifierType.Ability, true)
+            };
+
+            if (isClassSkill && ranks > 0)
+            {
+                baseModifiers.Add(new StatModifier("Class Skill", 3, ModifierType.Untyped, true));
+            }
+
+
+            var modifiableScore = StatCalculator.Calculate(
+                statName: def.Name,
+                baseValue: ranks, // Ranks act as the "Base" value for skills
+                globalEffects: globalEffects,
+                baseModifiers: baseModifiers
+            );
 
             calculatedSkills.Add(new CalculatedSkill
             {
@@ -71,9 +88,7 @@ public class SkillEngine : ISkillEngine
                 IsTrainedOnly = def.IsTrainedOnly,
                 IsBackground = def.IsBackground,
                 TotalRanks = ranks,
-                AbilityModifier = abilityMod,
-                ClassSkillBonus = classSkillBonus,
-                TotalBonus = ranks + abilityMod + classSkillBonus
+                Score = modifiableScore // Assign the calculated stat!
             });
         }
 
@@ -173,17 +188,24 @@ public class SkillEngine : ISkillEngine
         return economyList;
     }
 
-    public int CalculateProposedTotalBonus(CalculatedSkill baseSkillState, int proposedTotalRanks)
+    /// <summary>
+    /// Calculates what a skill's total bonus WOULD be if the user changes their invested ranks.
+    /// </summary>
+    public int CalculateProposedTotalBonus(CalculatedSkill currentSkill, int proposedTotalRanks)
     {
-        // 1. Isolate all the static bonuses (Ability Modifiers, Racial Traits, etc.)
-        // by stripping away the saved ranks and saved class bonuses from the base state.
-        int baseMiscBonus = baseSkillState.TotalBonus - baseSkillState.TotalRanks - baseSkillState.ClassSkillBonus;
+        // 1. What is the current value of the math we are allowed to change?
+        int currentVariableMath = currentSkill.TotalRanks +
+            GetClassSkillBonus(currentSkill.IsClassSkill, currentSkill.TotalRanks);
 
-        // 2. Safely apply the core domain rule: +3 ONLY if it's a class skill AND you have ranks
-        int proposedClassSkillBonus = GetClassSkillBonus(baseSkillState.IsClassSkill, proposedTotalRanks);
+        // 2. What would the new value of that math be?
+        int proposedVariableMath = proposedTotalRanks +
+            GetClassSkillBonus(currentSkill.IsClassSkill, proposedTotalRanks);
 
-        // 3. Return the clean math
-        return baseMiscBonus + proposedTotalRanks + proposedClassSkillBonus;
+        // 3. What is the exact difference?
+        int delta = proposedVariableMath - currentVariableMath;
+
+        // 4. Apply that difference to the fully-audited total!
+        return currentSkill.Score.Total + delta;
     }
 
     /// <summary>

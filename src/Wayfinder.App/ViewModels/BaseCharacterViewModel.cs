@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Models.Characters;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
+using Wayfinder.Core.Constants;
 
 namespace Wayfinder.App.Services
 {

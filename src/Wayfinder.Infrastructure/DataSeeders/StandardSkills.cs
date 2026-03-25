@@ -1,8 +1,8 @@
 ﻿namespace Wayfinder.Core.Data;
 
 using System.Collections.Generic;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
-using Wayfinder.Core.Enums;
 
 public static class StandardSkills
 {

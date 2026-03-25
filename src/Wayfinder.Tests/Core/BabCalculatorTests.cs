@@ -1,11 +1,10 @@
 ﻿using NUnit.Framework;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DataServices;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Calculators;
-using Wayfinder.Core.Services;
 
 namespace Wayfinder.Tests.Core
 {
@@ -13,7 +12,6 @@ namespace Wayfinder.Tests.Core
     public class BabCalculatorTests
     {
         private IClassLibrary _classRegistry;
-        private IClassFactory _classFactory;
 
         [SetUp]
         public void Setup()
@@ -26,7 +24,6 @@ namespace Wayfinder.Tests.Core
             _classRegistry.Register(new ClassDefinition() { Name = "Rogue2", BabRate = BabProgressionRate.Medium });
             _classRegistry.Register(new ClassDefinition() { Name = "Wizard", BabRate = BabProgressionRate.Slow });
             _classRegistry.Register(new ClassDefinition() { Name = "Wizard2", BabRate = BabProgressionRate.Slow });
-            _classFactory = new ClassFactory(_classRegistry);
         }
 
         [Test]

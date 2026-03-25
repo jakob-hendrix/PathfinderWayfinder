@@ -1,7 +1,8 @@
-﻿@inject AppStateService AppState
+﻿@inherits LayoutComponentBase
+@inject AppStateService AppState
 @using Wayfinder.App.Components.Common
-@inherits LayoutComponentBase
 
+@implements IDisposable
 
 <div class="app-container">
     <header>
@@ -13,7 +14,7 @@
             <NavMenu />
         </aside>
 
-        <main class="content-area">
+        <main class="content-area w-100">
             <WayfinderErrorBoundary>
                 @if (AppState.IsLoading)
                 {
@@ -26,9 +27,7 @@
                 }
                 else
                 {
-                    <article class="px-4 py-3">
-                        @Body
-                    </article>
+                    @Body
                 }
             </WayfinderErrorBoundary>
         </main>
@@ -39,7 +38,7 @@
     protected override void OnInitialized()
     {
         AppState.OnLoadingStateChanged += StateHasChanged;
-        // base.OnInitialized(); is this needed?
+        base.OnInitialized(); 
     }
 
     public void Dispose()

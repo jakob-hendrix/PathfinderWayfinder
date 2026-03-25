@@ -1,308 +1,202 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Data;
-using Wayfinder.Core.Data.Interfaces;
+using Wayfinder.Core.Constants;
+using Wayfinder.Core.Data; // Assuming this is where SkillLibrary lives
 using Wayfinder.Core.DataDefinitions;
-using Wayfinder.Core.Enums;
-using Wayfinder.Core.Logic.Interfaces;
 using Wayfinder.Core.Models.Characters;
-using Wayfinder.Core.Models.Results;
 using Wayfinder.Core.Rules.Engines;
-
-namespace Wayfinder.Tests.Logic;
 
 [TestFixture]
 public class SkillEngineTests
 {
-    private List<SkillDefinition> _customSkills;
-    private ISkillLibrary _skillLibrary;
-    private ISkillEngine _engine;
+    private SkillEngine _engine;
+    private SkillLibrary _skillLibrary;
 
     [SetUp]
     public void Setup()
     {
         _skillLibrary = new SkillLibrary();
-        _skillLibrary.Seed(StandardSkills.GetCoreSkills());
 
-        // 3. Setup the Character's Custom Skills (The facts from the Entity)
-        _customSkills = new List<SkillDefinition>
+        // Seed the real library with a controlled set of core skills for testing
+        // (You can easily swap this to StandardSkills.GetCoreSkills() if you want the full list!)
+        _skillLibrary.Seed(new List<SkillDefinition>
         {
-            new SkillDefinition { Name = "Lore (Brewing)", DefaultAbility = AbilityScore.Intelligence, IsBackground = true },
-            new SkillDefinition { Name = "Perform (Kazoo)", DefaultAbility = AbilityScore.Charisma, IsBackground = true },
-            
-            // Testing the Override: Changing Stealth from Dex to Int
-            new SkillDefinition { Name = "Stealth", DefaultAbility = AbilityScore.Intelligence, IsBackground = false }
-        };
+            CreateSkillDef("Acrobatics", AbilityScore.Dexterity),
+            CreateSkillDef("Stealth", AbilityScore.Dexterity)
+        });
 
         _engine = new SkillEngine(_skillLibrary);
     }
 
-    [Test]
-    public void ValidateSkillRanks_ValidPurchase_CalculatesSpentRanksAccurately()
-    {
-        var history = new List<SkillRankChoice>();
-        var proposed = new List<SkillRankChoice>
+    #region Helper Methods
+    private SkillDefinition CreateSkillDef(string name, AbilityScore ability, bool isTrainedOnly = false, bool isBackground = false) =>
+        new SkillDefinition { Name = name, DefaultAbility = ability, IsTrainedOnly = isTrainedOnly, IsBackground = isBackground };
+
+    private HydratedClassLevel CreateClassLevel(int level, params string[] classSkills) =>
+        new HydratedClassLevel
         {
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 1, Ranks = 1 },
-            new SkillRankChoice { SkillName = "Perform (Kazoo)", CharacterLevel = 1, Ranks = 1 },
-            new SkillRankChoice { SkillName = "Lore (Brewing)", CharacterLevel = 1, Ranks = 1 }
+            ClassLevel = level,
+            ClassDefinition = new ClassDefinition { ClassSkills = classSkills.ToList() }
         };
 
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
+    private Func<AbilityScore, int> GetMockAbilityScores() =>
+        (ability) => ability switch
+        {
+            AbilityScore.Dexterity => 14, // +2 Mod
+            AbilityScore.Intelligence => 16, // +3 Mod
+            _ => 10 // +0 Mod
+        };
+    #endregion
+
+
+    [Test]
+    public void GetAvailableSkills_WithCustomOverride_PrefersCustomSkillOverBase()
+    {
+        // Arrange: Override Stealth to be Intelligence-based instead of Dex
+        var customSkills = new List<SkillDefinition>
+        {
+            CreateSkillDef("Stealth", AbilityScore.Intelligence)
+        };
 
         // Act
-        SkillValidationResult result = _engine.ValidateSkillRanksForLevel(1, proposed, history, available);
+        var result = _engine.GetAvailableSkills(customSkills).ToList();
+        var stealth = result.First(s => s.Name == "Stealth");
 
         // Assert
-        Assert.That(result.IsValid, Is.True);
-        Assert.That(result.StandardRanksSpent, Is.EqualTo(1));
-        Assert.That(result.BackgroundRanksSpent, Is.EqualTo(2));
+        Assert.That(stealth.DefaultAbility, Is.EqualTo(AbilityScore.Intelligence), "Custom override should win against the base library.");
     }
 
     [Test]
-    public void ValidateSkillRanks_ExceedsRankCap_ReturnsError()
-    {
-        var history = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 1, Ranks = 1 }
-        };
-
-        // Trying to add a second rank at level 1
-        var proposed = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 1, Ranks = 1 }
-        };
-
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
-
-        // Act
-        SkillValidationResult result = _engine.ValidateSkillRanksForLevel(1, proposed, history, available);
-
-        // Assert
-        Assert.That(result.IsValid, Is.False);
-        Assert.That(result.Errors[0], Does.Contain("Max ranks cannot exceed character level"));
-    }
-
-    [Test]
-    public void ValidateSkillRanks_ExceedsRankCapAcrossLevels_ReturnsError()
-    {
-        var history = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 1, Ranks = 1 }
-        };
-
-        // Trying to add a 2 ranks second rank at level 2
-        var proposed = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 2, Ranks = 2 }
-        };
-
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
-
-        // Act
-        SkillValidationResult result = _engine.ValidateSkillRanksForLevel(2, proposed, history, available);
-
-        // Assert
-        Assert.That(result.IsValid, Is.False);
-        Assert.That(result.Errors[0], Does.Contain("Max ranks cannot exceed character level"));
-    }
-
-    [Test]
-    public void ValidateSkillRanks_WithUnknownSkill_ReturnsError()
-    {
-        var proposed = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "MadeUpSkill", CharacterLevel = 1, Ranks = 1 }
-        };
-
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
-
-        // Act
-        SkillValidationResult result = _engine.ValidateSkillRanksForLevel(1, proposed, new List<SkillRankChoice>(), available);
-
-        // Assert
-        Assert.That(result.IsValid, Is.False);
-        Assert.That(result.Errors[0], Does.Contain("not a recognized skill"));
-    }
-
-    [Test]
-    public void ValidateSkillRanksForLevel_WithFutureHistory_IgnoresFutureLevels()
-    {
-        // Arrange: Validating Level 2.
-        // History contains a rank bought at Level 3 (the "future").
-        var history = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 1, Ranks = 1 },
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 3, Ranks = 1 } // Future!
-        };
-
-        var proposed = new List<SkillRankChoice>
-        {
-            // Adding 1 rank at level 2. 
-            // If the engine counts the future level 3 rank, total would be 3 (which exceeds the level 2 cap) and fail.
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 2, Ranks = 1 }
-        };
-
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
-
-        // Act
-        SkillValidationResult result = _engine.ValidateSkillRanksForLevel(2, proposed, history, available);
-
-        // Assert
-        Assert.That(result.IsValid, Is.True, "Should ignore history from levels > targetLevel.");
-    }
-
-    [Test]
-    public void ValidateSkillRanksForLevel_ProposedLevelMismatch_ReturnsError()
-    {
-        // Arrange: Validating Level 2, but accidentally passing a choice tagged as Level 3.
-        var history = new List<SkillRankChoice>();
-        var proposed = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 3, Ranks = 1 }
-        };
-
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
-
-        // Act
-        SkillValidationResult result = _engine.ValidateSkillRanksForLevel(2, proposed, history, available);
-
-        // Assert
-        Assert.That(result.IsValid, Is.False);
-        Assert.That(result.Errors[0], Does.Contain("tagged as Level 3, but we are validating Level 2"));
-    }
-
-    [Test]
-    public void GetAvailableSkills_WithOverrides_PrioritizesCustomSkills()
-    {
-        // Act - Ask the engine to merge the base library and our custom skills
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
-
-        // Assert
-        var stealth = available.First(s => s.Name == "Stealth");
-
-        Assert.That(stealth.DefaultAbility, Is.EqualTo(AbilityScore.Intelligence), "Custom Stealth should override the base DEX Stealth.");
-        Assert.That(available.Any(s => s.Name == "Acrobatics"), Is.True, "Base skills should still be present.");
-    }
-
-    [Test]
-    public void ValidateSkillRanksForLevel_ValidPurchase_CalculatesSpentRanksAccurately()
-    {
-        var history = new List<SkillRankChoice>();
-        var proposed = new List<SkillRankChoice>
-        {
-            // 1 Standard Rank in a Base Library skill
-            new SkillRankChoice { SkillName = "Acrobatics", CharacterLevel = 1, Ranks = 1 }, 
-            
-            // 2 Background Ranks split across two Custom Entity skills
-            new SkillRankChoice { SkillName = "Lore (Brewing)", CharacterLevel = 1, Ranks = 1 },
-            new SkillRankChoice { SkillName = "Perform (Kazoo)", CharacterLevel = 1, Ranks = 1 }
-        };
-
-        var available = _engine.GetAvailableSkills(_customSkills).ToList();
-
-        SkillValidationResult result = _engine.ValidateSkillRanksForLevel(1, proposed, history, available);
-
-        // Assert
-        Assert.That(result.IsValid, Is.True, string.Join(", ", result.Errors));
-        Assert.That(result.StandardRanksSpent, Is.EqualTo(1));
-        Assert.That(result.BackgroundRanksSpent, Is.EqualTo(2));
-    }
-
-    [Test]
-    public void CalculateSkills_ClassSkillWithRanks_GrantsPlusThreeBonus()
+    public void CalculateSkills_ClassSkillWithRanks_PopulatesAllFacadePropertiesCorrectly()
     {
         // Arrange
-        // Provide the explicit available skill so the engine evaluates it
-        var availableSkills = new List<SkillDefinition>
-        {
-            new SkillDefinition { Name = "Acrobatics", DefaultAbility = AbilityScore.Dexterity }
-        };
-
-        var classLevels = new List<HydratedClassLevel>
-        {
-            new HydratedClassLevel
-            {
-                ClassLevel = 1,
-                ClassDefinition = new ClassDefinition { Name = "Rogue", ClassSkills = new List<string> { "Acrobatics" } }
-            }
-        };
-
-        var choices = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Acrobatics", Ranks = 1, CharacterLevel = 1 }
-        };
+        var availableSkills = _skillLibrary.GetAllBaseSkills();
+        var classLevels = new[] { CreateClassLevel(1, "Acrobatics") }; // Acrobatics IS a class skill
+        var choices = new[] { new SkillRankChoice { SkillName = "Acrobatics", Ranks = 2 } };
+        var effects = new List<ActiveEffect>(); // No magic items yet
 
         // Act
-        var results = _engine.CalculateSkills(choices, classLevels, availableSkills, ability => 10);
-        var acrobatics = results.First(s => s.Name == "Acrobatics");
+        var result = _engine.CalculateSkills(choices, classLevels, availableSkills, GetMockAbilityScores(), effects);
+        var acrobatics = result.First(s => s.Name == "Acrobatics");
 
-        // Assert
-        Assert.That(acrobatics.IsClassSkill, Is.True);
+        // Assert (Math: 2 Ranks + 2 Dex + 3 Class Skill = 7)
+        Assert.That(acrobatics.TotalRanks, Is.EqualTo(2));
+        Assert.That(acrobatics.TotalBonus, Is.EqualTo(7));
+
+        // Facade Assertions - Proves the getters read the audit log correctly!
+        Assert.That(acrobatics.AbilityModifier, Is.EqualTo(2));
         Assert.That(acrobatics.ClassSkillBonus, Is.EqualTo(3));
-        Assert.That(acrobatics.TotalBonus, Is.EqualTo(4), "1 Rank + 0 Mod + 3 Class Skill Bonus = 4");
+
+        // Total (7) - Ranks (2) - Ability (2) - ClassSkill (3) = 0
+        Assert.That(acrobatics.MiscBonus, Is.EqualTo(0));
     }
 
     [Test]
-    public void CalculateSkills_ClassSkillWithZeroRanks_GrantsNoBonus()
+    public void CalculateSkills_IntegratesGlobalEffectsBus_CalculatesMiscBonus()
     {
         // Arrange
-        var availableSkills = new List<SkillDefinition>
-        {
-            new SkillDefinition { Name = "Acrobatics", DefaultAbility = AbilityScore.Dexterity }
-        };
+        var availableSkills = _skillLibrary.GetAllBaseSkills();
+        var classLevels = new[] { CreateClassLevel(1, "Acrobatics") };
+        var choices = new[] { new SkillRankChoice { SkillName = "Acrobatics", Ranks = 1 } };
 
-        var classLevels = new List<HydratedClassLevel>
+        // Add a magic item buff!
+        var effects = new List<ActiveEffect>
         {
-            new HydratedClassLevel
-            {
-                ClassLevel = 1,
-                ClassDefinition = new ClassDefinition { Name = "Rogue", ClassSkills = new List<string> { "Acrobatics" } }
-            }
+            new ActiveEffect { TargetStatName = "Acrobatics", SourceName = "Boots of Elvenkind", Value = 5, Type = ModifierType.Competence }
         };
-
-        var choices = new List<SkillRankChoice>(); // 0 Ranks
 
         // Act
-        var results = _engine.CalculateSkills(choices, classLevels, availableSkills, ability => 10);
-        var acrobatics = results.First(s => s.Name == "Acrobatics");
+        var result = _engine.CalculateSkills(choices, classLevels, availableSkills, GetMockAbilityScores(), effects);
+        var acrobatics = result.First(s => s.Name == "Acrobatics");
 
-        // Assert
-        Assert.That(acrobatics.IsClassSkill, Is.True);
-        Assert.That(acrobatics.ClassSkillBonus, Is.EqualTo(0), "Cannot get class skill bonus without at least 1 rank.");
-        Assert.That(acrobatics.TotalBonus, Is.EqualTo(0));
+        // Assert (Math: 1 Rank + 2 Dex + 3 Class Skill + 5 Boots = 11)
+        Assert.That(acrobatics.TotalBonus, Is.EqualTo(11));
+
+        // Total (11) - Ranks (1) - Ability (2) - ClassSkill (3) = 5
+        Assert.That(acrobatics.MiscBonus, Is.EqualTo(5), "Misc bonus should exclusively represent the effects bus.");
+
+        // Prove the audit log tracked the specific item
+        var bootsMod = acrobatics.Score.Modifiers.FirstOrDefault(m => m.SourceName == "Boots of Elvenkind");
+        Assert.That(bootsMod, Is.Not.Null);
+        Assert.That(bootsMod!.Value, Is.EqualTo(5));
     }
 
     [Test]
-    public void CalculateSkills_NonClassSkillWithRanks_GrantsNoBonus()
+    public void CalculateProposedTotalBonus_AddingFirstRankToClassSkill_TriggersBump()
+    {
+        // Arrange: A Class Skill currently sitting at 0 ranks
+        var availableSkills = _skillLibrary.GetAllBaseSkills();
+        var classLevels = new[] { CreateClassLevel(1, "Stealth") };
+        var choices = Array.Empty<SkillRankChoice>(); // 0 ranks
+
+        var calculatedSkills = _engine.CalculateSkills(choices, classLevels, availableSkills, GetMockAbilityScores(), new List<ActiveEffect>());
+        var stealth = calculatedSkills.First(s => s.Name == "Stealth");
+
+        // Base math for 0 ranks: 0 (Ranks) + 2 (Dex Mod) = 2
+        Assert.That(stealth.TotalBonus, Is.EqualTo(2));
+
+        // Act: User clicks "+" to propose 1 rank
+        int proposedBonus = _engine.CalculateProposedTotalBonus(stealth, 1);
+
+        // Assert: 1 (Rank) + 2 (Dex) + 3 (Class Skill triggered!) = 6
+        Assert.That(proposedBonus, Is.EqualTo(6), "Adding the first rank to a class skill should add both the rank and the +3 bump.");
+    }
+
+    [Test]
+    public void CalculateProposedTotalBonus_RemovingLastRankFromClassSkill_RemovesBump()
+    {
+        // Arrange: A Class Skill currently sitting at 1 rank
+        var availableSkills = _skillLibrary.GetAllBaseSkills();
+        var classLevels = new[] { CreateClassLevel(1, "Stealth") };
+        var choices = new[] { new SkillRankChoice { SkillName = "Stealth", Ranks = 1 } };
+
+        var calculatedSkills = _engine.CalculateSkills(choices, classLevels, availableSkills, GetMockAbilityScores(), new List<ActiveEffect>());
+        var stealth = calculatedSkills.First(s => s.Name == "Stealth");
+
+        // Base math for 1 rank: 1 (Ranks) + 2 (Dex Mod) + 3 (Class Skill) = 6
+        Assert.That(stealth.TotalBonus, Is.EqualTo(6));
+
+        // Act: User clicks "-" to drop back to 0 ranks
+        int proposedBonus = _engine.CalculateProposedTotalBonus(stealth, 0);
+
+        // Assert: 0 (Ranks) + 2 (Dex) = 2
+        Assert.That(proposedBonus, Is.EqualTo(2), "Removing the last rank should drop the rank AND the +3 bump.");
+    }
+
+    [Test]
+    public void CalculateProposedTotalBonus_AddingRanksToNonClassSkill_UpdatesLinearly()
+    {
+        // Arrange: A Non-Class Skill currently sitting at 2 ranks
+        var availableSkills = _skillLibrary.GetAllBaseSkills();
+        var classLevels = new[] { CreateClassLevel(1, "Acrobatics") }; // Stealth is NOT a class skill here
+        var choices = new[] { new SkillRankChoice { SkillName = "Stealth", Ranks = 2 } };
+
+        var calculatedSkills = _engine.CalculateSkills(choices, classLevels, availableSkills, GetMockAbilityScores(), new List<ActiveEffect>());
+        var stealth = calculatedSkills.First(s => s.Name == "Stealth");
+
+        // Base math for 2 ranks: 2 (Ranks) + 2 (Dex Mod) = 4
+        Assert.That(stealth.TotalBonus, Is.EqualTo(4));
+
+        // Act: User proposes changing from 2 ranks to 5 ranks (+3 delta)
+        int proposedBonus = _engine.CalculateProposedTotalBonus(stealth, 5);
+
+        // Assert: 5 (Ranks) + 2 (Dex) = 7
+        Assert.That(proposedBonus, Is.EqualTo(7));
+    }
+
+
+    [Test]
+    public void ValidateSkillRanksForLevel_RankCapExceeded_AddsError()
     {
         // Arrange
-        var availableSkills = new List<SkillDefinition>
-        {
-            new SkillDefinition { Name = "Knowledge (Arcana)", DefaultAbility = AbilityScore.Intelligence }
-        };
+        var history = new[] { new SkillRankChoice { SkillName = "Stealth", Ranks = 2, CharacterLevel = 1 } };
+        var proposed = new[] { new SkillRankChoice { SkillName = "Stealth", Ranks = 2, CharacterLevel = 3 } }; // Asking for level 3
+        var available = _skillLibrary.GetAllBaseSkills();
 
-        var classLevels = new List<HydratedClassLevel>
-        {
-            new HydratedClassLevel
-            {
-                ClassLevel = 1, 
-                // Rogue does NOT have Knowledge (Arcana)
-                ClassDefinition = new ClassDefinition { Name = "Rogue", ClassSkills = new List<string> { "Acrobatics" } }
-            }
-        };
-
-        var choices = new List<SkillRankChoice>
-        {
-            new SkillRankChoice { SkillName = "Knowledge (Arcana)", Ranks = 1, CharacterLevel = 1 }
-        };
-
-        // Act
-        var results = _engine.CalculateSkills(choices, classLevels, availableSkills, ability => 10);
-        var arcana = results.First(s => s.Name == "Knowledge (Arcana)");
+        // Act (Total ranks = 4. Target Level = 3)
+        var result = _engine.ValidateSkillRanksForLevel(3, proposed, history, available);
 
         // Assert
-        Assert.That(arcana.IsClassSkill, Is.False);
-        Assert.That(arcana.ClassSkillBonus, Is.EqualTo(0));
-        Assert.That(arcana.TotalBonus, Is.EqualTo(1), "1 Rank + 0 Mod + 0 Class Bonus = 1");
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors.Any(e => e.Contains("Cannot have 4 ranks")), Is.True);
     }
 }

@@ -60,7 +60,10 @@ public partial class SkillViewModel : ObservableObject, IDisposable
         }
 
         // 3. Run an initial validation on all levels to set the Spent Points text
-        for (int i = 1; i <= CurrentLevel; i++) ValidateLevel(i);
+        for (int i = 1; i <= CurrentLevel; i++)
+        {
+            ValidateLevel(i);
+        }
     }
 
     private void OnDomainStateChanged()

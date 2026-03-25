@@ -1,121 +1,156 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.Constants;
+using Wayfinder.Core.DomainModels.Stats;
+using Wayfinder.Core.Logic;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Calculators;
 
-namespace Wayfinder.Tests.Core
+[TestFixture]
+public class AbilityScoreCalculatorTests
 {
-    [TestFixture]
-    public class AbilityScoreCalculatorTests
+    #region Helper Methods
+    private HydratedClassLevel CreateLevelBump(int level, AbilityScore boostedScore)
     {
-        [TestFixture]
-        public class PathfinderMathExtensionsTests
+        return new HydratedClassLevel
         {
-            [TestCase(0, -5)]
-            [TestCase(1, -5)]
-            [TestCase(2, -4)]
-            [TestCase(3, -4)]
-            [TestCase(4, -3)]
-            [TestCase(5, -3)]
-            [TestCase(6, -2)]
-            [TestCase(7, -2)]
-            [TestCase(8, -1)]
-            [TestCase(9, -1)]
-            [TestCase(10, 0)]
-            [TestCase(11, 0)]
-            [TestCase(12, 1)]
-            [TestCase(13, 1)]
-            [TestCase(14, 2)]
-            [TestCase(15, 2)]
-            [TestCase(16, 3)]
-            [TestCase(17, 3)]
-            [TestCase(18, 4)]
-            [TestCase(19, 4)]
-            [TestCase(20, 5)]
-            [TestCase(33, 11)]
-            public void CalculateModifier_ShouldReturnCorrectModifier(int score, int expected)
-            {
-                var result = AbilityScoreCalculator.CalculateModifier(score);
-                Assert.That(result, Is.EqualTo(expected));
-            }
-        }
+            ClassLevel = level,
+            GrantsAbilityScoreIncrease = true,
+            IncreasedAbilityScore = boostedScore
+        };
+    }
 
-        [Test]
-        public void CalculateCurrentValue_WithNullLevels_ReturnsBaseScore()
+    private HydratedClassLevel CreateNormalLevel(int level)
+    {
+        return new HydratedClassLevel
         {
-            // Act
-            int result = AbilityScoreCalculator.CalculateCurrentValue(15, AbilityScore.Strength, null);
+            ClassLevel = level,
+            GrantsAbilityScoreIncrease = false
+        };
+    }
+    #endregion
 
-            // Assert
-            Assert.That(result, Is.EqualTo(15), "If levels is null, it should safely return the base score.");
-        }
+    [TestCase(10, 0)]
+    [TestCase(11, 0)]
+    [TestCase(12, 1)]
+    [TestCase(13, 1)]
+    [TestCase(20, 5)]
+    [TestCase(9, -1)]
+    [TestCase(8, -1)]
+    [TestCase(1, -5)]
+    [TestCase(0, -5)]
+    public void CalculateModifier_FromInt_ReturnsCorrectModifier(int score, int expectedModifier)
+    {
+        // Act
+        int result = AbilityScoreCalculator.CalculateModifier(score);
 
-        [Test]
-        public void CalculateCurrentValue_WithEmptyLevels_ReturnsBaseScore()
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedModifier));
+    }
+
+    [Test]
+    public void CalculateModifier_FromModifiableStat_ExtractsTotalAndCalculates()
+    {
+        // Arrange
+        var stat = StatCalculator.Calculate(
+                    statName: "Strength",
+                    baseValue: 14,
+                    globalEffects: Array.Empty<ActiveEffect>()
+                );
+
+        // A total of 14 should yield a +2
+
+        // Act
+        int result = AbilityScoreCalculator.CalculateModifier(stat);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void CalculateModifier_FromNullStat_SafelyDefaultsToZeroModifier()
+    {
+        // Arrange
+        ModifiableStat? nullStat = null;
+
+        // Act
+        int result = AbilityScoreCalculator.CalculateModifier(nullStat);
+
+        // Assert
+        // A null stat defaults to a score of 10, which means the modifier is 0.
+        Assert.That(result, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void CalculateAbilityScore_BaseScoreOnly_ReturnsExactBase()
+    {
+        // Arrange
+        int baseScore = 15;
+        var levels = new List<HydratedClassLevel>();
+        var effects = new List<ActiveEffect>();
+
+        // Act
+        var result = AbilityScoreCalculator.CalculateAbilityScore("Strength", baseScore, levels, effects);
+
+        // Assert
+        Assert.That(result.Total, Is.EqualTo(15));
+        Assert.That(result.Modifiers.Count(m => m.Type == ModifierType.Base), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void CalculateAbilityScore_WithMatchingLevelBumps_AddsUntypedModifier()
+    {
+        // Arrange
+        int baseScore = 15;
+        var levels = new List<HydratedClassLevel>
         {
-            // Act
-            int result = AbilityScoreCalculator.CalculateCurrentValue(12, AbilityScore.Dexterity, new List<HydratedClassLevel>());
+            CreateNormalLevel(1),
+            CreateNormalLevel(2),
+            CreateNormalLevel(3),
+            CreateLevelBump(4, AbilityScore.Strength), // Match!
+            CreateLevelBump(8, AbilityScore.Dexterity), // Ignored (wrong stat)
+            CreateLevelBump(12, AbilityScore.Strength) // Match!
+        };
+        var effects = new List<ActiveEffect>();
 
-            // Assert
-            Assert.That(result, Is.EqualTo(12));
-        }
+        // Act
+        var result = AbilityScoreCalculator.CalculateAbilityScore("Strength", baseScore, levels, effects);
 
-        [Test]
-        public void CalculateCurrentValue_WithMatchingAbilityBumps_AddsToBaseScore()
+        // Assert (15 Base + 2 Strength Bumps = 17)
+        Assert.That(result.Total, Is.EqualTo(17));
+
+        var levelBumpLog = result.Modifiers.FirstOrDefault(m => m.SourceName == "Level Advancement");
+        Assert.That(levelBumpLog, Is.Not.Null, "Should log the level advancements.");
+        Assert.That(levelBumpLog!.Value, Is.EqualTo(2));
+        Assert.That(levelBumpLog.Type, Is.EqualTo(ModifierType.Untyped));
+    }
+
+    [Test]
+    public void CalculateAbilityScore_IntegratesGlobalEffectsBus()
+    {
+        // Arrange
+        int baseScore = 14;
+        var levels = new List<HydratedClassLevel>
         {
-            // Arrange
-            var levels = new List<HydratedClassLevel>
-        {
-            // Two bumps specifically to Strength
-            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Strength },
-            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Strength }
+            CreateLevelBump(4, AbilityScore.Dexterity) // 1 bump
         };
 
-            // Act
-            int result = AbilityScoreCalculator.CalculateCurrentValue(14, AbilityScore.Strength, levels);
-
-            // Assert
-            Assert.That(result, Is.EqualTo(16), "Should add +2 to the base score of 14.");
-        }
-
-        [Test]
-        public void CalculateCurrentValue_WithDifferentAbilityBumps_IgnoresThem()
+        var effects = new List<ActiveEffect>
         {
-            // Arrange
-            var levels = new List<HydratedClassLevel>
-        {
-            // A bump to Dexterity shouldn't affect Strength
-            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Dexterity }
+            // A matching effect
+            new ActiveEffect { TargetStatName = "Dexterity", SourceName = "Belt of Incredible Dexterity", Value = 4, Type = ModifierType.Enhancement },
+            
+            // An ignored effect (wrong target)
+            new ActiveEffect { TargetStatName = "Strength", SourceName = "Bull's Strength", Value = 4, Type = ModifierType.Enhancement }
         };
 
-            // Act
-            int result = AbilityScoreCalculator.CalculateCurrentValue(14, AbilityScore.Strength, levels);
+        // Act
+        var result = AbilityScoreCalculator.CalculateAbilityScore("Dexterity", baseScore, levels, effects);
 
-            // Assert
-            Assert.That(result, Is.EqualTo(14), "Should ignore bumps assigned to other ability scores.");
-        }
+        // Assert (14 Base + 1 Bump + 4 Belt = 19)
+        Assert.That(result.Total, Is.EqualTo(19));
 
-        [Test]
-        public void CalculateCurrentValue_WithMixedLevels_CalculatesCorrectly()
-        {
-            // Arrange
-            var levels = new List<HydratedClassLevel>
-        {
-            new HydratedClassLevel { GrantsAbilityScoreIncrease = false }, // e.g., Level 1 (no bump)
-            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Intelligence }, // Level 4
-            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Wisdom },      // Level 8
-            new HydratedClassLevel { GrantsAbilityScoreIncrease = true, IncreasedAbilityScore = AbilityScore.Intelligence } // Level 12
-        };
-
-            // Act - Calculate Intelligence
-            int intResult = AbilityScoreCalculator.CalculateCurrentValue(10, AbilityScore.Intelligence, levels);
-
-            // Act - Calculate Wisdom
-            int wisResult = AbilityScoreCalculator.CalculateCurrentValue(10, AbilityScore.Wisdom, levels);
-
-            // Assert
-            Assert.That(intResult, Is.EqualTo(12), "Should add exactly the 2 Intelligence bumps.");
-            Assert.That(wisResult, Is.EqualTo(11), "Should add exactly the 1 Wisdom bump.");
-        }
+        // Audit Log verification
+        Assert.That(result.Modifiers.Any(m => m.SourceName == "Level Advancement" && m.Value == 1), Is.True);
+        Assert.That(result.Modifiers.Any(m => m.SourceName == "Belt of Incredible Dexterity" && m.Value == 4), Is.True);
     }
 }

@@ -1,0 +1,99 @@
+@using Wayfinder.Core.DomainModels.Stats
+@using Wayfinder.Core.Constants
+
+<div class="stat-tooltip-container">
+    <div class="stat-tooltip-trigger">
+        @ChildContent
+    </div>
+
+    <div class="stat-tooltip-popup shadow-lg">
+        @if (Stat != null)
+        {
+            <div class="tooltip-header">
+                <strong>@Stat.Name Breakdown</strong>
+            </div>
+            
+            <div class="tooltip-body mt-2">
+                @foreach (var mod in Stat.Modifiers)
+                {
+                    // If it didn't stack, we mute the text and cross it out!
+                    var textClass = mod.IsApplied ? "" : "text-muted text-decoration-line-through";
+                    var valuePrefix = mod.Value >= 0 ? "+" : "";
+
+                    <div class="d-flex justify-content-between @textClass">
+                        <span class="me-4">@mod.SourceName 
+                            @if(mod.Type != ModifierType.Base && mod.Type != ModifierType.Untyped)
+                            {
+                                <small class="text-secondary ms-1">(@mod.Type.ToString().ToLower())</small>
+                            }
+                        </span>
+                        <span>@valuePrefix@mod.Value</span>
+                    </div>
+                }
+            </div>
+
+            <div class="tooltip-footer mt-2 pt-1 border-top border-secondary d-flex justify-content-between fw-bold">
+                <span>Total</span>
+                <span>@(Stat.Total >= 0 ? "+" : "")@Stat.Total</span>
+            </div>
+        }
+        else
+        {
+            <div class="text-muted">No data available.</div>
+        }
+    </div>
+</div>
+
+<style>
+    /* CSS to handle the hover logic without relying on JavaScript */
+    .stat-tooltip-container {
+        position: relative;
+        display: inline-block;
+        cursor: help; /* Gives the user a little question mark cursor */
+    }
+
+    .stat-tooltip-popup {
+        visibility: hidden;
+        opacity: 0;
+        background-color: #2b2b2b; /* Dark mode style, adjust to your theme! */
+        color: #f8f9fa;
+        text-align: left;
+        border-radius: 6px;
+        padding: 10px 15px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%; /* Position above the trigger */
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 250px;
+        transition: opacity 0.2s;
+        pointer-events: none; /* Prevents the tooltip from blocking clicks */
+        border: 1px solid #444;
+    }
+
+    /* The little triangle pointing down */
+    .stat-tooltip-popup::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #2b2b2b transparent transparent transparent;
+    }
+
+    /* Show the tooltip when hovering over the container */
+    .stat-tooltip-container:hover .stat-tooltip-popup {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired] 
+    public ModifiableStat Stat { get; set; } = default!;
+
+    [Parameter] 
+    public RenderFragment ChildContent { get; set; } = default!;
+}

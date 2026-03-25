@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
@@ -13,15 +15,13 @@ namespace Wayfinder.App.Services
     {
         // Holds the main state of the character, including all calculated values, inventory, etc
         private readonly IAppLogger _logger;
-        private readonly IPathfinderRulesEngine _rulesEngine;
         private readonly CharacterStateService _characterStateService;
         private readonly AppStateService _appStateService;
-        public CharacterSheet? ActiveCharacterSheet => _characterStateService.ActiveSheet;
+        public CharacterSheet? ActiveSheet => _characterStateService.ActiveSheet;
 
-        public CharacterSheetViewModel(IAppLogger logger, IPathfinderRulesEngine rulesEngine, AppStateService appStateService, CharacterStateService stateService)
+        public CharacterSheetViewModel(IAppLogger logger, AppStateService appStateService, CharacterStateService stateService)
         {
             _logger = logger;
-            _rulesEngine = rulesEngine;
             _characterStateService = stateService;
             _appStateService = appStateService;
 
@@ -41,17 +41,17 @@ namespace Wayfinder.App.Services
 
         private void LoadVitalsFromDomain()
         {
-            if (ActiveCharacterSheet == null) return;
+            if (ActiveSheet == null) return;
 
-            Wounds = ActiveCharacterSheet.Wounds;
-            NonLethalDamage = ActiveCharacterSheet.NonLethalDamage;
-            TemporaryHp = ActiveCharacterSheet.TemporaryHp;
+            Wounds = ActiveSheet.Wounds;
+            NonLethalDamage = ActiveSheet.NonLethalDamage;
+            TemporaryHp = ActiveSheet.TemporaryHp;
         }
 
         public ObservableCollection<ItemInstance> Inventory { get; } = new();
 
         #region Properties Exposed to the UI
-        public Race? CurrentRace => ActiveCharacterSheet?.Race;
+        public Race? CurrentRace => ActiveSheet?.Race;
         public bool HasRace => CurrentRace != null;
         public string RaceFullTitle => CurrentRace != null
                 ? $"{CurrentRace.Name}{(CurrentRace.Subrace != null ? $" ({CurrentRace.Subrace.Name})" : "")}"
@@ -60,39 +60,46 @@ namespace Wayfinder.App.Services
         public IEnumerable<RacialTrait> ActiveTraits =>
             CurrentRace?.SelectedRacialTraits ?? Enumerable.Empty<RacialTrait>();
 
-        public string Alignment => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase() ?? "No Alignment Selected", "Alignment Display");
-        public string Gender => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Gender ?? "Not Specified", "Gender Display");
-        public string Deity => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Deity ?? "None", "Deity Display");
-        public int Age => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.Age ?? 0, "Age Display");
-        public string PhysicalDescription => SafeCalculate(() => ActiveCharacterSheet?.BaseCharacter.PhysicalDescription ?? "Nothing distinguishing at all.", "Physical Description Display");
+        public string Alignment => SafeGet(
+            () => ActiveSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase(),
+            fallback: "No Alignment Selected");
 
-        public int Strength => SafeCalculate(() => ActiveCharacterSheet.Strength, "Strength Calculation");
-        public int Dexterity => SafeCalculate(() => ActiveCharacterSheet.Dexterity, "Dexterity Calculation");
-        public int Constitution => SafeCalculate(() => ActiveCharacterSheet.Constitution, "Constitution Calculation");
-        public int Intelligence => SafeCalculate(() => ActiveCharacterSheet.Intelligence, "Intelligence Calculation");
-        public int Wisdom => SafeCalculate(() => ActiveCharacterSheet.Wisdom, "Wisdom Calculation");
-        public int Charisma => SafeCalculate(() => ActiveCharacterSheet.Charisma, "Charisma Calculation");
+        public string Gender => SafeGet(() => ActiveSheet?.BaseCharacter.Gender, fallback: "Not Specified");
+        public string Deity => SafeGet(() => ActiveSheet?.BaseCharacter.Deity, fallback: "None");
+        public int Age => SafeGet(() => ActiveSheet?.BaseCharacter.Age);
+        public string PhysicalDescription => SafeGet(() => ActiveSheet?.BaseCharacter.PhysicalDescription);
 
-        public int BaseAttackBonus => ActiveCharacterSheet?.BaseAttackBonus ?? 0;
-        public int FortitudeSave => ActiveCharacterSheet?.FortitudeSave ?? 0;
-        public int ReflexSave => ActiveCharacterSheet?.ReflexSave ?? 0;
-        public int WillSave => ActiveCharacterSheet?.WillSave ?? 0;
+        // Ability Scores
+        public ModifiableStat Strength => SafeGet(() => ActiveSheet?.Strength, StatNames.Strength);
+        public ModifiableStat Dexterity => SafeGet(() => ActiveSheet?.Dexterity, StatNames.Dexterity);
+        public ModifiableStat Constitution => SafeGet(() => ActiveSheet?.Constitution, StatNames.Constitution);
+        public ModifiableStat Intelligence => SafeGet(() => ActiveSheet?.Intelligence, StatNames.Intelligence);
+        public ModifiableStat Wisdom => SafeGet(() => ActiveSheet?.Wisdom, StatNames.Wisdom);
+        public ModifiableStat Charisma => SafeGet(() => ActiveSheet?.Charisma, StatNames.Charisma);
+
+        // Combat Stats
+        public int BaseAttackBonus => SafeGet(() => ActiveSheet?.BaseAttackBonus);
+
+        // Saves
+        public ModifiableStat Fortitude => SafeGet(() => ActiveSheet?.Fortitude, StatNames.Fortitude);
+        public ModifiableStat Reflex => SafeGet(() => ActiveSheet?.Reflex, StatNames.Reflex);
+        public ModifiableStat Will => SafeGet(() => ActiveSheet?.Will, StatNames.Will);
 
         // Mutable - bound to UI
         public int Wounds
         {
             // Look directly at the source of truth
-            get => ActiveCharacterSheet?.BaseCharacter.Wounds ?? 0;
+            get => ActiveSheet?.BaseCharacter.Wounds ?? 0;
             set
             {
-                if (ActiveCharacterSheet != null && ActiveCharacterSheet.BaseCharacter.Wounds != value)
+                if (ActiveSheet != null && ActiveSheet.BaseCharacter.Wounds != value)
                 {
                     // Mutate the source of truth directly
-                    ActiveCharacterSheet.BaseCharacter.Wounds = value;
+                    ActiveSheet.BaseCharacter.Wounds = value;
 
                     // Alert Blazor that the UI needs to redraw
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(ActiveCharacterSheet));
+                    OnPropertyChanged(nameof(ActiveSheet));
 
                     // Alert the global app that we need to save to the database!
                     _characterStateService.NotifyStateChanged();
@@ -103,17 +110,17 @@ namespace Wayfinder.App.Services
         public int NonLethalDamage
         {
             // Look directly at the source of truth
-            get => ActiveCharacterSheet?.BaseCharacter.NonLethalDamage ?? 0;
+            get => ActiveSheet?.BaseCharacter.NonLethalDamage ?? 0;
             set
             {
-                if (ActiveCharacterSheet != null && ActiveCharacterSheet.BaseCharacter.NonLethalDamage != value)
+                if (ActiveSheet != null && ActiveSheet.BaseCharacter.NonLethalDamage != value)
                 {
                     // Mutate the source of truth directly
-                    ActiveCharacterSheet.BaseCharacter.NonLethalDamage = value;
+                    ActiveSheet.BaseCharacter.NonLethalDamage = value;
 
                     // Alert Blazor that the UI needs to redraw
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(ActiveCharacterSheet));
+                    OnPropertyChanged(nameof(ActiveSheet));
 
                     // Alert the global app that we need to save to the database!
                     _characterStateService.NotifyStateChanged();
@@ -124,17 +131,17 @@ namespace Wayfinder.App.Services
         public int TemporaryHp
         {
             // Look directly at the source of truth
-            get => ActiveCharacterSheet?.BaseCharacter.TemporaryHp ?? 0;
+            get => ActiveSheet?.BaseCharacter.TemporaryHp ?? 0;
             set
             {
-                if (ActiveCharacterSheet != null && ActiveCharacterSheet.BaseCharacter.TemporaryHp != value)
+                if (ActiveSheet != null && ActiveSheet.BaseCharacter.TemporaryHp != value)
                 {
                     // Mutate the source of truth directly
-                    ActiveCharacterSheet.BaseCharacter.TemporaryHp = value;
+                    ActiveSheet.BaseCharacter.TemporaryHp = value;
 
                     // Alert Blazor that the UI needs to redraw
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(ActiveCharacterSheet));
+                    OnPropertyChanged(nameof(ActiveSheet));
 
                     // Alert the global app that we need to save to the database!
                     _characterStateService.NotifyStateChanged();
@@ -142,15 +149,15 @@ namespace Wayfinder.App.Services
             }
         }
 
-        public int MaxHp => ActiveCharacterSheet?.MaxHp ?? 0;
-        public int CurrentHp => ActiveCharacterSheet?.CurrentHp ?? 0;
+        public int MaxHp => ActiveSheet?.MaxHp ?? 0;
+        public int CurrentHp => ActiveSheet?.CurrentHp ?? 0;
 
         #endregion
 
         public void ToggleItemEquipped(Guid itemId)
         {
             // Update character
-            ActiveCharacterSheet.ToggleEquip(itemId);
+            ActiveSheet.ToggleEquip(itemId);
 
             var item = Inventory.FirstOrDefault(i => i.Id == itemId);
             if (item != null)
@@ -164,7 +171,7 @@ namespace Wayfinder.App.Services
         public void ToggleItemCarried(Guid itemId)
         {
             // Update character
-            ActiveCharacterSheet.ToggleCarried(itemId);
+            ActiveSheet.ToggleCarried(itemId);
 
             var item = Inventory.FirstOrDefault(i => i.Id == itemId);
             if (item != null)
@@ -177,23 +184,27 @@ namespace Wayfinder.App.Services
 
         private void TriggerFullRecalc()
         {
-            if (ActiveCharacterSheet != null)
+            if (ActiveSheet == null) return;
+
+            try
             {
-                // The character sheet knows how to convert entity facts into library rules
-                // We just need to tell the UI that these things have changed
-                ActiveCharacterSheet.Refresh();
+                // 1. The domain orchestrates its own internal math updates
+                ActiveSheet.Refresh();
             }
-
-            // TODO: use OnPrepertyChanged(nameof(prop)) for each property
-            // each property on the VM should be pulling from the underlying sheet
-
-            // Trick to trigger a change in all properties, to handle the ripple of Pathfinder changes
-            // Let's see how much lag this introduces...
-
-            OnPropertyChanged(string.Empty);
+            catch (Exception ex)
+            {
+                _logger.LogError("Catastrophic failure during ActiveSheet.Refresh()", ex);
+            }
+            finally
+            {
+                // 2. Tell the UI to rebuild the screen.
+                // We put this in a finally block so that even if one specific math calculation 
+                // fails mid-refresh, the UI still updates to reflect whatever *did* succeed.
+                OnPropertyChanged(string.Empty);
+            }
         }
 
-        private T SafeCalculate<T>(Func<T> action, string context)
+        private T SafeCalculate<T>(Func<T> action, T fallbackValue, string context)
         {
             try
             {
@@ -202,7 +213,46 @@ namespace Wayfinder.App.Services
             catch (Exception ex)
             {
                 _logger.LogError($"Failed in {context}", ex);
-                return default;
+                return fallbackValue;
+            }
+        }
+
+        private ModifiableStat SafeGet(Func<ModifiableStat?> selector, string statName, [CallerMemberName] string propertyName = "")
+        {
+            try
+            {
+                return selector() ?? new ModifiableStat { Name = statName };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed getting stat in property {propertyName}", ex);
+                return new ModifiableStat { Name = $"{statName} (Error)" };
+            }
+        }
+
+        private T SafeGet<T>(Func<T?> selector, T fallback = default, [CallerMemberName] string propertyName = "") where T : struct
+        {
+            try
+            {
+                return selector() ?? fallback;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed getting value in property {propertyName}", ex);
+                return fallback;
+            }
+        }
+
+        private string SafeGet(Func<string?> selector, string fallback = "", [CallerMemberName] string propertyName = "")
+        {
+            try
+            {
+                return selector() ?? fallback;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed getting string in property {propertyName}", ex);
+                return fallback;
             }
         }
 
@@ -216,13 +266,13 @@ namespace Wayfinder.App.Services
         private void HandleDataRefreshed() => RebuildState();
         private void RebuildState()
         {
-            if (ActiveCharacterSheet == null) return;
+            if (ActiveSheet == null) return;
 
             // 1. Wipe the UI's existing projections of the character sheet
             Inventory.Clear();
 
             // 2. Ask the sheet for hydrated facts
-            var refreshedItems = ActiveCharacterSheet.GetHydratedInventory();
+            var refreshedItems = ActiveSheet.GetHydratedInventory();
 
             // 3. Fill our collection
             foreach (var item in refreshedItems)
@@ -238,7 +288,7 @@ namespace Wayfinder.App.Services
         {
             // Check for auto save from crash
             // Prompt to save or load - this will probably be a new page
-            if (ActiveCharacterSheet is null)
+            if (ActiveSheet is null)
             {
                 InitializeNewCharacter();
             }

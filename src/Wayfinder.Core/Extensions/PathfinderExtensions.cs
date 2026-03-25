@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.Constants;
 
 namespace Wayfinder.Core.Extensions
 {
@@ -56,6 +56,14 @@ namespace Wayfinder.Core.Extensions
                 AbilityScore.Charisma => "CHA",
                 _ => score.ToString()
             };
+        }
+
+        /// <summary>
+        /// Formats an integer as a tabletop RPG modifier string (e.g., +3, -2, +0).
+        /// </summary>
+        public static string FormatModifier(this int value)
+        {
+            return value >= 0 ? $"+{value}" : value.ToString();
         }
     }
 }

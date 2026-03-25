@@ -1,5 +1,4 @@
-﻿using Wayfinder.Core.Enums;
-using Wayfinder.Core.Models.Common;
+﻿using Wayfinder.Core.Constants;
 
 namespace Wayfinder.Core.Models.Characters;
 
@@ -13,10 +12,4 @@ public abstract class BaseCharacterClass
     public abstract SaveProgressionRate FortitudeRate { get; }
     public abstract SaveProgressionRate WillRate { get; }
     public abstract SaveProgressionRate ReflexRate { get; }
-
-    // Hook for behavioral features
-    public virtual void ApplyClassFeature(int level, CharacterSheet sheet, List<Bonus> bonuses)
-    {
-        // Default, no class features 
-    }
 }
