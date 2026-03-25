@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Logic;
 using Wayfinder.Core.Models.Characters;
 
@@ -33,12 +34,12 @@ public class SaveCalculatorTests
     // ==========================================
 
     [Test]
-    public void CalculateBaseSave_GuardClause_ThrowsOnInvalidStatType()
+    public void CalculateBaseSave_GuardClause_ThrowsOnInvalidStatNames()
     {
         var levels = new List<HydratedClassLevel>();
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            SaveCalculator.CalculateBaseSave(levels, StatType.AC));
+            SaveCalculator.CalculateBaseSave(levels, StatNames.AC));
 
         Assert.That(ex.Message, Does.Contain("not a valid saving throw"));
     }
@@ -59,7 +60,7 @@ public class SaveCalculatorTests
         }
 
         // Act
-        int result = SaveCalculator.CalculateBaseSave(levels, StatType.Fortitude);
+        int result = SaveCalculator.CalculateBaseSave(levels, StatNames.Fortitude);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedBaseSave));
@@ -82,7 +83,7 @@ public class SaveCalculatorTests
         }
 
         // Act
-        int result = SaveCalculator.CalculateBaseSave(levels, StatType.Fortitude);
+        int result = SaveCalculator.CalculateBaseSave(levels, StatNames.Fortitude);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedBaseSave));
@@ -102,8 +103,8 @@ public class SaveCalculatorTests
         };
 
         // Act
-        int fortResult = SaveCalculator.CalculateBaseSave(levels, StatType.Fortitude);
-        int refResult = SaveCalculator.CalculateBaseSave(levels, StatType.Reflex);
+        int fortResult = SaveCalculator.CalculateBaseSave(levels, StatNames.Fortitude);
+        int refResult = SaveCalculator.CalculateBaseSave(levels, StatNames.Reflex);
 
         // Assert
         // Fortitude: Fighter (+2) + Barbarian (+2) = +4
@@ -125,14 +126,13 @@ public class SaveCalculatorTests
 
         var effects = new List<ActiveEffect>
         {
-            new ActiveEffect { SourceName = "Cloak of Resistance +1", TargetStat = StatType.Fortitude, Value = 1, Type = ModifierType.Enhancement },
-            new ActiveEffect { SourceName = "Minor Potion", TargetStat = StatType.Fortitude, Value = 1, Type = ModifierType.Alchemical }
+            new ActiveEffect { SourceName = "Cloak of Resistance +1", TargetStatName = StatNames.Fortitude, Value = 1, Type = ModifierType.Enhancement },
+            new ActiveEffect { SourceName = "Minor Potion", TargetStatName = StatNames.Fortitude, Value = 1, Type = ModifierType.Alchemical }
         };
 
         // Act
         var result = SaveCalculator.CalculateSave(
             "Fortitude",
-            StatType.Fortitude,
             levels,
             conScore,
             "Constitution",

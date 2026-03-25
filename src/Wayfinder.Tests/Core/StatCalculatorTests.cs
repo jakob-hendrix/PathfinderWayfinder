@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DomainModels.Stats;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Logic;
 
 [TestFixture]
@@ -10,7 +10,7 @@ public class StatCalculatorTests
     public void Calculate_WithOnlyBaseValue_ReturnsCorrectTotalAndLog()
     {
         // Act
-        var result = StatCalculator.Calculate("Armor Class", StatType.AC, 10, Enumerable.Empty<ActiveEffect>());
+        var result = StatCalculator.Calculate("Armor Class", StatNames.AC, 10, Enumerable.Empty<ActiveEffect>());
 
         // Assert
         Assert.That(result.Name, Is.EqualTo("Armor Class"));
@@ -33,7 +33,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Reflex", StatType.Reflex, 2, Enumerable.Empty<ActiveEffect>(), baseMods);
+        var result = StatCalculator.Calculate("Reflex", StatNames.Reflex, 2, Enumerable.Empty<ActiveEffect>(), baseMods);
 
         // Assert
         Assert.That(result.Total, Is.EqualTo(5)); // 2 Base + 3 Dex
@@ -46,13 +46,13 @@ public class StatCalculatorTests
         // Arrange
         var globalEffects = new List<ActiveEffect>
         {
-            new ActiveEffect { SourceName = "Dodge Feat", TargetStat = StatType.AC, Value = 1, Type = ModifierType.Dodge },
-            new ActiveEffect { SourceName = "Haste", TargetStat = StatType.AC, Value = 1, Type = ModifierType.Dodge },
-            new ActiveEffect { SourceName = "Untyped Buff", TargetStat = StatType.AC, Value = 2, Type = ModifierType.Untyped }
+            new ActiveEffect { SourceName = "Dodge Feat", TargetStatName = StatNames.AC, Value = 1, Type = ModifierType.Dodge },
+            new ActiveEffect { SourceName = "Haste", TargetStatName = StatNames.AC, Value = 1, Type = ModifierType.Dodge },
+            new ActiveEffect { SourceName = "Untyped Buff", TargetStatName = StatNames.AC, Value = 2, Type = ModifierType.Untyped }
         };
 
         // Act
-        var result = StatCalculator.Calculate("Armor Class", StatType.AC, 10, globalEffects);
+        var result = StatCalculator.Calculate("Armor Class", StatNames.AC, 10, globalEffects);
 
         // Assert
         // 10 Base + 1 Dodge + 1 Dodge + 2 Untyped = 14
@@ -68,12 +68,12 @@ public class StatCalculatorTests
         // Arrange
         var globalEffects = new List<ActiveEffect>
         {
-            new ActiveEffect { SourceName = "Ring of Protection +1", TargetStat = StatType.AC, Value = 1, Type = ModifierType.Deflection },
-            new ActiveEffect { SourceName = "Shield of Faith +3", TargetStat = StatType.AC, Value = 3, Type = ModifierType.Deflection }
+            new ActiveEffect { SourceName = "Ring of Protection +1", TargetStatName = StatNames.AC, Value = 1, Type = ModifierType.Deflection },
+            new ActiveEffect { SourceName = "Shield of Faith +3", TargetStatName = StatNames.AC, Value = 3, Type = ModifierType.Deflection }
         };
 
         // Act
-        var result = StatCalculator.Calculate("Armor Class", StatType.AC, 10, globalEffects);
+        var result = StatCalculator.Calculate("Armor Class", StatNames.AC, 10, globalEffects);
 
         // Assert
         // 10 Base + 3 Deflection (highest applies) = 13. The +1 is ignored.
@@ -93,13 +93,13 @@ public class StatCalculatorTests
         // Arrange
         var globalEffects = new List<ActiveEffect>
         {
-            new ActiveEffect { SourceName = "Amulet of Health", TargetStat = StatType.Constitution, Value = 2, Type = ModifierType.Enhancement },
-            new ActiveEffect { SourceName = "Cloak of Resistance", TargetStat = StatType.Fortitude, Value = 1, Type = ModifierType.Enhancement },
-            new ActiveEffect { SourceName = "Bravery", TargetStat = StatType.Fortitude, Value = 2, Type = ModifierType.Untyped, IsConditional = true } // Conditional!
+            new ActiveEffect { SourceName = "Amulet of Health", TargetStatName = StatNames.Constitution, Value = 2, Type = ModifierType.Enhancement },
+            new ActiveEffect { SourceName = "Cloak of Resistance", TargetStatName = StatNames.Fortitude, Value = 1, Type = ModifierType.Enhancement },
+            new ActiveEffect { SourceName = "Bravery", TargetStatName = StatNames.Fortitude, Value = 2, Type = ModifierType.Untyped, IsConditional = true } // Conditional!
         };
 
         // Act
-        var result = StatCalculator.Calculate("Fortitude", StatType.Fortitude, 4, globalEffects);
+        var result = StatCalculator.Calculate("Fortitude", StatNames.Fortitude, 4, globalEffects);
 
         // Assert
         // 4 Base + 1 Enhancement (Cloak). 
@@ -116,12 +116,12 @@ public class StatCalculatorTests
         // Arrange: Two different sources applying an Enhancement penalty
         var globalEffects = new List<ActiveEffect>
         {
-            new ActiveEffect { SourceName = "Minor Curse", TargetStat = StatType.Strength, Value = -2, Type = ModifierType.Enhancement },
-            new ActiveEffect { SourceName = "Major Curse", TargetStat = StatType.Strength, Value = -4, Type = ModifierType.Enhancement }
+            new ActiveEffect { SourceName = "Minor Curse", TargetStatName = StatNames.Strength, Value = -2, Type = ModifierType.Enhancement },
+            new ActiveEffect { SourceName = "Major Curse", TargetStatName = StatNames.Strength, Value = -4, Type = ModifierType.Enhancement }
         };
 
         // Act
-        var result = StatCalculator.Calculate("Strength", StatType.Strength, 14, globalEffects);
+        var result = StatCalculator.Calculate("Strength", StatNames.Strength, 14, globalEffects);
 
         // Assert
         // 14 Base - 4 (worst penalty applies, -2 is ignored) = 10
@@ -140,12 +140,12 @@ public class StatCalculatorTests
         // Arrange: The character is somehow affected by the exact same spell twice
         var globalEffects = new List<ActiveEffect>
         {
-            new ActiveEffect { SourceName = "Ray of Enfeeblement", TargetStat = StatType.Strength, Value = -3, Type = ModifierType.Untyped },
-            new ActiveEffect { SourceName = "Ray of Enfeeblement", TargetStat = StatType.Strength, Value = -5, Type = ModifierType.Untyped }
+            new ActiveEffect { SourceName = "Ray of Enfeeblement", TargetStatName = StatNames.Strength, Value = -3, Type = ModifierType.Untyped },
+            new ActiveEffect { SourceName = "Ray of Enfeeblement", TargetStatName = StatNames.Strength, Value = -5, Type = ModifierType.Untyped }
         };
 
         // Act
-        var result = StatCalculator.Calculate("Strength", StatType.Strength, 14, globalEffects);
+        var result = StatCalculator.Calculate("Strength", StatNames.Strength, 14, globalEffects);
 
         // Assert
         // Because they have the exact same SourceName, the untyped penalties do NOT stack. Worst applies.
@@ -160,12 +160,12 @@ public class StatCalculatorTests
         // Arrange: Two different untyped penalties
         var globalEffects = new List<ActiveEffect>
         {
-            new ActiveEffect { SourceName = "Fatigued", TargetStat = StatType.Strength, Value = -2, Type = ModifierType.Untyped },
-            new ActiveEffect { SourceName = "Ray of Enfeeblement", TargetStat = StatType.Strength, Value = -5, Type = ModifierType.Untyped }
+            new ActiveEffect { SourceName = "Fatigued", TargetStatName = StatNames.Strength, Value = -2, Type = ModifierType.Untyped },
+            new ActiveEffect { SourceName = "Ray of Enfeeblement", TargetStatName = StatNames.Strength, Value = -5, Type = ModifierType.Untyped }
         };
 
         // Act
-        var result = StatCalculator.Calculate("Strength", StatType.Strength, 14, globalEffects);
+        var result = StatCalculator.Calculate("Strength", StatNames.Strength, 14, globalEffects);
 
         // Assert
         // Because they have DIFFERENT SourceNames, untyped penalties DO stack.

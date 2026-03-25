@@ -2,8 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DomainModels.Stats;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Calculators;
 
@@ -13,7 +13,7 @@ public static class SaveCalculator
     /// Calculates the raw base save from class levels using Pathfinder 1e math.
     /// Publicly exposed for rigorous unit testing.
     /// </summary>
-    public static int CalculateBaseSave(IEnumerable<HydratedClassLevel> classLevels, StatType statType)
+    public static int CalculateBaseSave(IEnumerable<HydratedClassLevel> classLevels, string statType)
     {
         EnsureValidSaveType(statType);
 
@@ -33,9 +33,9 @@ public static class SaveCalculator
             // Figure out if this class has a Fast or Slow progression for this specific save
             SaveProgressionRate progression = statType switch
             {
-                StatType.Fortitude => classDef.FortitudeRate,
-                StatType.Reflex => classDef.ReflexRate,
-                StatType.Will => classDef.WillRate,
+                StatNames.Fortitude => classDef.FortitudeRate,
+                StatNames.Reflex => classDef.ReflexRate,
+                StatNames.Will => classDef.WillRate,
                 _ => throw new InvalidOperationException("Unreachable code reached.")
             };
 
@@ -60,16 +60,15 @@ public static class SaveCalculator
     /// </summary>
     public static ModifiableStat CalculateSave(
         string saveName,
-        StatType statType,
         IEnumerable<HydratedClassLevel> classLevels,
         int abilityScore,
         string abilityName,
         IEnumerable<ActiveEffect> globalEffects)
     {
-        EnsureValidSaveType(statType);
+        EnsureValidSaveType(saveName);
 
         // 1. Get the PF1e Base Save
-        int baseSaveValue = CalculateBaseSave(classLevels, statType);
+        int baseSaveValue = CalculateBaseSave(classLevels, saveName);
 
         // 2. Calculate the Ability Modifier
         int abilityModValue = AbilityScoreCalculator.CalculateModifier(abilityScore);
@@ -82,7 +81,6 @@ public static class SaveCalculator
         // 3. Let the universal pipeline handle the final math and audit log
         return StatCalculator.Calculate(
             statName: saveName,
-            targetStat: statType,
             baseValue: baseSaveValue,
             globalEffects: globalEffects,
             baseModifiers: baseModifiers
@@ -92,12 +90,18 @@ public static class SaveCalculator
     /// <summary>
     /// Guard clause to ensure the provided StatType is a valid Saving Throw.
     /// </summary>
-    private static void EnsureValidSaveType(StatType statType)
+    private static void EnsureValidSaveType(string statType)
     {
-        // C# 9+ Pattern Matching makes this incredibly readable
-        if (statType is not (StatType.Fortitude or StatType.Reflex or StatType.Will))
+        switch (statType)
         {
-            throw new ArgumentException($"StatType '{statType}' is not a valid saving throw. Expected Fortitude, Reflex, or Will.", nameof(statType));
+            case StatNames.Fortitude:
+                return;
+            case StatNames.Reflex:
+                return;
+            case StatNames.Will:
+                return;
+            default:
+                throw new ArgumentException($"StatType '{statType}' is not a valid saving throw. Expected Fortitude, Reflex, or Will.", nameof(statType));
         }
     }
 }

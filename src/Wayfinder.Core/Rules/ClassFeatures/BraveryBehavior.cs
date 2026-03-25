@@ -1,4 +1,5 @@
-﻿using Wayfinder.Core.Enums;
+﻿using Wayfinder.Core.Constants;
+using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Logic.Features;
 
 public class BraveryBehavior : IFeatureBehavior
@@ -11,7 +12,7 @@ public class BraveryBehavior : IFeatureBehavior
         yield return new ActiveEffect
         {
             SourceName = $"Bravery (Rank {rank})",
-            TargetStat = StatType.Will,
+            TargetStatName = StatNames.Will,
             Value = rank, // The math is just a 1-to-1 of the rank
             Type = ModifierType.Untyped,
             IsConditional = true,

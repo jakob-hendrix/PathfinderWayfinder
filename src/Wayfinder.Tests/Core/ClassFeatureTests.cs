@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
-using Wayfinder.Core.Enums;
+using Wayfinder.Core.Constants;
+using Wayfinder.Core.DomainModels.Stats;
 
 [TestFixture]
 public class ClassFeatureTests
@@ -32,7 +33,7 @@ public class ClassFeatureTests
         var effect = results.First();
 
         Assert.That(effect.SourceName, Is.EqualTo($"Bravery (Rank {rank})"));
-        Assert.That(effect.TargetStat, Is.EqualTo(StatType.Will));
+        Assert.That(effect.TargetStatName, Is.EqualTo(StatNames.Will));
         Assert.That(effect.Value, Is.EqualTo(rank), "Bravery bonus should perfectly match its rank.");
         Assert.That(effect.Type, Is.EqualTo(ModifierType.Untyped));
         Assert.That(effect.Category, Is.EqualTo(EffectCategory.ClassFeature));
