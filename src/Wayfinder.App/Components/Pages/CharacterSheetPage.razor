@@ -3,49 +3,64 @@
 @using Wayfinder.Core.Rules.Calculators
 @inject CharacterSheetViewModel VM
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     @if (VM.ActiveSheet == null)
     {
         <div class="alert alert-warning">No character active. Please load or create a character first.</div>
     }
     else
     {
-        <div class="container-fluid p-3">
-            @* Top Header: Name, Alignment, Classes, Level *@
-            <div class="row mb-3">
+        <div class="px-2">
+            @* TOP HEADER (Remains standard Bootstrap so it spans 100%) *@
+            <div class="row mb-4">
                 <div class="col-12">
                     <CharacterHeader VM="VM" />
                 </div>
             </div>
 
-            <div class="row">
-                @* LEFT COLUMN: Core Stats (Takes up 7/12ths of the screen on desktop) *@
-                <div class="col-lg-7 col-xl-8">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <AbilityScoreSection VM="VM" />
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <HitPointSection VM="VM" />
-                            @* HP, Initiative, AC Component *@
-                        </div>
-                    </div>
+            @* THE CSS GRID START *@
+            <div class="sheet-main-grid">
 
-                    <div class="row">
-                        <div class="col-12 mb-3">
+                @* ========================================== *@
+                @* LEFT COLUMN: Core Stats & Combat           *@
+                @* ========================================== *@
+                <div class="sheet-left-wrapper">
+
+                    @* The Inner 50/50 Split Grid *@
+                    <div class="sheet-left-grid">
+
+                        @* INNER-LEFT: Abilities and Saves *@
+                        <div class="d-flex flex-column gap-3">
+                            <AbilityScoreSection VM="VM" />
                             <SavingThrowSection VM="VM" />
                         </div>
-                        <div class="col-12 mb-3">
-                            @* Attacks / Weapons Component *@
+
+                        @* INNER-RIGHT: HP, Combat, Attacks *@
+                        <div class="d-flex flex-column gap-3">
+                            <HitPointSection VM="VM" />
+
+                            <div class="alert alert-secondary text-center shadow-sm">
+                                <strong>Armor Class Component</strong><br />(Coming Soon)
+                            </div>
+
+                            <div class="alert alert-secondary text-center shadow-sm">
+                                <strong>Attacks Component</strong><br />(Coming Soon)
+                            </div>
                         </div>
+
                     </div>
                 </div>
 
-                @* RIGHT COLUMN: Skills (Takes up 5/12ths of the screen on desktop) *@
-                <div class="col-lg-5 col-xl-4">
+                @* ========================================== *@
+                @* RIGHT COLUMN: Skills                       *@
+                @* ========================================== *@
+                <div class="sheet-right-wrapper">
                     <CharacterSkillSection VM="VM" />
                 </div>
+
             </div>
+            @* THE CSS GRID END *@
+
         </div>
     }
 </div>

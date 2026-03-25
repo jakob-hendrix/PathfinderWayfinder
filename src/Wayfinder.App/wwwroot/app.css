@@ -134,6 +134,7 @@ header {
 
 .content-area {
     flex: 1 1 auto;
+    width: 100%;
     overflow-y: auto; /* Only the content scrolls, not the menu or sidebar */
     background-color: #ffffff;
 }
