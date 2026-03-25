@@ -1,5 +1,3 @@
-@using Wayfinder.Core.Models.Characters
-
 <style>
     .pf-save-card {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -25,13 +23,13 @@
         border-bottom: 1px solid #dee2e6;
     }
 
-    .pf-save-row:last-child {
-        border-bottom: none;
-    }
+        .pf-save-row:last-child {
+            border-bottom: none;
+        }
 
-    .pf-save-row:nth-child(even) {
-        background-color: #f8f9fa;
-    }
+        .pf-save-row:nth-child(even) {
+            background-color: #f8f9fa;
+        }
 
     .save-name {
         width: 65%;
@@ -54,15 +52,22 @@
         margin-top: -2px;
     }
 
-    .save-total {
+    .save-total-container {
         width: 35%;
-        font-size: 1.5rem;
-        font-weight: 900;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: #e9ecef;
+    }
+
+    .save-total {
+        font-size: 1.5rem;
+        font-weight: 900;
         color: #212529;
+        /* Ensure the div takes up the full space for a bigger hover target */
+        width: 100%;
+        text-align: center;
+        padding: 0.5rem 0;
     }
 </style>
 
@@ -78,7 +83,11 @@
             <div class="save-name">
                 Fortitude <span class="save-ability">(Constitution)</span>
             </div>
-            <div class="save-total" title="Total Fortitude Save">@FormatMod(VM.FortitudeSave.Total)</div>
+            <div class="save-total-container">
+                <StatTooltip Stat="VM.FortitudeSave">
+                    <div class="save-total">@FormatMod(VM.FortitudeSave.Total)</div>
+                </StatTooltip>
+            </div>
         </div>
 
         @* Reflex *@
@@ -86,7 +95,11 @@
             <div class="save-name">
                 Reflex <span class="save-ability">(Dexterity)</span>
             </div>
-            <div class="save-total" title="Total Reflex Save">@FormatMod(VM.ReflexSave.Total)</div>
+            <div class="save-total-container">
+                <StatTooltip Stat="VM.ReflexSave">
+                    <div class="save-total">@FormatMod(VM.ReflexSave.Total)</div>
+                </StatTooltip>
+            </div>
         </div>
 
         @* Will *@
@@ -94,14 +107,18 @@
             <div class="save-name">
                 Will <span class="save-ability">(Wisdom)</span>
             </div>
-            <div class="save-total" title="Total Will Save">@FormatMod(VM.WillSave.Total)</div>
+            <div class="save-total-container">
+                <StatTooltip Stat="VM.WillSave">
+                    <div class="save-total">@FormatMod(VM.WillSave.Total)</div>
+                </StatTooltip>
+            </div>
         </div>
     </div>
 }
 
 @code {
     [Parameter, EditorRequired]
-    public CharacterSheetViewModel VM { get; set; }
+    public CharacterSheetViewModel VM { get; set; } = default!;
 
     // Pure UI Presentation Logic
     private string FormatMod(int mod)
