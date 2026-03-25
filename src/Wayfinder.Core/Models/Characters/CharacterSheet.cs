@@ -1,8 +1,8 @@
 ﻿using System.Data;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.DomainModels.Skills;
 using Wayfinder.Core.DomainModels.Stats;
-using Wayfinder.Core.Enums;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Logic;
 using Wayfinder.Core.Models.Items;
@@ -52,7 +52,6 @@ public class CharacterSheet
     {
         Fortitude = SaveCalculator.CalculateSave(
             saveName: "Fortitude",
-            statType: StatType.Fortitude,
             classLevels: ClassLevels,
             abilityScore: Constitution,
             abilityName: "Constitution",
@@ -60,7 +59,6 @@ public class CharacterSheet
 
         Reflex = SaveCalculator.CalculateSave(
             saveName: "Reflex",
-            statType: StatType.Reflex,
             classLevels: ClassLevels,
             abilityScore: Dexterity,
             abilityName: "Dexterity",
@@ -68,7 +66,6 @@ public class CharacterSheet
 
         Will = SaveCalculator.CalculateSave(
             saveName: "Will",
-            statType: StatType.Will,
             classLevels: ClassLevels,
             abilityScore: Wisdom,
             abilityName: "Wisdom",
@@ -100,12 +97,7 @@ public class CharacterSheet
     public IEnumerable<SkillDefinition> AvailableSkills =>
         _rulesEngine.SkillEngine.GetAvailableSkills(BaseCharacter.CustomSkills);
 
-    public IReadOnlyList<CalculatedSkill> Skills =>
-        _rulesEngine.SkillEngine.CalculateSkills(
-            BaseCharacter.SkillRankChoices,
-            ClassLevels,
-            AvailableSkills,
-            GetAbilityScore);
+    public IReadOnlyList<CalculatedSkill> Skills { get; private set; } = new List<CalculatedSkill>();
 
     public IReadOnlyList<SkillLevelEconomy> SkillEconomy =>
         _rulesEngine.SkillEngine.CalculateSkillEconomy(ClassLevels, Intelligence);
@@ -116,6 +108,18 @@ public class CharacterSheet
 
         BaseCharacter.SkillRankChoices.RemoveAll(c => levelsBeingUpdated.Contains(c.CharacterLevel));
         BaseCharacter.SkillRankChoices.AddRange(newChoices);
+
+        RecalculateSkills();
+    }
+
+    private void RecalculateSkills()
+    {
+        Skills = _rulesEngine.SkillEngine.CalculateSkills(
+            BaseCharacter.SkillRankChoices,
+            ClassLevels,
+            AvailableSkills,
+            GetAbilityScore,
+            ActiveEffects);
     }
 
     #endregion
@@ -247,6 +251,7 @@ public class CharacterSheet
     {
         RebuildRace();
         RebuildClasses();
+        RecalculateSkills();
         RecalculateSaves();
     }
 

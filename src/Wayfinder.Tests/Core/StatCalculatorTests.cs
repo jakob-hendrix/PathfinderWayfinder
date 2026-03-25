@@ -10,7 +10,7 @@ public class StatCalculatorTests
     public void Calculate_WithOnlyBaseValue_ReturnsCorrectTotalAndLog()
     {
         // Act
-        var result = StatCalculator.Calculate("Armor Class", StatNames.AC, 10, Enumerable.Empty<ActiveEffect>());
+        var result = StatCalculator.Calculate(StatNames.AC, 10, Enumerable.Empty<ActiveEffect>());
 
         // Assert
         Assert.That(result.Name, Is.EqualTo("Armor Class"));
@@ -33,7 +33,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Reflex", StatNames.Reflex, 2, Enumerable.Empty<ActiveEffect>(), baseMods);
+        var result = StatCalculator.Calculate(StatNames.Reflex, 2, Enumerable.Empty<ActiveEffect>(), baseMods);
 
         // Assert
         Assert.That(result.Total, Is.EqualTo(5)); // 2 Base + 3 Dex
@@ -52,7 +52,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Armor Class", StatNames.AC, 10, globalEffects);
+        var result = StatCalculator.Calculate(StatNames.AC, 10, globalEffects);
 
         // Assert
         // 10 Base + 1 Dodge + 1 Dodge + 2 Untyped = 14
@@ -73,7 +73,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Armor Class", StatNames.AC, 10, globalEffects);
+        var result = StatCalculator.Calculate(StatNames.AC, 10, globalEffects);
 
         // Assert
         // 10 Base + 3 Deflection (highest applies) = 13. The +1 is ignored.
@@ -99,7 +99,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Fortitude", StatNames.Fortitude, 4, globalEffects);
+        var result = StatCalculator.Calculate(StatNames.Fortitude, 4, globalEffects);
 
         // Assert
         // 4 Base + 1 Enhancement (Cloak). 
@@ -121,7 +121,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Strength", StatNames.Strength, 14, globalEffects);
+        var result = StatCalculator.Calculate(StatNames.Strength, 14, globalEffects);
 
         // Assert
         // 14 Base - 4 (worst penalty applies, -2 is ignored) = 10
@@ -145,7 +145,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Strength", StatNames.Strength, 14, globalEffects);
+        var result = StatCalculator.Calculate(StatNames.Strength, 14, globalEffects);
 
         // Assert
         // Because they have the exact same SourceName, the untyped penalties do NOT stack. Worst applies.
@@ -165,7 +165,7 @@ public class StatCalculatorTests
         };
 
         // Act
-        var result = StatCalculator.Calculate("Strength", StatNames.Strength, 14, globalEffects);
+        var result = StatCalculator.Calculate(StatNames.Strength, 14, globalEffects);
 
         // Assert
         // Because they have DIFFERENT SourceNames, untyped penalties DO stack.

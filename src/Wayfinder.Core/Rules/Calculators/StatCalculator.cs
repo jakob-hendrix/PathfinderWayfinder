@@ -2,8 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Wayfinder.Core.Constants;
 using Wayfinder.Core.DomainModels.Stats;
-using Wayfinder.Core.Enums;
 
 public static class StatCalculator
 {
@@ -16,7 +16,6 @@ public static class StatCalculator
 
     public static ModifiableStat Calculate(
         string statName,
-        StatType targetStat,
         int baseValue,
         IEnumerable<ActiveEffect> globalEffects,
         IEnumerable<StatModifier>? baseModifiers = null)
@@ -31,8 +30,9 @@ public static class StatCalculator
             auditLog.AddRange(baseModifiers);
         }
 
+        // Filter the bus using a case-insensitive string match
         var relevantEffects = globalEffects
-            .Where(e => e.TargetStat == targetStat && !e.IsConditional);
+            .Where(e => e.TargetStatName.Equals(statName, StringComparison.OrdinalIgnoreCase) && !e.IsConditional);
 
         var groupedEffects = relevantEffects.GroupBy(e => e.Type);
 

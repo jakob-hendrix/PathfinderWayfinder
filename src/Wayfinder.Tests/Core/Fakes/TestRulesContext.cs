@@ -41,27 +41,19 @@ public class TestRulesContext
 
         services.AddSingleton<InMemoryRaceLibrary>();
         services.AddSingleton<IRaceLibrary>(x => x.GetRequiredService<InMemoryRaceLibrary>());
-
         services.AddSingleton<InMemoryItemLibrary>();
         services.AddSingleton<IItemLibrary>(x => x.GetRequiredService<InMemoryItemLibrary>());
-
         services.AddSingleton<ISkillLibrary, SkillLibrary>();
-
-        // 3. REGISTER THE REAL ENGINES & FACTORIES
         services.AddTransient<IClassLevelEngine, ClassLevelEngine>();
         services.AddTransient<IClassFactory, ClassFactory>();
         services.AddTransient<IItemFactory, ItemFactory>();
         services.AddTransient<IRaceFactory, RaceFactory>();
         services.AddTransient<IEquipmentManager, EquipmentManager>();
         services.AddTransient<ISkillEngine, SkillEngine>();
-
-        // 4. REGISTER THE FACADE
         services.AddTransient<IPathfinderRulesEngine, PathfinderRulesEngine>();
 
-        // 5. BUILD THE CONTAINER
         Provider = services.BuildServiceProvider();
 
-        // 6. SEED STANDARD DATA
         SeedStandardData();
     }
 

@@ -131,11 +131,18 @@
                     </td>
 
                     @* NEW: Math Cells *@
-                    <td class="text-center align-middle">
+@*                     <td class="text-center align-middle">
                         <span class="badge bg-secondary fs-6 shadow-sm">
                             @(row.DraftTotalBonus >= 0 ? "+" : "")@row.DraftTotalBonus
                         </span>
-                    </td>
+                    </td> *@
+
+                    <StatTooltip Stat="row.SkillInfo.Score">
+                        <div class="w-100 py-1" style="cursor: help;">
+                            @(row.DraftTotalBonus >= 0 ? "+" : "")@row.DraftTotalBonus
+                        </div>
+                    </StatTooltip>
+
                     <td class="text-center align-middle text-muted fw-bold">
                         @row.DraftTotalRanks
                     </td>

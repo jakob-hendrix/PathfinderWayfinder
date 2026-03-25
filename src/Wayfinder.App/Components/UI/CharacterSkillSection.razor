@@ -1,9 +1,8 @@
-@using Wayfinder.Core.DomainModels.Skills
-@using Wayfinder.Core.Extensions
+@using Wayfinder.Core.Constants
+@using Wayfinder.Core.DomainModels.Stats
 
 <style>
-    /* Ultra-Compact Classic RPG Sheet Styling */
-    .pf-skill-section {
+    .pf-skill-card {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         border: 2px solid #212529;
         border-radius: 4px;
@@ -16,133 +15,138 @@
         text-transform: uppercase;
         font-weight: bold;
         letter-spacing: 1px;
-        padding: 0.15rem 0.5rem;
+        padding: 0.25rem 0.5rem;
         font-size: 0.85rem;
+        display: flex;
     }
 
-    .pf-table {
-        width: 100%;
-        font-size: 0.75rem; /* Shrunk for narrow column */
-        border-collapse: collapse;
-        white-space: nowrap; /* Prevent ugly wrapping */
+    .pf-skill-row {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.25rem 0;
+        font-size: 0.9rem;
     }
 
-        .pf-table th {
-            border-bottom: 2px solid #212529;
-            padding: 2px;
-            text-align: center;
-            font-size: 0.65rem; /* Tiny headers like the paper sheet */
-            color: #495057;
-            text-transform: uppercase;
+        .pf-skill-row:last-child {
+            border-bottom: none;
         }
 
-        .pf-table td {
-            padding: 1px 2px; /* Razor-thin padding */
-            vertical-align: middle;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .pf-table tbody tr:nth-child(even) {
+        .pf-skill-row:nth-child(even) {
             background-color: #f8f9fa;
         }
 
-    .cs-box {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        border: 1px solid #212529;
+        .pf-skill-row:hover {
+            background-color: #e2e6ea;
+        }
+
+    /* Column Sizing */
+    .col-cs {
+        width: 5%;
         text-align: center;
-        line-height: 10px;
-        font-size: 9px;
         font-weight: bold;
-        margin-right: 4px;
     }
 
-    .total-box {
-        font-weight: bold;
-        font-size: 0.85rem;
+    .col-name {
+        width: 45%;
+        padding-left: 0.5rem;
+    }
+
+    .col-total {
+        width: 15%;
         text-align: center;
-        width: 30px; /* Shrunk */
-        border: 1px solid #212529;
+        font-weight: 900;
         background-color: #e9ecef;
+        border-radius: 4px;
     }
 
-    .math-box {
+    .col-math {
+        width: 11.66%;
         text-align: center;
-        width: 25px; /* Shrunk */
-        border-bottom: 1px solid #6c757d;
+        color: #495057;
     }
 
-    .math-operator {
-        color: #6c757d;
-        font-weight: bold;
-        padding: 0 1px;
+    .skill-ability {
         font-size: 0.7rem;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+
+    .unusable-skill {
+        opacity: 0.5;
+        font-style: italic;
     }
 </style>
 
-<div class="pf-skill-section shadow-sm mb-3">
-    <div class="pf-skill-header">
-        Skills
-    </div>
+@if (VM.ActiveSheet != null && VM.ActiveSheet.Skills != null)
+{
+    <div class="pf-skill-card shadow-sm mb-3">
+        @* HEADER ROW *@
+        <div class="pf-skill-header">
+            <div class="col-cs" title="Class Skill">CS</div>
+            <div class="col-name">Skill Name</div>
+            <div class="col-total">Total</div>
+            <div class="col-math" title="Ability Modifier">Ability</div>
+            <div class="col-math" title="Ranks Invested">Ranks</div>
+            <div class="col-math" title="Miscellaneous Modifiers">Misc</div>
+        </div>
 
-    <table class="pf-table">
-        <thead>
-            <tr>
-                <th style="text-align: left; width: 100%;">Skill Name</th>
-                <th title="Total Bonus">Total</th>
-                <th></th>
-                <th title="Ability Modifier">Abil</th>
-                <th></th>
-                <th title="Ranks">Rank</th>
-                <th></th>
-                <th title="Miscellaneous Modifier">Misc</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var skill in Skills.Where(s => s.IsUsable))
-            {
-                int miscMod = skill.TotalBonus - skill.TotalRanks - skill.AbilityModifier;
+        @* SKILL ROWS *@
+        @foreach (var skill in VM.ActiveSheet.Skills)
+        {
+            // Dim the row if the player has no ranks in a Trained-Only skill
+            string usableClass = skill.IsUsable ? "" : "unusable-skill";
 
-                <tr>
-                    <td class="text-truncate" style="max-width: 120px;">
-                        <div class="d-flex align-items-center">
-                            <span class="cs-box" title="Class Skill">@(skill.IsClassSkill ? "X" : "")</span>
-                            <span class="fw-bold text-truncate @(skill.IsTrainedOnly ? "fst-italic" : "")">
-                                @skill.Name
-                            </span>
-                            <span class="text-muted ms-1" style="font-size: 0.65rem;">
-                                @skill.KeyAbility.AbbreviateAbilityScore()
-                            </span>
-                            @if (skill.IsBackground)
-                            {
-                                <i class="bi bi-book-half text-info ms-1" style="font-size: 0.65rem;" title="Background Skill"></i>
-                            }
+            <div class="pf-skill-row @usableClass">
+                @* 1. Class Skill Checkbox/Indicator *@
+                <div class="col-cs">
+                    @(skill.IsClassSkill ? "☑" : "☐")
+                </div>
+
+                @* 2. Name & Key Ability *@
+                <div class="col-name">
+                    <strong>@skill.Name</strong>
+                    @if (skill.IsTrainedOnly)
+                    {
+                        <span class="text-danger" title="Trained Only">*</span>
+                    }
+                    <span class="skill-ability">(@skill.KeyAbility.ToString().Substring(0, 3))</span>
+                </div>
+
+                @* 3. The Total (Wrapped in the Tooltip!) *@
+                <div class="col-total">
+                    <StatTooltip Stat="skill.Score">
+                        <div class="w-100 py-1" style="cursor: help;">
+                            @FormatMod(skill.Score.Total)
                         </div>
-                    </td>
+                    </StatTooltip>
+                </div>
 
-                    <td class="total-box">
-                        @(skill.TotalBonus >= 0 ? "+" : "")@skill.TotalBonus
-                    </td>
-                    <td class="math-operator">=</td>
-                    <td class="math-box">
-                        @(skill.AbilityModifier >= 0 ? "+" : "")@skill.AbilityModifier
-                    </td>
-                    <td class="math-operator">+</td>
-                    <td class="math-box">@skill.TotalRanks</td>
-                    <td class="math-operator">+</td>
-                    <td class="math-box text-muted">@miscMod</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <div class="p-1 text-muted text-end" style="font-size: 0.65rem; background-color: #f8f9fa;">
-        <span class="fst-italic me-2">Italics = Trained Only</span>
-        <span class="cs-box" style="margin-right: 2px;">X</span> = Class Skill
+                @* 4. Ability Mod Breakdown *@
+                <div class="col-math">
+                    @FormatMod(skill.AbilityModifier)
+                </div>
+
+                @* 5. Ranks Breakdown *@
+                <div class="col-math">
+                    @skill.TotalRanks
+                </div>
+
+                @* 6. Misc Breakdown *@
+                <div class="col-math">
+                    @FormatMod(skill.MiscBonus)
+                </div>
+            </div>
+        }
     </div>
-</div>
+}
 
 @code {
     [Parameter, EditorRequired]
-    public IReadOnlyList<CalculatedSkill> Skills { get; set; } = new List<CalculatedSkill>();
+    public CharacterSheetViewModel VM { get; set; } = default!;
+
+    private string FormatMod(int mod)
+    {
+        return mod >= 0 ? $"+{mod}" : mod.ToString();
+    }
 }
