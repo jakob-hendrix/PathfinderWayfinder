@@ -117,14 +117,14 @@
                 <div class="col-total">
                     <StatTooltip Stat="skill.Score">
                         <div class="w-100 py-1" style="cursor: help;">
-                            @FormatMod(skill.Score.Total)
+                            @skill.Score.Total.FormatModifier()
                         </div>
                     </StatTooltip>
                 </div>
 
                 @* 4. Ability Mod Breakdown *@
                 <div class="col-math">
-                    @FormatMod(skill.AbilityModifier)
+                    @skill.AbilityModifier.FormatModifier()
                 </div>
 
                 @* 5. Ranks Breakdown *@
@@ -134,7 +134,7 @@
 
                 @* 6. Misc Breakdown *@
                 <div class="col-math">
-                    @FormatMod(skill.MiscBonus)
+                    @skill.MiscBonus.FormatModifier()
                 </div>
             </div>
         }
@@ -144,9 +144,4 @@
 @code {
     [Parameter, EditorRequired]
     public CharacterSheetViewModel VM { get; set; } = default!;
-
-    private string FormatMod(int mod)
-    {
-        return mod >= 0 ? $"+{mod}" : mod.ToString();
-    }
 }

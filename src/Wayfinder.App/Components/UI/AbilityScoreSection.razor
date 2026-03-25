@@ -47,13 +47,22 @@
         color: #212529;
     }
 
-    .ability-score {
+    /* CHANGED: Container holds the grid column width and border */
+    .ability-score-container {
         width: 35%;
-        font-size: 1.25rem;
         display: flex;
         align-items: center;
         justify-content: center;
         border-right: 1px solid #dee2e6;
+    }
+
+    /* CHANGED: Inner div handles text sizing and hover area */
+    .ability-score {
+        font-size: 1.25rem;
+        width: 100%;
+        text-align: center;
+        padding: 0.5rem 0;
+        cursor: help;
     }
 
     .ability-mod {
@@ -100,54 +109,72 @@
         @* STR *@
         <div class="pf-ability-row">
             <div class="ability-name" title="Strength">STR</div>
-            <div class="ability-score">@VM.Strength</div>
-            <div class="ability-mod">@FormatMod(AbilityScoreCalculator.CalculateModifier(VM.Strength))</div>
+            <div class="ability-score-container">
+                <StatTooltip Stat="VM.Strength">
+                    <div class="ability-score">@VM.Strength.Total</div>
+                </StatTooltip>
+            </div>
+            <div class="ability-mod">@AbilityScoreCalculator.CalculateModifier(VM.Strength).FormatModifier()</div>
         </div>
 
         @* DEX *@
         <div class="pf-ability-row">
             <div class="ability-name" title="Dexterity">DEX</div>
-            <div class="ability-score">@VM.Dexterity</div>
-            <div class="ability-mod">@FormatMod(AbilityScoreCalculator.CalculateModifier(VM.Dexterity))</div>
+            <div class="ability-score-container">
+                <StatTooltip Stat="VM.Dexterity">
+                    <div class="ability-score">@VM.Dexterity.Total</div>
+                </StatTooltip>
+            </div>
+            <div class="ability-mod">@AbilityScoreCalculator.CalculateModifier(VM.Dexterity).FormatModifier()</div>
         </div>
 
         @* CON *@
         <div class="pf-ability-row">
             <div class="ability-name" title="Constitution">CON</div>
-            <div class="ability-score">@VM.Constitution</div>
-            <div class="ability-mod">@FormatMod(AbilityScoreCalculator.CalculateModifier(VM.Constitution))</div>
+            <div class="ability-score-container">
+                <StatTooltip Stat="VM.Constitution">
+                    <div class="ability-score">@VM.Constitution.Total</div>
+                </StatTooltip>
+            </div>
+            <div class="ability-mod">@AbilityScoreCalculator.CalculateModifier(VM.Constitution).FormatModifier()</div>
         </div>
 
         @* INT *@
         <div class="pf-ability-row">
             <div class="ability-name" title="Intelligence">INT</div>
-            <div class="ability-score">@VM.Intelligence</div>
-            <div class="ability-mod">@FormatMod(AbilityScoreCalculator.CalculateModifier(VM.Intelligence))</div>
+            <div class="ability-score-container">
+                <StatTooltip Stat="VM.Intelligence">
+                    <div class="ability-score">@VM.Intelligence.Total</div>
+                </StatTooltip>
+            </div>
+            <div class="ability-mod">@AbilityScoreCalculator.CalculateModifier(VM.Intelligence).FormatModifier()</div>
         </div>
 
         @* WIS *@
         <div class="pf-ability-row">
             <div class="ability-name" title="Wisdom">WIS</div>
-            <div class="ability-score">@VM.Wisdom</div>
-            <div class="ability-mod">@FormatMod(AbilityScoreCalculator.CalculateModifier(VM.Wisdom))</div>
+            <div class="ability-score-container">
+                <StatTooltip Stat="VM.Wisdom">
+                    <div class="ability-score">@VM.Wisdom.Total</div>
+                </StatTooltip>
+            </div>
+            <div class="ability-mod">@AbilityScoreCalculator.CalculateModifier(VM.Wisdom).FormatModifier()</div>
         </div>
 
         @* CHA *@
         <div class="pf-ability-row">
             <div class="ability-name" title="Charisma">CHA</div>
-            <div class="ability-score">@VM.Charisma</div>
-            <div class="ability-mod">@FormatMod(AbilityScoreCalculator.CalculateModifier(VM.Charisma))</div>
+            <div class="ability-score-container">
+                <StatTooltip Stat="VM.Charisma">
+                    <div class="ability-score">@VM.Charisma.Total</div>
+                </StatTooltip>
+            </div>
+            <div class="ability-mod">@AbilityScoreCalculator.CalculateModifier(VM.Charisma).FormatModifier()</div>
         </div>
     </div>
 }
 
 @code {
     [Parameter, EditorRequired]
-    public CharacterSheetViewModel VM { get; set; }
-
-    // Pure UI Presentation Logic: Formatting the domain's integer for tabletop display
-    private string FormatMod(int mod)
-    {
-        return mod >= 0 ? $"+{mod}" : mod.ToString();
-    }
+    public CharacterSheetViewModel VM { get; set; } = default!;
 }

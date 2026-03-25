@@ -57,5 +57,13 @@ namespace Wayfinder.Core.Extensions
                 _ => score.ToString()
             };
         }
+
+        /// <summary>
+        /// Formats an integer as a tabletop RPG modifier string (e.g., +3, -2, +0).
+        /// </summary>
+        public static string FormatModifier(this int value)
+        {
+            return value >= 0 ? $"+{value}" : value.ToString();
+        }
     }
 }

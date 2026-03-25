@@ -83,9 +83,10 @@ public class CharacterSheetTests
             AbilityScoreIncrease = AbilityScore.Strength
         });
 
-        _sheet.RebuildClasses();
+        _sheet.Refresh();
+        int score = _sheet.Strength.Total;
 
-        Assert.That(_sheet.Strength, Is.EqualTo(16));
+        Assert.That(score, Is.EqualTo(16));
     }
 
     public void DexterityProperty_CalculatesBasePlusClassLevelBumps()
@@ -103,10 +104,10 @@ public class CharacterSheetTests
             AbilityScoreIncrease = AbilityScore.Dexterity
         });
 
-        // Act
-        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+        _sheet.Refresh();
+        int score = _sheet.Dexterity.Total;
 
-        Assert.That(_sheet.Dexterity, Is.EqualTo(16));
+        Assert.That(score, Is.EqualTo(16));
     }
 
     public void ConstitutionProperty_CalculatesBasePlusClassLevelBumps()
@@ -124,8 +125,11 @@ public class CharacterSheetTests
             AbilityScoreIncrease = AbilityScore.Constitution
         });
 
+        _sheet.Refresh();
+        int score = _sheet.Constitution.Total;
+
         // Act
-        Assert.That(_sheet.Constitution, Is.EqualTo(16));
+        Assert.That(score, Is.EqualTo(16));
     }
 
     public void IntelligenceProperty_CalculatesBasePlusClassLevelBumps()
@@ -144,10 +148,10 @@ public class CharacterSheetTests
         });
 
         // Act
-        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+        _sheet.Refresh();
 
-        int totalStat = _sheet.Intelligence;
-        Assert.That(totalStat, Is.EqualTo(16));
+        int score = _sheet.Intelligence.Total;
+        Assert.That(score, Is.EqualTo(16));
     }
 
     public void WisdomProperty_CalculatesBasePlusClassLevelBumps()
@@ -166,10 +170,10 @@ public class CharacterSheetTests
         });
 
         // Act
-        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+        _sheet.Refresh(); // Force the sheet to ingest the mocked level data
 
-        int totalStat = _sheet.Wisdom;
-        Assert.That(totalStat, Is.EqualTo(16));
+        int score = _sheet.Wisdom.Total;
+        Assert.That(score, Is.EqualTo(16));
     }
 
     public void CharismaProperty_CalculatesBasePlusClassLevelBumps()
@@ -188,10 +192,10 @@ public class CharacterSheetTests
         });
 
         // Act
-        _sheet.RebuildClasses(); // Force the sheet to ingest the mocked level data
+        _sheet.Refresh(); // Force the sheet to ingest the mocked level data
 
-        int totalStat = _sheet.Charisma;
-        Assert.That(totalStat, Is.EqualTo(16));
+        int score = _sheet.Charisma.Total;
+        Assert.That(score, Is.EqualTo(16));
     }
 
     // --- CLASS SUMMARY TESTS ---

@@ -84,8 +84,8 @@
                 Fortitude <span class="save-ability">(Constitution)</span>
             </div>
             <div class="save-total-container">
-                <StatTooltip Stat="VM.FortitudeSave">
-                    <div class="save-total">@FormatMod(VM.FortitudeSave.Total)</div>
+                <StatTooltip Stat="VM.Fortitude">
+                    <div class="save-total">@VM.Fortitude.Total.FormatModifier()</div>
                 </StatTooltip>
             </div>
         </div>
@@ -96,8 +96,8 @@
                 Reflex <span class="save-ability">(Dexterity)</span>
             </div>
             <div class="save-total-container">
-                <StatTooltip Stat="VM.ReflexSave">
-                    <div class="save-total">@FormatMod(VM.ReflexSave.Total)</div>
+                <StatTooltip Stat="VM.Reflex">
+                    <div class="save-total">@VM.Reflex.Total.FormatModifier()</div>
                 </StatTooltip>
             </div>
         </div>
@@ -108,8 +108,8 @@
                 Will <span class="save-ability">(Wisdom)</span>
             </div>
             <div class="save-total-container">
-                <StatTooltip Stat="VM.WillSave">
-                    <div class="save-total">@FormatMod(VM.WillSave.Total)</div>
+                <StatTooltip Stat="VM.Will">
+                    <div class="save-total">@VM.Will.Total.FormatModifier()</div>
                 </StatTooltip>
             </div>
         </div>
@@ -119,10 +119,4 @@
 @code {
     [Parameter, EditorRequired]
     public CharacterSheetViewModel VM { get; set; } = default!;
-
-    // Pure UI Presentation Logic
-    private string FormatMod(int mod)
-    {
-        return mod >= 0 ? $"+{mod}" : mod.ToString();
-    }
 }

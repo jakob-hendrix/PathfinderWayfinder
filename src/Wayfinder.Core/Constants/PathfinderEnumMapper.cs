@@ -35,4 +35,15 @@ public static class PathfinderEnumMapper
         "adventuringgear" => ItemType.AdventuringGear,
         _ => throw new ArgumentException($"Invalid item type: {value}")
     };
+
+    public static AbilityScore ToAbilityScore(string value) => value.ToLower() switch
+    {
+        "strength" => AbilityScore.Strength,
+        "dexterity" => AbilityScore.Dexterity,
+        "constitution" => AbilityScore.Constitution,
+        "intelligence" => AbilityScore.Intelligence,
+        "wisdom" => AbilityScore.Wisdom,
+        "charisma" => AbilityScore.Charisma,
+        _ => throw new ArgumentException($"Invalid ability score: {value}")
+    };
 }

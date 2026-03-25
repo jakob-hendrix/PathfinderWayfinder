@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Extensions;
@@ -59,58 +60,30 @@ namespace Wayfinder.App.Services
         public IEnumerable<RacialTrait> ActiveTraits =>
             CurrentRace?.SelectedRacialTraits ?? Enumerable.Empty<RacialTrait>();
 
-        public string Alignment => SafeCalculate(
-            () => ActiveSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase() ?? "No Alignment Selected",
-            "No Alignment Selected",
-            "Alignment Display");
+        public string Alignment => SafeGet(
+            () => ActiveSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase(),
+            fallback: "No Alignment Selected");
 
-        public string Gender => SafeCalculate(
-            () => ActiveSheet?.BaseCharacter.Gender ?? "Not Specified",
-            "Not Specified",
-            "Gender Display");
+        public string Gender => SafeGet(() => ActiveSheet?.BaseCharacter.Gender, fallback: "Not Specified");
+        public string Deity => SafeGet(() => ActiveSheet?.BaseCharacter.Deity, fallback: "None");
+        public int Age => SafeGet(() => ActiveSheet?.BaseCharacter.Age);
+        public string PhysicalDescription => SafeGet(() => ActiveSheet?.BaseCharacter.PhysicalDescription);
 
-        public string Deity => SafeCalculate(
-            () => ActiveSheet?.BaseCharacter.Deity ?? "None",
-            "None",
-            "Deity Display");
+        // Ability Scores
+        public ModifiableStat Strength => SafeGet(() => ActiveSheet?.Strength, StatNames.Strength);
+        public ModifiableStat Dexterity => SafeGet(() => ActiveSheet?.Dexterity, StatNames.Dexterity);
+        public ModifiableStat Constitution => SafeGet(() => ActiveSheet?.Constitution, StatNames.Constitution);
+        public ModifiableStat Intelligence => SafeGet(() => ActiveSheet?.Intelligence, StatNames.Intelligence);
+        public ModifiableStat Wisdom => SafeGet(() => ActiveSheet?.Wisdom, StatNames.Wisdom);
+        public ModifiableStat Charisma => SafeGet(() => ActiveSheet?.Charisma, StatNames.Charisma);
 
-        public int Age => SafeCalculate(
-            () => ActiveSheet?.BaseCharacter.Age ?? 0,
-            0,
-            "Age Display");
+        // Combat Stats
+        public int BaseAttackBonus => SafeGet(() => ActiveSheet?.BaseAttackBonus);
 
-        public string PhysicalDescription => SafeCalculate(
-            () => ActiveSheet?.BaseCharacter.PhysicalDescription ?? "Nothing distinguishing at all.",
-            "Nothing distinguishing at all.",
-            "Physical Description Display");
-
-        // For the ability scores, if ActiveSheet is null, it will throw an exception 
-        // which SafeCalculate will catch, safely returning the 0 fallback!
-        public int Strength => SafeCalculate(() => ActiveSheet?.Strength ?? 0, 0, "Strength Calculation");
-        public int Dexterity => SafeCalculate(() => ActiveSheet?.Dexterity ?? 0, 0, "Dexterity Calculation");
-        public int Constitution => SafeCalculate(() => ActiveSheet?.Constitution ?? 0, 0, "Constitution Calculation");
-        public int Intelligence => SafeCalculate(() => ActiveSheet?.Intelligence ?? 0, 0, "Intelligence Calculation");
-        public int Wisdom => SafeCalculate(() => ActiveSheet?.Wisdom ?? 0, 0, "Wisdom Calculation");
-        public int Charisma => SafeCalculate(() => ActiveSheet?.Charisma ?? 0, 0, "Charisma Calculation");
-
-        public int BaseAttackBonus => ActiveSheet?.BaseAttackBonus ?? 0;
-        public ModifiableStat FortitudeSave => SafeCalculate(
-            action: () => ActiveSheet?.Fortitude ?? new ModifiableStat { Name = "Fortitude" },
-            fallbackValue: new ModifiableStat { Name = "Fortitude (Error)" },
-            context: "FortitudeSave Property Getter"
-        );
-
-        public ModifiableStat ReflexSave => SafeCalculate(
-            action: () => ActiveSheet?.Reflex ?? new ModifiableStat { Name = "Reflex" },
-            fallbackValue: new ModifiableStat { Name = "Reflex (Error)" },
-            context: "ReflexSave Property Getter"
-        );
-
-        public ModifiableStat WillSave => SafeCalculate(
-            action: () => ActiveSheet?.Will ?? new ModifiableStat { Name = "Will" },
-            fallbackValue: new ModifiableStat { Name = "Will (Error)" },
-            context: "WillSave Property Getter"
-        );
+        // Saves
+        public ModifiableStat Fortitude => SafeGet(() => ActiveSheet?.Fortitude, StatNames.Fortitude);
+        public ModifiableStat Reflex => SafeGet(() => ActiveSheet?.Reflex, StatNames.Reflex);
+        public ModifiableStat Will => SafeGet(() => ActiveSheet?.Will, StatNames.Will);
 
         // Mutable - bound to UI
         public int Wounds
@@ -241,6 +214,45 @@ namespace Wayfinder.App.Services
             {
                 _logger.LogError($"Failed in {context}", ex);
                 return fallbackValue;
+            }
+        }
+
+        private ModifiableStat SafeGet(Func<ModifiableStat?> selector, string statName, [CallerMemberName] string propertyName = "")
+        {
+            try
+            {
+                return selector() ?? new ModifiableStat { Name = statName };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed getting stat in property {propertyName}", ex);
+                return new ModifiableStat { Name = $"{statName} (Error)" };
+            }
+        }
+
+        private T SafeGet<T>(Func<T?> selector, T fallback = default, [CallerMemberName] string propertyName = "") where T : struct
+        {
+            try
+            {
+                return selector() ?? fallback;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed getting value in property {propertyName}", ex);
+                return fallback;
+            }
+        }
+
+        private string SafeGet(Func<string?> selector, string fallback = "", [CallerMemberName] string propertyName = "")
+        {
+            try
+            {
+                return selector() ?? fallback;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed getting string in property {propertyName}", ex);
+                return fallback;
             }
         }
 
