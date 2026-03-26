@@ -58,7 +58,7 @@ public class RaceFactory : IRaceFactory
         // 5. Finalize the Assembled Object
         if (resolution.IsValid)
         {
-            resolution.HydratedRace = new Race
+            resolution.HydratedRace = new HydratedRace
             {
                 RaceDefinition = baseDef,
                 Subrace = subDef,

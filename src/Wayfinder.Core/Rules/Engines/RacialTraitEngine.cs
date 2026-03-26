@@ -39,14 +39,8 @@ public static class RacialTraitEngine
         return result;
     }
 
-    /// <summary>
-    /// Extracted for isolated Unit Testing. Modifies the active traits dictionary.
-    /// </summary>
     public static void ApplySubrace(Dictionary<string, RacialTrait> activeRacialTraits, Subrace subrace, RaceResolutionResult result) => ApplyReplacements(activeRacialTraits, subrace.RacialTraits, result, subrace.Name);
 
-    /// <summary>
-    /// Extracted for isolated Unit Testing.
-    /// </summary>
     public static void ApplyAlternativeRacialTraits(Dictionary<string, RacialTrait> activeRacialTraits, List<AlternativeRacialTrait> alternatives, RaceResolutionResult result) => ApplyReplacements(activeRacialTraits, alternatives, result, "Manual Selection");
 
     // Shared internal logic for doing the actual swapping
