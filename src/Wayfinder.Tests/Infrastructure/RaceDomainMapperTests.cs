@@ -4,7 +4,7 @@ using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Infrastructure.DTOs;
 using Wayfinder.Infrastructure.Mappers;
 
-namespace Wayfinder.Tests.Infrastructure.Mappers;
+namespace Wayfinder.Tests.Infrastructure;
 
 [TestFixture]
 public class RaceDomainMapperTests

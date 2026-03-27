@@ -114,52 +114,58 @@ namespace Wayfinder.Infrastructure.DataSeeders
             }
         }
 
-        public void SeedClasses()
+        private void SeedClasses()
         {
             _classLibrary.Clear();
             var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
             var files = Directory.GetFiles(_dataPath, "Classes.yaml");
+
+            var classMapper = new ClassDomainMapper();
 
             foreach (var file in files)
             {
                 try
                 {
-                    // 1. Deserialize 
                     var yaml = File.ReadAllText(file);
-                    var result = _deserializer.Deserialize<List<ClassYamlDto>>(yaml);
+                    var rawDtos = _deserializer.Deserialize<List<ClassYamlDto>>(yaml);
 
-                    foreach (var dto in result)
+                    foreach (var dto in rawDtos)
                     {
-                        // 2. Map DTO to domain
-                        var definition = _mapper.MapClassToDomain(dto);
+                        var mapResult = classMapper.Map(dto);
 
-                        // 3. Ensure no dupes
-                        if (!seenIds.Add(definition.Name))
+                        // 1. Log Non-Fatal Warnings (Graceful Degradations)
+                        foreach (var warning in mapResult.Warnings)
                         {
-                            _logger.LogError($"[YAML SEED ERROR] Duplicate Class found across files: '{definition.Name}'");
-                            continue;
+                            _logger.LogWarning($"[YAML SEED WARNING] {warning}");
                         }
 
-                        // 4. Validate
-                        var (isValid, errors) = ClassSeedValidator.Validate(definition);
-                        if (isValid)
+                        // 2. Handle Fatal Errors
+                        if (!mapResult.IsValid)
                         {
-                            _classLibrary.Register(definition);
-                            continue;
-                        }
-                        else
-                        {
-                            foreach (var error in errors)
+                            foreach (var error in mapResult.Errors)
                             {
-                                _logger.LogError($"[YAML SEED ERROR] '{definition.Name}': {error}");
+                                _logger.LogError($"[YAML SEED ERROR] {error}");
                             }
+                            continue; // Skip registration
+                        }
+
+                        // 3. Register the Valid Class
+                        if (mapResult.HydratedClass != null)
+                        {
+                            // Assuming you use Name for uniqueness, or dto.Id if you have it
+                            if (!seenIds.Add(mapResult.HydratedClass.Name))
+                            {
+                                _logger.LogError($"[YAML SEED ERROR] Duplicate Class Name found: '{mapResult.HydratedClass.Name}'");
+                                continue;
+                            }
+
+                            _classLibrary.Register(mapResult.HydratedClass);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to seed items from file {file}", ex);
+                    _logger.LogError($"Critical failure seeding classes from file {file}", ex);
                 }
             }
         }
