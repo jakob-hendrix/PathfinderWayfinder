@@ -58,7 +58,8 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 //Id = SetId(altDto.Id, altDto.Name),
                 Name = altDto.Name,
                 Description = altDto.Description,
-                ReplacesRacialTraits = altDto.ReplacesTraitNames
+                ReplacesRacialTraits = altDto.ReplacesTraitNames,
+                GrantedEffects = MapEffects(altDto.GrantedEffects, altDto.Name)
             }).ToList();
 
             return new RaceDefinition
@@ -72,7 +73,8 @@ namespace Wayfinder.Infrastructure.DataSeeders
                 {
                     //Id = SetId(t.Id, t.Name),
                     Name = t.Name,
-                    Description = t.Description
+                    Description = t.Description,
+                    GrantedEffects = MapEffects(t.GrantedEffects, t.Name)
                 }).ToList(),
 
                 AlternativeRacialTraits = mappedAltTraits,
@@ -104,11 +106,25 @@ namespace Wayfinder.Infrastructure.DataSeeders
         {
             return new AlternativeRacialTrait
             {
-                //Id = dto.Id,
                 Name = dto.Name,
                 Description = dto.Description,
                 ReplacesRacialTraits = dto.ReplacesTraitNames
             };
+        }
+
+        private List<ActiveEffect> MapEffects(IEnumerable<EffectDto> effects, string traitName)
+        {
+            if (!effects.Any()) return new List<ActiveEffect>();
+
+            return effects.Select(e => new ActiveEffect
+            {
+                SourceName = $"{traitName}",
+                TargetStatName = e.Target,
+                Value = (int)e.Value,
+                Type = PathfinderEnumMapper.ToModifierType(e.Type),
+                Category = EffectCategory.RacialTrait,
+                IsConditional = e.IsConditional
+            }).ToList();
         }
     }
 }

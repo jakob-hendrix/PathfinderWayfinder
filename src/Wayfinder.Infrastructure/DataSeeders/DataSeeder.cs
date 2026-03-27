@@ -3,6 +3,7 @@ using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Infrastructure.DataValidators;
 using Wayfinder.Infrastructure.DTOs;
+using Wayfinder.Infrastructure.Mappers;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -70,48 +71,45 @@ namespace Wayfinder.Infrastructure.DataSeeders
         {
             _raceLibrary.Clear();
             var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
             var files = Directory.GetFiles(_dataPath, "Races.yaml");
+
+            // Instantiate your new permissive mapper
+            var raceMapper = new RaceDomainMapper();
 
             foreach (var file in files)
             {
                 try
                 {
-                    // 1. Deserialize 
                     var yaml = File.ReadAllText(file);
-                    var result = _deserializer.Deserialize<List<RaceYamlDto>>(yaml);
+                    var rawDtos = _deserializer.Deserialize<List<RaceYamlDto>>(yaml);
 
-                    foreach (var dto in result)
+                    foreach (var dto in rawDtos)
                     {
-                        // 2. Map DTO to domain
-                        var definition = _mapper.MapRaceToDomain(dto);
+                        // 1. Map and Validate simultaneously
+                        var mapResult = raceMapper.Map(dto);
 
-                        // 3. Ensure no dupes
-                        if (!seenIds.Add(definition.Id))
+                        // 2. Always log the non-fatal errors so the developer can fix the YAML later
+                        foreach (var error in mapResult.Errors)
                         {
-                            _logger.LogError($"[YAML SEED ERROR] Duplicate Race ID found across files: '{definition.Id}'");
-                            continue;
+                            _logger.LogWarning($"[YAML SEED WARNING] {error}");
                         }
 
-                        // 4. Validate
-                        var (isValid, errors) = RaceSeedValidator.Validate(definition);
-                        if (isValid)
+                        // 3. Register if the critical base data (like the Name) survived
+                        if (mapResult.IsValid && mapResult.HydratedRace != null)
                         {
-                            _raceLibrary.Register(definition);
-                            continue;
-                        }
-                        else
-                        {
-                            foreach (var error in errors)
+                            if (!seenIds.Add(mapResult.HydratedRace.Id))
                             {
-                                _logger.LogError($"[YAML SEED ERROR] '{definition.Name}': {error}");
+                                _logger.LogError($"[YAML SEED ERROR] Duplicate Race ID found: '{mapResult.HydratedRace.Id}'");
+                                continue;
                             }
+
+                            _raceLibrary.Register(mapResult.HydratedRace);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to seed races from file {file}", ex);
+                    _logger.LogError($"Critical failure seeding races from file {file}", ex);
                 }
             }
         }

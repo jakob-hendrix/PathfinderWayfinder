@@ -58,12 +58,18 @@ public class RaceFactory : IRaceFactory
         // 5. Finalize the Assembled Object
         if (resolution.IsValid)
         {
+            // Gather all effects from the traits the engine decided are active
+            var aggregatedEffects = resolution.ActiveRacialTraits
+                .SelectMany(trait => trait.GrantedEffects)
+                .ToList();
+
             resolution.HydratedRace = new HydratedRace
             {
                 RaceDefinition = baseDef,
                 Subrace = subDef,
                 ActiveAlternativeRacialTraits = selectedAlts,
-                SelectedRacialTraits = resolution.ActiveRacialTraits
+                SelectedRacialTraits = resolution.ActiveRacialTraits,
+                AddedActiveEffects = aggregatedEffects
             };
         }
 

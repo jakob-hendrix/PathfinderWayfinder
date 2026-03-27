@@ -13,6 +13,10 @@
       Description: Humans begin play speaking Common and their ethnic language. Humans whose ethnic language is Common (or Taldane, in the case of Chelaxians or Taldans) do not receive an additional ethnic language. Humans with high Intelligence scores can choose any languages they want (except secret languages, such as Druidic).
     - Name: Normal Speed
       Description: Humans have a base speed of 30 feet.
+      Effects:
+        - Target: "Land Speed"
+          Value: 30
+          Type: Base
     - Name: Medium Size
       Description: Humans are Medium creatures and have no bonuses or penalties due to their size.
   AlternativeRacialTraits:
