@@ -18,7 +18,7 @@ public class CharacterEntity
     public string? Gender { get; set; }
 
     // This gives base speed, some ability bonuses, etc
-    public Race? Race { get; set; }
+    public HydratedRace? Race { get; set; }
 
     public RaceChoices RaceChoices { get; set; } = new();
     //public Race? Race { get; set; }

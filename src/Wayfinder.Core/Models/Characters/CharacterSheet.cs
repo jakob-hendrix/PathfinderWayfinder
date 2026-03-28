@@ -29,7 +29,7 @@ public class CharacterSheet
     // The Global Effect Bus
     public List<ActiveEffect> ActiveEffects { get; } = new();
 
-    public Race? Race { get; private set; }
+    public HydratedRace? Race { get; private set; }
 
     #region HP
     public int MaxHp => HitPointCalculator.CalculateMaxHp(ClassLevels, Constitution.Total);
@@ -41,7 +41,25 @@ public class CharacterSheet
     public int NonLethalDamage => BaseCharacter.NonLethalDamage;
     #endregion
 
+    #region Movement
+    public ModifiableStat LandSpeed { get; private set; } = new ModifiableStat { Name = StatNames.LandSpeed };
+    public ModifiableStat FlySpeed { get; private set; } = new ModifiableStat { Name = StatNames.FlySpeed };
+    public ModifiableStat ClimbSpeed { get; private set; } = new ModifiableStat { Name = StatNames.ClimbSpeed };
+    public ModifiableStat SwimSpeed { get; private set; } = new ModifiableStat { Name = StatNames.SwimSpeed };
+
+    private void RecalculateMovement()
+    {
+        LandSpeed = SpeedCalculator.CalculateLandSpeed(ActiveEffects);
+        FlySpeed = SpeedCalculator.CalculateFlySpeed(ActiveEffects);
+        ClimbSpeed = SpeedCalculator.CalculateClimbSpeed(ActiveEffects);
+        SwimSpeed = SpeedCalculator.CalculateSwimSpeed(ActiveEffects);
+    }
+
+    #endregion
+
+    #region Combat Stats
     public int BaseAttackBonus => BabCalculator.Calculate(ClassLevels);
+    #endregion
 
     #region Saving Throws
     public ModifiableStat Fortitude { get; private set; } = new ModifiableStat { Name = "Fortitude" };
@@ -166,7 +184,7 @@ public class CharacterSheet
             return string.Join(" ", summaryParts);
         }
     }
-    // Get a hydrated Race instance
+
     public void RebuildClasses()
     {
         // The Factory builds it, and the Domain stores it
@@ -196,14 +214,20 @@ public class CharacterSheet
     public void RebuildRace()
     {
         // The Factory builds it, and the Domain stores it
+        ActiveEffects.RemoveAll(e => e.Category == EffectCategory.RacialTrait);
+
         var result = _rulesEngine.RaceFactory.BuildRace(BaseCharacter.RaceChoices);
         if (result.IsValid)
         {
             Race = result.HydratedRace;
+
+            if (Race!.AddedActiveEffects.Any())
+            {
+                ActiveEffects.AddRange(Race.AddedActiveEffects);
+            }
         }
         else
         {
-            // TODO: throw error?
             Race = null;
         }
     }
@@ -264,11 +288,14 @@ public class CharacterSheet
 
     public void Refresh()
     {
+        // Rebuild the base facts
         RebuildRace();
         RebuildClasses();
 
+        // Rebuild the stats
         RecalculateAbilityScores();
-        RecalculateSkills();
         RecalculateSaves();
+        RecalculateMovement();
+        RecalculateSkills();
     }
 }

@@ -46,4 +46,14 @@ public static class PathfinderEnumMapper
         "charisma" => AbilityScore.Charisma,
         _ => throw new ArgumentException($"Invalid ability score: {value}")
     };
+
+    public static ModifierType ToModifierType(string type) => type.ToLower() switch
+    {
+        "base" => ModifierType.Base,
+        "racial" => ModifierType.Racial,
+        "enhancement" => ModifierType.Enhancement,
+        "trait" => ModifierType.Trait,
+        "untyped" => ModifierType.Untyped,
+        _ => throw new ArgumentException($"Invalid modifier type: {type}")
+    };
 }

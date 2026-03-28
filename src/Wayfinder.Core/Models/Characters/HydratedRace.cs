@@ -2,7 +2,7 @@
 
 namespace Wayfinder.Core.Models.Characters;
 
-public class Race
+public class HydratedRace
 {
     public string Name => RaceDefinition.Name;
 
@@ -11,5 +11,6 @@ public class Race
 
     public List<AlternativeRacialTrait> ActiveAlternativeRacialTraits { get; set; } = new();
     public List<RacialTrait> SelectedRacialTraits { get; set; } = new();
+    public List<ActiveEffect> AddedActiveEffects { get; set; } = new();
 
 }

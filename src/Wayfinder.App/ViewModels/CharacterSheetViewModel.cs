@@ -50,8 +50,8 @@ namespace Wayfinder.App.Services
 
         public ObservableCollection<ItemInstance> Inventory { get; } = new();
 
-        #region Properties Exposed to the UI
-        public Race? CurrentRace => ActiveSheet?.Race;
+        #region Race
+        public HydratedRace? CurrentRace => ActiveSheet?.Race;
         public bool HasRace => CurrentRace != null;
         public string RaceFullTitle => CurrentRace != null
                 ? $"{CurrentRace.Name}{(CurrentRace.Subrace != null ? $" ({CurrentRace.Subrace.Name})" : "")}"
@@ -59,7 +59,9 @@ namespace Wayfinder.App.Services
 
         public IEnumerable<RacialTrait> ActiveTraits =>
             CurrentRace?.SelectedRacialTraits ?? Enumerable.Empty<RacialTrait>();
+        #endregion
 
+        #region Demographics
         public string Alignment => SafeGet(
             () => ActiveSheet?.BaseCharacter.Alignment.ToString().SplitCamelCase(),
             fallback: "No Alignment Selected");
@@ -68,24 +70,28 @@ namespace Wayfinder.App.Services
         public string Deity => SafeGet(() => ActiveSheet?.BaseCharacter.Deity, fallback: "None");
         public int Age => SafeGet(() => ActiveSheet?.BaseCharacter.Age);
         public string PhysicalDescription => SafeGet(() => ActiveSheet?.BaseCharacter.PhysicalDescription);
+        #endregion
 
-        // Ability Scores
+        #region Ability Scores
         public ModifiableStat Strength => SafeGet(() => ActiveSheet?.Strength, StatNames.Strength);
         public ModifiableStat Dexterity => SafeGet(() => ActiveSheet?.Dexterity, StatNames.Dexterity);
         public ModifiableStat Constitution => SafeGet(() => ActiveSheet?.Constitution, StatNames.Constitution);
         public ModifiableStat Intelligence => SafeGet(() => ActiveSheet?.Intelligence, StatNames.Intelligence);
         public ModifiableStat Wisdom => SafeGet(() => ActiveSheet?.Wisdom, StatNames.Wisdom);
         public ModifiableStat Charisma => SafeGet(() => ActiveSheet?.Charisma, StatNames.Charisma);
+        #endregion
 
-        // Combat Stats
+        #region Combat Stats
         public int BaseAttackBonus => SafeGet(() => ActiveSheet?.BaseAttackBonus);
+        #endregion
 
-        // Saves
+        #region Saves
         public ModifiableStat Fortitude => SafeGet(() => ActiveSheet?.Fortitude, StatNames.Fortitude);
         public ModifiableStat Reflex => SafeGet(() => ActiveSheet?.Reflex, StatNames.Reflex);
         public ModifiableStat Will => SafeGet(() => ActiveSheet?.Will, StatNames.Will);
+        #endregion
 
-        // Mutable - bound to UI
+        #region Hit Points
         public int Wounds
         {
             // Look directly at the source of truth
@@ -151,7 +157,16 @@ namespace Wayfinder.App.Services
 
         public int MaxHp => ActiveSheet?.MaxHp ?? 0;
         public int CurrentHp => ActiveSheet?.CurrentHp ?? 0;
+        #endregion
 
+        #region Movement
+        public ModifiableStat LandSpeed => SafeGet(() => ActiveSheet?.LandSpeed, StatNames.LandSpeed);
+        public ModifiableStat FlySpeed => SafeGet(() => ActiveSheet?.FlySpeed, StatNames.FlySpeed);
+        public ModifiableStat ClimbSpeed => SafeGet(() => ActiveSheet?.ClimbSpeed, StatNames.ClimbSpeed);
+        public ModifiableStat SwimSpeed => SafeGet(() => ActiveSheet?.SwimSpeed, StatNames.SwimSpeed);
+
+        // For now, UI only - but there are feats that affect this
+        public int RunSpeed => (LandSpeed?.Total ?? 0) * 4;
         #endregion
 
         public void ToggleItemEquipped(Guid itemId)
@@ -204,19 +219,7 @@ namespace Wayfinder.App.Services
             }
         }
 
-        private T SafeCalculate<T>(Func<T> action, T fallbackValue, string context)
-        {
-            try
-            {
-                return action();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed in {context}", ex);
-                return fallbackValue;
-            }
-        }
-
+        #region Helper Methods
         private ModifiableStat SafeGet(Func<ModifiableStat?> selector, string statName, [CallerMemberName] string propertyName = "")
         {
             try
@@ -255,6 +258,7 @@ namespace Wayfinder.App.Services
                 return fallback;
             }
         }
+        #endregion
 
         public void Dispose()
         {

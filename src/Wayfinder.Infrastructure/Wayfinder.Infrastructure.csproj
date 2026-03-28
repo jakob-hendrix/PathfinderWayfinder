@@ -18,7 +18,7 @@
     <None Update="GameData\Classes.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="GameData\Items.Armor.yaml">
+    <None Update="GameData\Items.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="GameData\Races.yaml">

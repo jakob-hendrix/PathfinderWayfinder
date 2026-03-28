@@ -1,0 +1,98 @@
+@using Wayfinder.Core.Models.Characters
+
+<style>
+    .movement-banner {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        gap: 2rem;
+    }
+    .move-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .move-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #6c757d;
+        letter-spacing: 0.5px;
+    }
+    .move-value {
+        font-weight: 900;
+        font-size: 1.3rem;
+        color: #212529;
+        cursor: help;
+    }
+    .move-unit {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+</style>
+
+@if (VM.ActiveSheet != null)
+{
+    <div class="movement-banner shadow-sm">
+        
+        @* Land Speed *@
+        <div class="move-stat">
+            <span class="move-label">Speed</span>
+            <StatTooltip Stat="VM.LandSpeed">
+                <span class="move-value">@VM.LandSpeed.Total</span>
+            </StatTooltip>
+            <span class="move-unit">ft.</span>
+        </div>
+
+        @* Conditional Speeds *@
+        @if (VM.FlySpeed.Total > 0)
+        {
+            <div class="move-stat border-start ps-4">
+                <span class="move-label">Fly</span>
+                <StatTooltip Stat="VM.FlySpeed">
+                    <span class="move-value">@VM.FlySpeed.Total</span>
+                </StatTooltip>
+                <span class="move-unit">ft.</span>
+            </div>
+        }
+
+        @if (VM.ClimbSpeed.Total > 0)
+        {
+            <div class="move-stat border-start ps-4">
+                <span class="move-label">Climb</span>
+                <StatTooltip Stat="VM.ClimbSpeed">
+                    <span class="move-value">@VM.ClimbSpeed.Total</span>
+                </StatTooltip>
+                <span class="move-unit">ft.</span>
+            </div>
+        }
+
+        @if (VM.SwimSpeed.Total > 0)
+        {
+            <div class="move-stat border-start ps-4">
+                <span class="move-label">Swim</span>
+                <StatTooltip Stat="VM.SwimSpeed">
+                    <span class="move-value">@VM.SwimSpeed.Total</span>
+                </StatTooltip>
+                <span class="move-unit">ft.</span>
+            </div>
+        }
+
+        @* Run Speed (Pushed to the far right) *@
+        <div class="ms-auto move-stat">
+            <span class="move-label">Run (x4)</span>
+            <span class="move-value" style="cursor: default;">@VM.RunSpeed</span>
+            <span class="move-unit">ft.</span>
+        </div>
+
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public CharacterSheetViewModel VM { get; set; } = default!;
+}

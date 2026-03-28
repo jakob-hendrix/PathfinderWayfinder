@@ -1,8 +1,8 @@
 ﻿using Wayfinder.Core.Data;
 using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.Interfaces;
-using Wayfinder.Infrastructure.DataValidators;
 using Wayfinder.Infrastructure.DTOs;
+using Wayfinder.Infrastructure.Mappers;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -16,7 +16,6 @@ namespace Wayfinder.Infrastructure.DataSeeders
         private readonly IRaceLibrary _raceLibrary;
         private readonly ISkillLibrary _skillLibrary;
         private readonly IDeserializer _deserializer;
-        private readonly DomainMapper _mapper;
 
         private string _dataPath = string.Empty;
 
@@ -24,7 +23,6 @@ namespace Wayfinder.Infrastructure.DataSeeders
             IAppLogger logger,
             IClassLibrary classLibrary,
             IItemLibrary itemLibrary,
-            DomainMapper mapper,
             IRaceLibrary raceLibrary,
             ISkillLibrary skillLibrary)
         {
@@ -34,7 +32,6 @@ namespace Wayfinder.Infrastructure.DataSeeders
                     .WithNamingConvention(PascalCaseNamingConvention.Instance)
                     .Build();
             _itemLibrary = itemLibrary;
-            _mapper = mapper;
             _raceLibrary = raceLibrary;
             _skillLibrary = skillLibrary;
         }
@@ -70,142 +67,163 @@ namespace Wayfinder.Infrastructure.DataSeeders
         {
             _raceLibrary.Clear();
             var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
             var files = Directory.GetFiles(_dataPath, "Races.yaml");
+
+            // Instantiate your new permissive mapper
+            var raceMapper = new RaceDomainMapper();
 
             foreach (var file in files)
             {
                 try
                 {
-                    // 1. Deserialize 
                     var yaml = File.ReadAllText(file);
-                    var result = _deserializer.Deserialize<List<RaceYamlDto>>(yaml);
+                    var rawDtos = _deserializer.Deserialize<List<RaceYamlDto>>(yaml);
 
-                    foreach (var dto in result)
+                    foreach (var dto in rawDtos)
                     {
-                        // 2. Map DTO to domain
-                        var definition = _mapper.MapRaceToDomain(dto);
+                        // 1. Map and Validate simultaneously
+                        var mapResult = raceMapper.Map(dto);
 
-                        // 3. Ensure no dupes
-                        if (!seenIds.Add(definition.Id))
+                        // 2. Always log the non-fatal errors so the developer can fix the YAML later
+                        foreach (var error in mapResult.Errors)
                         {
-                            _logger.LogError($"[YAML SEED ERROR] Duplicate Race ID found across files: '{definition.Id}'");
-                            continue;
+                            _logger.LogWarning($"[YAML SEED WARNING] {error}");
                         }
 
-                        // 4. Validate
-                        var (isValid, errors) = RaceSeedValidator.Validate(definition);
-                        if (isValid)
+                        // 3. Register if the critical base data (like the Name) survived
+                        if (mapResult.IsValid && mapResult.HydratedRace != null)
                         {
-                            _raceLibrary.Register(definition);
-                            continue;
-                        }
-                        else
-                        {
-                            foreach (var error in errors)
+                            if (!seenIds.Add(mapResult.HydratedRace.Id))
                             {
-                                _logger.LogError($"[YAML SEED ERROR] '{definition.Name}': {error}");
+                                _logger.LogError($"[YAML SEED ERROR] Duplicate Race ID found: '{mapResult.HydratedRace.Id}'");
+                                continue;
                             }
+
+                            _raceLibrary.Register(mapResult.HydratedRace);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to seed races from file {file}", ex);
+                    _logger.LogError($"Critical failure seeding races from file {file}", ex);
                 }
             }
         }
 
-        public void SeedClasses()
+        private void SeedClasses()
         {
             _classLibrary.Clear();
             var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
             var files = Directory.GetFiles(_dataPath, "Classes.yaml");
+
+            var classMapper = new ClassDomainMapper();
 
             foreach (var file in files)
             {
                 try
                 {
-                    // 1. Deserialize 
                     var yaml = File.ReadAllText(file);
-                    var result = _deserializer.Deserialize<List<ClassYamlDto>>(yaml);
+                    var rawDtos = _deserializer.Deserialize<List<ClassYamlDto>>(yaml);
 
-                    foreach (var dto in result)
+                    foreach (var dto in rawDtos)
                     {
-                        // 2. Map DTO to domain
-                        var definition = _mapper.MapClassToDomain(dto);
+                        var mapResult = classMapper.Map(dto);
 
-                        // 3. Ensure no dupes
-                        if (!seenIds.Add(definition.Name))
+                        // 1. Log Non-Fatal Warnings (Graceful Degradations)
+                        foreach (var warning in mapResult.Warnings)
                         {
-                            _logger.LogError($"[YAML SEED ERROR] Duplicate Class found across files: '{definition.Name}'");
-                            continue;
+                            _logger.LogWarning($"[YAML SEED WARNING] {warning}");
                         }
 
-                        // 4. Validate
-                        var (isValid, errors) = ClassSeedValidator.Validate(definition);
-                        if (isValid)
+                        // 2. Handle Fatal Errors
+                        if (!mapResult.IsValid)
                         {
-                            _classLibrary.Register(definition);
-                            continue;
-                        }
-                        else
-                        {
-                            foreach (var error in errors)
+                            foreach (var error in mapResult.Errors)
                             {
-                                _logger.LogError($"[YAML SEED ERROR] '{definition.Name}': {error}");
+                                _logger.LogError($"[YAML SEED ERROR] {error}");
                             }
+                            continue; // Skip registration
+                        }
+
+                        // 3. Register the Valid Class
+                        if (mapResult.HydratedClass != null)
+                        {
+                            // Assuming you use Name for uniqueness, or dto.Id if you have it
+                            if (!seenIds.Add(mapResult.HydratedClass.Name))
+                            {
+                                _logger.LogError($"[YAML SEED ERROR] Duplicate Class Name found: '{mapResult.HydratedClass.Name}'");
+                                continue;
+                            }
+
+                            _classLibrary.Register(mapResult.HydratedClass);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to seed items from file {file}", ex);
+                    _logger.LogError($"Critical failure seeding classes from file {file}", ex);
                 }
             }
         }
 
-        public void SeedItems()
+        private void SeedItems()
         {
-            var files = Directory.GetFiles(_dataPath, "Items*.yaml");
+            _itemLibrary.Clear();
             var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Assuming your items are stored in files named "Items.yaml" or similar.
+            // Adjust the search pattern if you split them into "Weapons.yaml", "Armor.yaml", etc.
+            var files = Directory.GetFiles(_dataPath, "Items.yaml");
+
+            var itemMapper = new ItemDomainMapper();
 
             foreach (var file in files)
             {
                 try
                 {
                     var yaml = File.ReadAllText(file);
-                    var result = _deserializer.Deserialize<List<ItemYamlDto>>(yaml);
+                    var rawDtos = _deserializer.Deserialize<List<ItemYamlDto>>(yaml);
 
-                    foreach (var dto in result)
+                    foreach (var dto in rawDtos)
                     {
-                        var definition = _mapper.MapItemToDomain(dto);
+                        // 1. Map and Validate simultaneously
+                        var mapResult = itemMapper.Map(dto);
 
-                        if (!seenIds.Add(definition.Name))
+                        // 2. Log Non-Fatal Warnings (Graceful Degradations)
+                        // Example: "No specific property validator implemented for ItemType 'Weapon'..."
+                        foreach (var warning in mapResult.Warnings)
                         {
-                            _logger.LogError($"[YAML SEED ERROR] Duplicate Item found across files: '{definition.Name}'");
-                            continue;
+                            _logger.LogWarning($"[YAML SEED WARNING] {warning}");
                         }
 
-                        var (isValid, errors) = ItemSeedValidator.Validate(definition);
-                        if (isValid)
+                        // 3. Handle Fatal Errors
+                        // Example: Missing an 'ACP' property on an Armor item
+                        if (!mapResult.IsValid)
                         {
-                            _itemLibrary.Register(definition);
-                            continue;
-                        }
-                        else
-                        {
-                            foreach (var error in errors)
+                            foreach (var error in mapResult.Errors)
                             {
-                                _logger.LogError($"[YAML SEED ERROR] '{definition.Name}': {error}");
+                                _logger.LogError($"[YAML SEED ERROR] {error}");
                             }
+                            continue;
+                        }
+
+                        // 4. Register the Valid Item
+                        if (mapResult.HydratedItem != null)
+                        {
+                            // Ensure uniqueness across all loaded item files
+                            if (!seenIds.Add(mapResult.HydratedItem.Id))
+                            {
+                                _logger.LogError($"[YAML SEED ERROR] Duplicate Item ID found: '{mapResult.HydratedItem.Id}'");
+                                continue;
+                            }
+
+                            _itemLibrary.Register(mapResult.HydratedItem);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to seed items from file {file}", ex);
+                    _logger.LogError($"Critical failure seeding items from file {file}", ex);
                 }
             }
         }
