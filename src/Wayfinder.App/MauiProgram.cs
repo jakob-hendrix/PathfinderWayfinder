@@ -33,7 +33,6 @@ namespace Wayfinder.App
             #region Data Services
             builder.Services.AddScoped<ICharacterStorage, CharacterStorageService>();
             builder.Services.AddSingleton<DataSeeder>();
-            builder.Services.AddSingleton<DomainMapper>();
             #endregion
 
             #region UI Services
