@@ -25,5 +25,6 @@ public enum ModifierType
     Shield,
     Size,
     Trait,
-    Untyped
+    Untyped,
+    Penalty
 }

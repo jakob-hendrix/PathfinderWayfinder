@@ -3,6 +3,9 @@ using Wayfinder.Core.Constants;
 using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Logic;
 
+
+namespace Wayfinder.Tests.DomainModels.Characters;
+
 [TestFixture]
 public class StatCalculatorTests
 {

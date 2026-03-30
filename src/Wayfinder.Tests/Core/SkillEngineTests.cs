@@ -5,6 +5,9 @@ using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Engines;
 
+
+namespace Wayfinder.Tests.DomainModels.Characters;
+
 [TestFixture]
 public class SkillEngineTests
 {

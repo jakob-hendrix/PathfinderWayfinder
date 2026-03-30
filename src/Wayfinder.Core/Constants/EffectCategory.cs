@@ -8,5 +8,6 @@ public enum EffectCategory
     Item,
     Spell,
     Condition,
+    Encumbrance,
     Custom
 }

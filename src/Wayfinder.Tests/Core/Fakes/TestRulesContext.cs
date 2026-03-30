@@ -48,7 +48,6 @@ public class TestRulesContext
         services.AddTransient<IClassFactory, ClassFactory>();
         services.AddTransient<IItemFactory, ItemFactory>();
         services.AddTransient<IRaceFactory, RaceFactory>();
-        services.AddTransient<IEquipmentManager, EquipmentManager>();
         services.AddTransient<ISkillEngine, SkillEngine>();
         services.AddTransient<IPathfinderRulesEngine, PathfinderRulesEngine>();
 

@@ -2,6 +2,10 @@
 
 public static class StatNames
 {
+    // Armor
+    public const string MaxDexBonus = "Max Dex Bonus";
+    public const string ACP = "Armor Check Penalty";
+
     // Ability Scores
     public const string Strength = "Strength";
     public const string Constitution = "Constitution";

@@ -4,5 +4,6 @@ public enum EncumbranceLevel
 {
     Light,
     Medium,
-    Heavy
+    Heavy,
+    Overloaded // Carrying more than max capacity (staggered/cannot move)
 }

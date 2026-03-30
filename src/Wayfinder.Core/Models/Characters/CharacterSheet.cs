@@ -41,6 +41,36 @@ public class CharacterSheet
     public int NonLethalDamage => BaseCharacter.NonLethalDamage;
     #endregion
 
+    #region Physical Stats
+    public SizeCategory Size => SizeCalculator.CalculateSize(ActiveEffects);
+    // Add these properties to your CharacterSheet
+    public EncumbranceLevel CurrentEncumbrance { get; private set; } = EncumbranceLevel.Light;
+    public double TotalCarriedWeight { get; private set; }
+
+    // Calculated Load Limits
+    public int MaxCarryCapacity => CarryCapacityCalculator.GetMaxCarryingCapacity(
+        Strength?.Total ?? 10,
+        Size,
+        2); // TODO: Pull legs from Race data later!
+
+    public int LightLoadLimit => (int)Math.Floor(MaxCarryCapacity / 3.0);
+    public int MediumLoadLimit => (int)Math.Floor((MaxCarryCapacity * 2.0) / 3.0);
+
+    // Calculated Physics Limits
+    public int LiftOverHead => MaxCarryCapacity;
+    public int LiftOffGround => MaxCarryCapacity * 2;
+    public int PushOrDrag => MaxCarryCapacity * 5;
+
+    private void RecalculateEncumbrance()
+    {
+        TotalCarriedWeight = InventoryCalculator.CalculateTotalCarriedWeight(Inventory);
+        CurrentEncumbrance = CarryCapacityCalculator.GetEncumbranceLevel(MaxCarryCapacity, TotalCarriedWeight);
+
+        // 2. Add Encumbrance Penalty Effects to the Bus
+        ActiveEffects.AddRange(CarryCapacityCalculator.GenerateEncumbranceEffects(CurrentEncumbrance));
+    }
+    #endregion
+
     #region Movement
     public ModifiableStat LandSpeed { get; private set; } = new ModifiableStat { Name = StatNames.LandSpeed };
     public ModifiableStat FlySpeed { get; private set; } = new ModifiableStat { Name = StatNames.FlySpeed };
@@ -49,7 +79,7 @@ public class CharacterSheet
 
     private void RecalculateMovement()
     {
-        LandSpeed = SpeedCalculator.CalculateLandSpeed(ActiveEffects);
+        LandSpeed = SpeedCalculator.CalculateLandSpeed(ActiveEffects, CurrentEncumbrance);
         FlySpeed = SpeedCalculator.CalculateFlySpeed(ActiveEffects);
         ClimbSpeed = SpeedCalculator.CalculateClimbSpeed(ActiveEffects);
         SwimSpeed = SpeedCalculator.CalculateSwimSpeed(ActiveEffects);
@@ -157,6 +187,10 @@ public class CharacterSheet
 
     #endregion
 
+    #region Inventory
+    public IEnumerable<ItemInstance> Inventory { get; set; } = new List<ItemInstance>();
+    #endregion
+
     public void UpdateVitals(int wounds, int nonLethalDamage, int temporaryHp)
     {
         BaseCharacter.Wounds = Math.Max(0, wounds);
@@ -232,40 +266,6 @@ public class CharacterSheet
         }
     }
 
-    // Return a list of hydrated items from the current state of the base character's inventory
-    public List<ItemInstance> GetHydratedInventory()
-    {
-        return BaseCharacter.Inventory.Select(item =>
-        {
-            var instance = _rulesEngine.ItemFactory.CreateItem(item.TemplateId);
-
-            // TODO: may need more work here to apply custom item
-            // 'facts' to this instance. Like, custom name, enchantments, etc
-            // That or allow the ItemFactory to take an ItemInstance and make a copy
-
-            return instance;
-        }).ToList();
-    }
-
-    public void ToggleEquip(Guid instanceId)
-    {
-        var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
-        if (item != null)
-        {
-            // TODO: implement equippgin items
-            // item.IsEquipped = !item.IsEquipped;
-        }
-    }
-
-    public void ToggleCarried(Guid instanceId)
-    {
-        var item = BaseCharacter.Inventory.FirstOrDefault(i => i.Id == instanceId);
-        if (item != null)
-        {
-            item.IsCarried = !item.IsCarried;
-        }
-    }
-
     // Sheet Actions
     public void AddClassLevel(ClassLevelChoice validChoice)
     {
@@ -294,6 +294,7 @@ public class CharacterSheet
 
         // Rebuild the stats
         RecalculateAbilityScores();
+        RecalculateEncumbrance();
         RecalculateSaves();
         RecalculateMovement();
         RecalculateSkills();

@@ -20,19 +20,25 @@ public static class StatCalculator
         IEnumerable<ActiveEffect> globalEffects,
         IEnumerable<StatModifier>? baseModifiers = null)
     {
-        var auditLog = new List<StatModifier>
+        var auditLog = new List<StatModifier>();
+
+        // 1. Filter the bus FIRST so we can inspect what's coming in
+        var relevantEffects = globalEffects
+            .Where(e => e.TargetStatName.Equals(statName, StringComparison.OrdinalIgnoreCase) && !e.IsConditional)
+            .ToList();
+
+        // 2. Only apply the fallback base value if the effects bus didn't explicitly provide a Base modifier
+        bool busHasBaseValue = relevantEffects.Any(e => e.Type == ModifierType.Base);
+
+        if (!busHasBaseValue)
         {
-            new StatModifier("Base", baseValue, ModifierType.Base, true)
-        };
+            auditLog.Add(new StatModifier("Base", baseValue, ModifierType.Base, true));
+        }
 
         if (baseModifiers != null)
         {
             auditLog.AddRange(baseModifiers);
         }
-
-        // Filter the bus using a case-insensitive string match
-        var relevantEffects = globalEffects
-            .Where(e => e.TargetStatName.Equals(statName, StringComparison.OrdinalIgnoreCase) && !e.IsConditional);
 
         var groupedEffects = relevantEffects.GroupBy(e => e.Type);
 

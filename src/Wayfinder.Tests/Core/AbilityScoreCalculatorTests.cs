@@ -5,6 +5,8 @@ using Wayfinder.Core.Logic;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Calculators;
 
+namespace Wayfinder.Tests.Core;
+
 [TestFixture]
 public class AbilityScoreCalculatorTests
 {
@@ -102,14 +104,14 @@ public class AbilityScoreCalculatorTests
         // Arrange
         int baseScore = 15;
         var levels = new List<HydratedClassLevel>
-        {
-            CreateNormalLevel(1),
-            CreateNormalLevel(2),
-            CreateNormalLevel(3),
-            CreateLevelBump(4, AbilityScore.Strength), // Match!
-            CreateLevelBump(8, AbilityScore.Dexterity), // Ignored (wrong stat)
-            CreateLevelBump(12, AbilityScore.Strength) // Match!
-        };
+    {
+        CreateNormalLevel(1),
+        CreateNormalLevel(2),
+        CreateNormalLevel(3),
+        CreateLevelBump(4, AbilityScore.Strength), // Match!
+        CreateLevelBump(8, AbilityScore.Dexterity), // Ignored (wrong stat)
+        CreateLevelBump(12, AbilityScore.Strength) // Match!
+    };
         var effects = new List<ActiveEffect>();
 
         // Act
@@ -130,18 +132,18 @@ public class AbilityScoreCalculatorTests
         // Arrange
         int baseScore = 14;
         var levels = new List<HydratedClassLevel>
-        {
-            CreateLevelBump(4, AbilityScore.Dexterity) // 1 bump
-        };
+    {
+        CreateLevelBump(4, AbilityScore.Dexterity) // 1 bump
+    };
 
         var effects = new List<ActiveEffect>
-        {
-            // A matching effect
-            new ActiveEffect { TargetStatName = "Dexterity", SourceName = "Belt of Incredible Dexterity", Value = 4, Type = ModifierType.Enhancement },
-            
-            // An ignored effect (wrong target)
-            new ActiveEffect { TargetStatName = "Strength", SourceName = "Bull's Strength", Value = 4, Type = ModifierType.Enhancement }
-        };
+    {
+        // A matching effect
+        new ActiveEffect { TargetStatName = "Dexterity", SourceName = "Belt of Incredible Dexterity", Value = 4, Type = ModifierType.Enhancement },
+        
+        // An ignored effect (wrong target)
+        new ActiveEffect { TargetStatName = "Strength", SourceName = "Bull's Strength", Value = 4, Type = ModifierType.Enhancement }
+    };
 
         // Act
         var result = AbilityScoreCalculator.CalculateAbilityScore("Dexterity", baseScore, levels, effects);

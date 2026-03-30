@@ -23,8 +23,23 @@ namespace Wayfinder.Core.Services
             {
                 Id = Guid.NewGuid(),
                 TemplateId = templateId,
-                IsCarried = true,
-                BaseStats = templateStats
+                BaseStats = templateStats,
+                Quantity = 1,
+                State = ItemState.Carried,
+                ContainerId = null
+            };
+        }
+
+        public ItemInstance CreateCustomItem(BaseItem customStats)
+        {
+            return new ItemInstance
+            {
+                Id = Guid.NewGuid(),
+                TemplateId = null, // Flags it as custom
+                BaseStats = customStats,
+                Quantity = 1,
+                State = ItemState.Carried,
+                ContainerId = null
             };
         }
 

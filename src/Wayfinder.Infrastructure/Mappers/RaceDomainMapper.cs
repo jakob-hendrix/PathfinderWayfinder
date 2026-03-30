@@ -169,12 +169,26 @@ public class RaceDomainMapper
                 continue;
             }
 
+            // Handle values of string or numerics
+            int numericValue = 0;
+            string? stringValue = null;
+
+            if (int.TryParse(e.Value, out int parsed))
+            {
+                numericValue = parsed; // It was a number, like 30
+            }
+            else
+            {
+                stringValue = e.Value; // It was a string, like "Medium"
+            }
+
             try
             {
                 mapped.Add(new ActiveEffect
                 {
                     TargetStatName = e.Target,
-                    Value = (int)e.Value,
+                    Value = numericValue,
+                    StringValue = stringValue,
                     Type = PathfinderEnumMapper.ToModifierType(e.Type), // Safely attempts conversion
                     Category = EffectCategory.RacialTrait,
                     IsConditional = e.IsConditional,

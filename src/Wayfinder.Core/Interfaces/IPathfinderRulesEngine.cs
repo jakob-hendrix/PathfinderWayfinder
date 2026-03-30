@@ -4,7 +4,6 @@ namespace Wayfinder.Core.Interfaces
 {
     public interface IPathfinderRulesEngine
     {
-        IEquipmentManager EquipmentManager { get; }
         IClassFactory ClassFactory { get; }
         IItemFactory ItemFactory { get; }
         IRaceFactory RaceFactory { get; }

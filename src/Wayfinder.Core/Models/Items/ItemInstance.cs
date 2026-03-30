@@ -1,22 +1,32 @@
-﻿namespace Wayfinder.Core.Models.Items;
+﻿using Wayfinder.Core.Constants;
 
-/// <summary>
-/// This represents an instance of an item tracked by the character. It uses a BaseItem as
-/// a template for the item, but allows for enchancement, new names, etc
-/// </summary>
+namespace Wayfinder.Core.Models.Items;
+
 public class ItemInstance
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string TemplateId { get; set; }
-    public string Name { get; set; } = string.Empty;
 
-    // The "rulebook" data before changes are made due to the state of this instance
-    // (ie enhancement, damage, etc)
-    public BaseItem BaseStats { get; set; }
+    // If null, this is a Custom Item created entirely by the user
+    public string? TemplateId { get; set; }
 
-    // False if dropped or stored in a container that is itself not held
-    public bool IsCarried { get; set; } = true;
+    // User overrides (e.g., naming a sword "Orc-Cleaver")
+    public string? CustomName { get; set; }
 
-    //If Guid.Empty, it's not in a container
-    public Guid ContainerId { get; set; } = Guid.Empty;
+    // The core stats of the item (cloned from Library or custom built)
+    public BaseItem BaseStats { get; set; } = default!;
+
+    public int Quantity { get; set; } = 1;
+
+    // --- LOCATION TRACKING ---
+    public ItemState State { get; set; } = ItemState.Carried;
+
+    // If Guid.Empty or null, it is loose in the character's general inventory
+    public Guid? ContainerId { get; set; }
+
+    // If State == Equipped, where is it?
+    public EquipmentSlot? EquippedSlot { get; set; }
+
+    // --- HELPERS ---
+    public string DisplayName => !string.IsNullOrWhiteSpace(CustomName) ? CustomName : BaseStats.Name;
+    public double TotalWeight => BaseStats.Weight * Quantity;
 }

@@ -2,6 +2,8 @@
 using Wayfinder.Core.Constants;
 using Wayfinder.Core.DomainModels.Stats;
 
+namespace Wayfinder.Tests.DomainModels.Characters;
+
 [TestFixture]
 public class ClassFeatureTests
 {

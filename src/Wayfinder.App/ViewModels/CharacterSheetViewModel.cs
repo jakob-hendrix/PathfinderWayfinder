@@ -6,6 +6,7 @@ using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Items;
+using Wayfinder.Core.Rules.Calculators;
 
 namespace Wayfinder.App.Services
 {
@@ -165,37 +166,12 @@ namespace Wayfinder.App.Services
         public ModifiableStat ClimbSpeed => SafeGet(() => ActiveSheet?.ClimbSpeed, StatNames.ClimbSpeed);
         public ModifiableStat SwimSpeed => SafeGet(() => ActiveSheet?.SwimSpeed, StatNames.SwimSpeed);
 
-        // For now, UI only - but there are feats that affect this
-        public int RunSpeed => (LandSpeed?.Total ?? 0) * 4;
+        // 1. Add a property to expose the multiplier to the UI
+        public int RunMultiplier => SpeedCalculator.CalculateRunMultiplier(ActiveSheet!.CurrentEncumbrance);
+
+        // 2. Update RunSpeed to use the dynamic multiplier instead of the hardcoded 4
+        public int RunSpeed => (LandSpeed?.Total ?? 0) * RunMultiplier;
         #endregion
-
-        public void ToggleItemEquipped(Guid itemId)
-        {
-            // Update character
-            ActiveSheet.ToggleEquip(itemId);
-
-            var item = Inventory.FirstOrDefault(i => i.Id == itemId);
-            if (item != null)
-            {
-                //item.IsEquipped = !item.IsEquipped;
-            }
-
-            TriggerFullRecalc();
-        }
-
-        public void ToggleItemCarried(Guid itemId)
-        {
-            // Update character
-            ActiveSheet.ToggleCarried(itemId);
-
-            var item = Inventory.FirstOrDefault(i => i.Id == itemId);
-            if (item != null)
-            {
-                item.IsCarried = !item.IsCarried;
-            }
-
-            TriggerFullRecalc();
-        }
 
         private void TriggerFullRecalc()
         {
@@ -275,14 +251,7 @@ namespace Wayfinder.App.Services
             // 1. Wipe the UI's existing projections of the character sheet
             Inventory.Clear();
 
-            // 2. Ask the sheet for hydrated facts
-            var refreshedItems = ActiveSheet.GetHydratedInventory();
-
-            // 3. Fill our collection
-            foreach (var item in refreshedItems)
-            {
-                Inventory.Add(item);
-            }
+            // Do inventory stuff
 
             // 4. Recalculate Stats
             TriggerFullRecalc();

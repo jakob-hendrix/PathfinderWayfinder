@@ -64,7 +64,6 @@ namespace Wayfinder.App
 
             // Set up bundled subsystems
             builder.Services.AddClassFeatures();
-            builder.Services.AddSingleton<IEquipmentManager, EquipmentManager>();
             builder.Services.AddSingleton<IClassLevelEngine, ClassLevelEngine>();
             builder.Services.AddSingleton<ISkillEngine, SkillEngine>();
             builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();

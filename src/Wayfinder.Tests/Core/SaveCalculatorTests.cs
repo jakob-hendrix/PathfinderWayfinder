@@ -5,6 +5,9 @@ using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Logic;
 using Wayfinder.Core.Models.Characters;
 
+namespace Wayfinder.Tests.DomainModels.Characters;
+
+
 [TestFixture]
 public class SaveCalculatorTests
 {
