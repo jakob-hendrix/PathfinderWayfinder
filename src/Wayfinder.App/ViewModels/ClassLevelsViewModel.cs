@@ -1,12 +1,11 @@
-﻿namespace Wayfinder.UI.ViewModels;
-
-using System.Collections.Generic;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Wayfinder.App.Services;
 using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
+
+namespace Wayfinder.UI.ViewModels;
 
 public partial class ClassLevelsViewModel : ObservableObject
 {
