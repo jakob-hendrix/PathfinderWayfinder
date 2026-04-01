@@ -4,7 +4,7 @@ using Wayfinder.App.Services;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 
-namespace Wayfinder.UI.ViewModels;
+namespace Wayfinder.App.ViewModels;
 
 public partial class SkillViewModel : ObservableObject, IDisposable
 {

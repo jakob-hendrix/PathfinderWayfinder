@@ -6,7 +6,7 @@ using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Rules.Engines;
 
-namespace Wayfinder.UI.ViewModels;
+namespace Wayfinder.App.ViewModels;
 
 public partial class ClassLevelDetailViewModel : ObservableObject
 {

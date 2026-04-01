@@ -40,7 +40,7 @@ public class RaceDomainMapperTests
             Description = "A healthy trait.",
             GrantedEffects = new List<EffectDto>
             {
-                new EffectDto { Target = StatNames.Constitution, Value = 2, Type = ModifierType.Racial.ToString() }
+                new EffectDto { Target = StatNames.Constitution, Value = "2", Type = ModifierType.Racial.ToString() }
             }
         });
 
@@ -71,7 +71,7 @@ public class RaceDomainMapperTests
             Description = "Base description.",
             GrantedEffects = new List<EffectDto>
             {
-                new EffectDto { Target = StatNames.Strength, Value = 2, Type = "TypoType" }
+                new EffectDto { Target = StatNames.Strength, Value = "2", Type = "TypoType" }
             }
         });
 
@@ -102,7 +102,7 @@ public class RaceDomainMapperTests
             Description = "Base description.",
             GrantedEffects = new List<EffectDto>
             {
-                new EffectDto { Target = "", Value = 2, Type = "Racial" }
+                new EffectDto { Target = "", Value = "2", Type = "Racial" }
             }
         });
 
@@ -133,8 +133,8 @@ public class RaceDomainMapperTests
             Description = "Base description.",
             GrantedEffects = new List<EffectDto>
             {
-                new EffectDto { Target = StatNames.Dexterity, Value = 2, Type = "Racial" }, // GOOD
-                new EffectDto { Target = StatNames.Strength, Value = 2, Type = "BadType" }  // BAD
+                new EffectDto { Target = StatNames.Dexterity, Value = "2", Type = "Racial" }, // GOOD
+                new EffectDto { Target = StatNames.Strength, Value = "2", Type = "BadType" }  // BAD
             }
         });
 
@@ -163,14 +163,14 @@ public class RaceDomainMapperTests
         {
             Name = "Broken Trait",
             Description = "Bad.",
-            GrantedEffects = new List<EffectDto> { new EffectDto { Target = "STR", Value = 2, Type = "Nope" } }
+            GrantedEffects = new List<EffectDto> { new EffectDto { Target = "STR", Value = "2", Type = "Nope" } }
         });
 
         dto.DefaultRacialTraits.Add(new RacialTraitYamlDto
         {
             Name = "Good Trait",
             Description = "Good.",
-            GrantedEffects = new List<EffectDto> { new EffectDto { Target = StatNames.Constitution, Value = 2, Type = "Racial" } }
+            GrantedEffects = new List<EffectDto> { new EffectDto { Target = StatNames.Constitution, Value = "2", Type = "Racial" } }
         });
 
         // Act

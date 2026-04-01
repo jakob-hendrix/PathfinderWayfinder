@@ -13,7 +13,6 @@ using Wayfinder.Core.Rules.Engines;
 using Wayfinder.Core.Services;
 using Wayfinder.Infrastructure.DataSeeders;
 using Wayfinder.Infrastructure.Persistence;
-using Wayfinder.UI.ViewModels;
 
 namespace Wayfinder.App
 {

@@ -62,7 +62,13 @@ namespace Wayfinder.Infrastructure.DataSeeders
             });
 
             // Build inventory
-            entity.Inventory.Add(_engine.ItemFactory.CreateItem("chain_shirt"));
+            entity.Inventory.Add(new ItemEntity
+            {
+                TemplateId = "chain_shirt",
+                Quantity = 1,
+                State = ItemState.Carried
+            }
+            );
 
             return entity;
         }
