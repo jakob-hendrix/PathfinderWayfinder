@@ -188,7 +188,23 @@ public class CharacterSheet
     #endregion
 
     #region Inventory
-    public IEnumerable<ItemInstance> Inventory { get; set; } = new List<ItemInstance>();
+    private readonly List<ItemInstance> _inventory = new();
+    public IReadOnlyList<ItemInstance> Inventory => _inventory;
+
+    public void AddItem(ItemInstance item)
+    {
+        // 1. Add the rich instance to the sheet's memory
+        _inventory.Add(item);
+
+        // 2. Add the lightweight entity to the save file structure
+        BaseCharacter.Inventory.Add(item.Entity);
+    }
+
+    public void RemoveItem(ItemInstance item)
+    {
+        _inventory.Remove(item);
+        BaseCharacter.Inventory.Remove(item.Entity);
+    }
     #endregion
 
     public void UpdateVitals(int wounds, int nonLethalDamage, int temporaryHp)

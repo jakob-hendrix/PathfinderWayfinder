@@ -1,30 +1,55 @@
 ﻿using Wayfinder.Core.Constants;
+using Wayfinder.Core.Models.Characters;
 
 namespace Wayfinder.Core.Models.Items;
 
 public class ItemInstance
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    // The underlying save data
+    public ItemEntity Entity { get; }
 
-    // If null, this is a Custom Item created entirely by the user
-    public string? TemplateId { get; set; }
+    // The rich rulebook data (from the library)
+    public BaseItem BaseStats { get; }
 
-    // User overrides (e.g., naming a sword "Orc-Cleaver")
-    public string? CustomName { get; set; }
+    public ItemInstance(ItemEntity entity, BaseItem baseStats)
+    {
+        Entity = entity;
+        BaseStats = baseStats;
+    }
 
-    // The core stats of the item (cloned from Library or custom built)
-    public BaseItem BaseStats { get; set; } = default!;
+    // --- PASS-THROUGH PROPERTIES (Live Sync to Save File) ---
+    public Guid Id => Entity.Id;
+    public string? TemplateId => Entity.TemplateId;
 
-    public int Quantity { get; set; } = 1;
+    public string? CustomName
+    {
+        get => Entity.CustomName;
+        set => Entity.CustomName = value;
+    }
 
-    // --- LOCATION TRACKING ---
-    public ItemState State { get; set; } = ItemState.Carried;
+    public int Quantity
+    {
+        get => Entity.Quantity;
+        set => Entity.Quantity = value;
+    }
 
-    // If Guid.Empty or null, it is loose in the character's general inventory
-    public Guid? ContainerId { get; set; }
+    public ItemState State
+    {
+        get => Entity.State;
+        set => Entity.State = value;
+    }
 
-    // If State == Equipped, where is it?
-    public EquipmentSlot? EquippedSlot { get; set; }
+    public Guid? ContainerId
+    {
+        get => Entity.ContainerId;
+        set => Entity.ContainerId = value;
+    }
+
+    public EquipmentSlot? EquippedSlot
+    {
+        get => Entity.EquippedSlot;
+        set => Entity.EquippedSlot = value;
+    }
 
     // --- HELPERS ---
     public string DisplayName => !string.IsNullOrWhiteSpace(CustomName) ? CustomName : BaseStats.Name;

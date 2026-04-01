@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Wayfinder.App.Services;
+using Wayfinder.App.ViewModels;
 using Wayfinder.Core.Configuration;
 using Wayfinder.Core.Data;
 using Wayfinder.Core.Data.Interfaces;
@@ -43,6 +44,7 @@ namespace Wayfinder.App
             builder.Services.AddSingleton<SampleCharacterSeeder>(); //DEV only
             builder.Services.AddTransient<CharacterSheetViewModel>();
             builder.Services.AddTransient<BaseCharacterViewModel>();
+            builder.Services.AddTransient<InventoryViewModel>();
             builder.Services.AddTransient<ClassLevelsViewModel>();
             builder.Services.AddTransient<ClassLevelDetailViewModel>();
             builder.Services.AddTransient<SkillViewModel>();

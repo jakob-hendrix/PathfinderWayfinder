@@ -7,12 +7,12 @@
             </NavLink>
         </div>
         <div class="nav-item">
-            <NavLink class="nav-link custom-nav-link" href="base-character">
+            <NavLink class="nav-link custom-nav-link" href="base-character" Match="NavLinkMatch.All">
                 <i class="bi bi-person-plus-fill"></i> <span>Character Creation</span>
             </NavLink>
         </div>
         <div class="nav-item">
-            <NavLink class="nav-link custom-nav-link" href="class-levels">
+            <NavLink class="nav-link custom-nav-link" href="class-levels" Match="NavLinkMatch.All">
                 <i class="bi bi-arrow-up-circle"></i> <span>Class Levels</span>
             </NavLink>
         </div>
@@ -27,22 +27,23 @@
             </NavLink>
         </div> *@
         <div class="nav-item">
-            <NavLink class="nav-link custom-nav-link" href="skills">
+            <NavLink class="nav-link custom-nav-link" href="skills" Match="NavLinkMatch.All">
                 <i class="bi bi-tools"></i> <span>Skills</span>
             </NavLink>
         </div>
-        <div class="nav-item">
-            <NavLink class="nav-link custom-nav-link" href="inventory">
-                <i class="bi bi-backpack"></i> <span>Equipment</span>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="inventory" Match="NavLinkMatch.All">
+                <span class="bi bi-backpack" aria-hidden="true"></span> Inventory & Gear
             </NavLink>
         </div>
-@*         <div class="nav-item">
-            <NavLink class="nav-link custom-nav-link" href="attacks">
-                <i class="bi bi-backpack"></i> <span>Attack Loadouts</span>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="forge" Match="NavLinkMatch.All">
+                <span class="bi bi-hammer" aria-hidden="true"></span> Item Forge
             </NavLink>
-        </div> *@
+        </div>
         <div class="nav-item">
-            <NavLink class="nav-link custom-nav-link" href="spellbook">
+            <NavLink class="nav-link custom-nav-link" href="spellbook" Match="NavLinkMatch.All">
                 <i class="bi bi-magic"></i> <span>Spells</span>
             </NavLink>
         </div>

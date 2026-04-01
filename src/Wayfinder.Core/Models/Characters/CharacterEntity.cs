@@ -1,6 +1,5 @@
 ﻿using Wayfinder.Core.Constants;
 using Wayfinder.Core.DataDefinitions;
-using Wayfinder.Core.Models.Items;
 
 namespace Wayfinder.Core.Models.Characters;
 
@@ -53,7 +52,7 @@ public class CharacterEntity
     public List<SkillDefinition> CustomSkills { get; set; }
 
     // Equipment. Item instance will track things like charges/max charges
-    public List<ItemInstance> Inventory { get; set; } = new();
+    public List<ItemEntity> Inventory { get; set; } = new();
     public Dictionary<EquipmentSlot, Guid> EquippedItems { get; set; } = new();
     public List<AttackLoadout> AttacksLoadouts { get; set; } = new();
 
