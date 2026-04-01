@@ -1,51 +1,56 @@
 @page "/inventory"
-@inject InventoryViewModel VM 
-@inject Wayfinder.App.Services.CharacterStateService StateService
+@inject InventoryViewModel VM
+@inject CharacterStateService StateService
 @implements IDisposable
 
-<div class="container-fluid py-4">
-    @if (!VM.HasActiveCharacter)
-    {
+@if (!VM.HasActiveCharacter)
+{
+    <div class="p-4">
         <div class="alert alert-warning shadow-sm">No character active. Please load or create a character first.</div>
-    }
-    else
-    {
-        <div class="card shadow-sm border-0 bg-white">
-            <div class="card-header bg-dark text-white p-0">
-                <ul class="nav nav-tabs nav-fill border-0" style="margin-bottom: -1px;">
-                    <li class="nav-item">
-                        <button class="nav-link border-0 text-uppercase fw-bold text-white @(VM.ActiveTab == 0 ? "active bg-white text-dark" : "hover-darken")" 
-                                style="border-radius: 4px 0 0 0;"
-                                @onclick="() => SetTab(0)">
-                            <i class="bi bi-list-ul me-2"></i> Inventory List
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link border-0 text-uppercase fw-bold text-white @(VM.ActiveTab == 1 ? "active bg-white text-dark" : "hover-darken")" 
-                                style="border-radius: 0 4px 0 0;"
-                                @onclick="() => SetTab(1)">
-                            <i class="bi bi-person-bounding-box me-2"></i> Equipped Gear
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body p-4 bg-light">
-                
-                @if (VM.ActiveTab == 0)
-                {
-                    <div class="alert alert-info">Inventory List Component Goes Here</div>
-                    @* <InventoryListSection VM="VM" /> *@
-                }
-                else if (VM.ActiveTab == 1)
-                {
-                    <div class="alert alert-success">Gear Paper-Doll Component Goes Here</div>
-                    @* <GearPaperDollSection VM="VM" /> *@
-                }
+    </div>
+}
+else
+{
+    <div class="page-wrapper">
 
-            </div>
+        @* DOCKED TOP TABS *@
+        <div class="sub-nav-header">
+            <ul class="nav nav-tabs sub-nav-tabs">
+                <li class="nav-item">
+                    <button class="nav-link @(VM.ActiveTab == 0 ? "active" : "")" @onclick="() => SetTab(0)">
+                        <i class="bi bi-list-ul me-2"></i> Inventory List
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link @(VM.ActiveTab == 1 ? "active" : "")" @onclick="() => SetTab(1)">
+                        <i class="bi bi-person-bounding-box me-2"></i> Equipped Gear
+                    </button>
+                </li>
+            </ul>
         </div>
-    }
-</div>
+
+        @* SCROLLABLE CONTENT AREA *@
+        <div class="page-scroll-content">
+            @if (VM.ActiveTab == 0)
+            {
+                <div class="alert alert-info shadow-sm">
+                    <h5>Inventory List Component</h5>
+                    <p class="mb-0">This area will scroll independently if you have 100 items, while the tabs above stay perfectly locked in place!</p>
+                </div>
+                @* <InventoryListSection VM="VM" /> *@
+            }
+            else if (VM.ActiveTab == 1)
+            {
+                <div class="alert alert-success shadow-sm">
+                    <h5>Gear Paper-Doll Component</h5>
+                    <p class="mb-0">Equip items to specific slots here.</p>
+                </div>
+                @* <GearPaperDollSection VM="VM" /> *@
+            }
+        </div>
+
+    </div>
+}
 
 @code {
     protected override void OnInitialized()
@@ -64,12 +69,3 @@
         StateService.StateChanged -= StateHasChanged;
     }
 }
-
-<style>
-    .hover-darken:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-    .nav-tabs .nav-link.active {
-        border-bottom: 3px solid #0d6efd !important;
-    }
-</style>
