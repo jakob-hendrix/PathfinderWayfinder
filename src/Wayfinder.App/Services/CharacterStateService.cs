@@ -45,8 +45,7 @@ public partial class CharacterStateService : ObservableObject
             BaseCharisma = 10
         };
 
-        ActiveSheet = new CharacterSheet(newCharacter, _engine);
-        RefreshDomain();
+        LoadCharacter(newCharacter);
     }
 
     // Inside CharacterStateService.cs or a SaveManager
@@ -76,17 +75,19 @@ public partial class CharacterStateService : ObservableObject
     {
         ActiveCharacter = entity;
         ActiveSheet = new CharacterSheet(entity, _engine);
+
+        // --- HYDRATE INVENTORY ---
+        // Convert all the lightweight save entities back into rich ItemInstances
+        var hydratedItems = entity.Inventory.Select(itemEntity => _engine.ItemFactory.RehydrateItem(itemEntity));
+        ActiveSheet.LoadHydratedInventory(hydratedItems);
+
         RefreshDomain();
     }
 
     public void RefreshDomain()
     {
         if (ActiveCharacter == null) return;
-
-        // Trigger the sheet to recalculate it bits and bobs
         ActiveSheet?.Refresh();
-
-        // 2. Announce to anyone listening that the factory just rebuilt the world
         StateChanged?.Invoke();
     }
 

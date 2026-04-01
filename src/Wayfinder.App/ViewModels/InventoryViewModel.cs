@@ -48,6 +48,20 @@ public class InventoryViewModel
 
     // --- Actions ---
 
+    public void ChangeItemContainer(ItemInstance item, Guid? newContainerId)
+    {
+        if (Sheet == null) return;
+        item.ContainerId = newContainerId;
+        _stateService.RefreshDomain();
+    }
+
+    public void ChangeItemQuantity(ItemInstance item, int newQuantity)
+    {
+        if (Sheet == null) return;
+        item.Quantity = Math.Max(1, newQuantity); // Don't allow 0 or negative
+        _stateService.RefreshDomain();
+    }
+
     public void AddItemFromLibrary(string templateId)
     {
         if (Sheet == null) return;

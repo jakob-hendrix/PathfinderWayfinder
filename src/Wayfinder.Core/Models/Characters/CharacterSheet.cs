@@ -191,6 +191,16 @@ public class CharacterSheet
     private readonly List<ItemInstance> _inventory = new();
     public IReadOnlyList<ItemInstance> Inventory => _inventory;
 
+    /// <summary>
+    /// Loads rich ItemInstances directly into the sheet's memory. 
+    /// Used during initialization so we don't duplicate save data.
+    /// </summary>
+    public void LoadHydratedInventory(IEnumerable<ItemInstance> loadedItems)
+    {
+        _inventory.Clear();
+        _inventory.AddRange(loadedItems);
+    }
+
     public void AddItem(ItemInstance item)
     {
         // 1. Add the rich instance to the sheet's memory
