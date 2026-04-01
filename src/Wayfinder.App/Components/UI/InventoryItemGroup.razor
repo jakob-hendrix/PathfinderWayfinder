@@ -1,0 +1,248 @@
+@using Wayfinder.Core.Constants
+@using Wayfinder.Core.Models.Items
+@using Wayfinder.App.ViewModels
+
+<style>
+    .inventory-group {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #fff;
+        overflow: hidden;
+    }
+
+    .inventory-group-header {
+        background-color: #2e3b2c;
+        color: #e0e8df;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .inventory-group-header:hover { background-color: #3b4d38; }
+
+    .inventory-table {
+        width: 100%;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+
+    .inventory-table th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+        padding: 0.5rem;
+    }
+
+    .inventory-table td {
+        vertical-align: middle;
+        padding: 0.4rem 0.5rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .inventory-table tr:hover { background-color: #fbfbfb; }
+
+    .inv-input {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.85rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        width: 100%;
+    }
+
+    .inv-input:focus {
+        border-color: #6b8e23;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(107, 142, 35, 0.25);
+    }
+
+    .btn-action-icon {
+        padding: 0.15rem 0.4rem;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .btn-equip {
+        background-color: #f8f9fa;
+        color: #2e3b2c;
+        border-color: #ced4da;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    .btn-equip:hover {
+        background-color: #6b8e23;
+        color: #fff;
+        border-color: #6b8e23;
+    }
+
+    .btn-delete { color: #dc3545; background: transparent; }
+    .btn-delete:hover { background-color: #dc3545; color: #fff; border-color: #dc3545; }
+
+    .add-item-row {
+        padding: 0.75rem;
+        background-color: #fbfbfb;
+        border-top: 1px solid #f0f0f0;
+        text-align: center;
+    }
+
+    .btn-add-dashed {
+        border: 2px dashed #ced4da;
+        color: #6c757d;
+        background: transparent;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-add-dashed:hover {
+        border-color: #6b8e23;
+        color: #6b8e23;
+        background-color: rgba(107, 142, 35, 0.05);
+    }
+</style>
+
+<div class="inventory-group shadow-sm">
+    @* Clickable Header *@
+    <div class="inventory-group-header" @onclick="ToggleExpanded">
+        <div>
+            <i class="bi @(_isExpanded ? "bi-chevron-down" : "bi-chevron-right") me-2"></i>
+            <span>@Title</span>
+        </div>
+        <span class="badge" style="background-color: rgba(255,255,255,0.2); color: #fff;">@ItemList.Count Items</span>
+    </div>
+
+    @if (_isExpanded)
+    {
+        if (ItemList.Any())
+        {
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Item Name</th>
+                        <th style="width: 10%; text-align: center;">Qty</th>
+                        <th style="width: 10%; text-align: center;">Wt.</th>
+                        <th style="width: 15%;">State</th>
+                        <th style="width: 20%;">Location</th>
+                        <th style="width: 15%; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ItemList)
+                    {
+                        bool isEquipped = item.State == ItemState.Equipped;
+
+                        <tr style="@(isEquipped ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
+                            <td class="fw-bold text-dark">
+                                @item.DisplayName
+                                @if (isEquipped)
+                                {
+                                    <span class="badge bg-secondary ms-2" style="font-size: 0.6rem;">EQUIPPED</span>
+                                }
+                            </td>
+                            <td>
+                                <input type="number" class="inv-input text-center" value="@item.Quantity" 
+                                       min="1" disabled="@isEquipped"
+                                       @onchange="@(e => VM.ChangeItemQuantity(item, Convert.ToInt32(e.Value)))" />
+                            </td>
+                            <td class="text-center font-monospace">
+                                @item.TotalWeight.ToString("0.#")
+                            </td>
+                            <td>
+                                <select class="inv-input" value="@item.State" disabled="@isEquipped" @onchange="@(e => OnStateChanged(item, e))">
+                                    @foreach (var state in Enum.GetValues<ItemState>())
+                                    {
+                                        <option value="@state">@state</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <select class="inv-input" value="@item.ContainerId" disabled="@isEquipped" @onchange="@(e => OnContainerChanged(item, e))">
+                                    <option value="">-- Loose --</option>
+                                    @foreach (var container in VM.Containers.Where(c => c.Id != item.Id)) 
+                                    {
+                                        <option value="@container.Id">@container.DisplayName</option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    @if (!isEquipped && (item.BaseStats.Type == ItemType.Weapon || item.BaseStats.Type == ItemType.Armor))
+                                    {
+                                        <button class="btn-action-icon btn-equip" @onclick="() => QuickEquip(item)" title="Equip">Equip</button>
+                                    }
+                                    <button class="btn-action-icon btn-delete" @onclick="() => VM.RemoveItem(item)" title="Delete Item">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="p-4 text-center text-muted fst-italic" style="font-size: 0.9rem;">
+                You are not carrying any @Title.ToLower().
+            </div>
+        }
+
+        <div class="add-item-row">
+            <button class="btn w-100 btn-add-dashed" @onclick="NotifyAddClicked">
+                <i class="bi bi-plus-lg me-1"></i> Add @Title
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IEnumerable<ItemInstance> Items { get; set; } = Array.Empty<ItemInstance>();
+    [Parameter, EditorRequired] public ItemType CategoryType { get; set; }
+    [Parameter, EditorRequired] public InventoryViewModel VM { get; set; } = default!;
+    
+    // Passes the Title and the ItemType back up to the parent so it knows how to configure the Modal
+    [Parameter] public EventCallback<(string Title, ItemType Type)> OnAddClicked { get; set; }
+
+    private bool _isExpanded = true;
+    private List<ItemInstance> ItemList => Items.ToList();
+
+    private void ToggleExpanded() => _isExpanded = !_isExpanded;
+
+    private async Task NotifyAddClicked()
+    {
+        await OnAddClicked.InvokeAsync((Title, CategoryType));
+    }
+
+    private void OnStateChanged(ItemInstance item, ChangeEventArgs e)
+    {
+        if (Enum.TryParse<ItemState>(e.Value?.ToString(), out var newState))
+            VM.ChangeItemState(item, newState);
+    }
+
+    private void OnContainerChanged(ItemInstance item, ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        Guid? newContainerId = string.IsNullOrEmpty(val) ? null : Guid.Parse(val);
+        VM.ChangeItemContainer(item, newContainerId);
+    }
+
+    private void QuickEquip(ItemInstance item)
+    {
+        EquipmentSlot targetSlot = item.BaseStats.Type == ItemType.Weapon ? EquipmentSlot.MainHand : EquipmentSlot.Chest;
+        VM.EquipItem(item, targetSlot);
+    }
+}

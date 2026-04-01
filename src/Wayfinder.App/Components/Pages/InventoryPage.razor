@@ -33,18 +33,10 @@ else
         <div class="page-scroll-content">
             @if (VM.ActiveTab == 0)
             {
-                <div class="alert alert-info shadow-sm">
-                    <h5>Inventory List Component</h5>
-                    <p class="mb-0">This area will scroll independently if you have 100 items, while the tabs above stay perfectly locked in place!</p>
-                </div>
                 <InventoryListSection VM="VM" />
             }
             else if (VM.ActiveTab == 1)
             {
-                <div class="alert alert-success shadow-sm">
-                    <h5>Gear Paper-Doll Component</h5>
-                    <p class="mb-0">Equip items to specific slots here.</p>
-                </div>
                 @* <GearPaperDollSection VM="VM" /> *@
             }
         </div>

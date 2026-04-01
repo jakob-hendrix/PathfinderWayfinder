@@ -6,5 +6,6 @@ namespace Wayfinder.Core.Interfaces
     {
         public void Register(ItemDefinition itemDefinition);
         public ItemDefinition GetItemDefinition(string id);
+        public List<ItemDefinition> GetAllDefinitions();
     }
 }

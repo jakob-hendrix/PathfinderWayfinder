@@ -13,3 +13,135 @@
     SpellFailure: 20
     Speed30: 30
     Speed20: 20
+
+- Name: "Backpack"
+  Type: "AdventuringGear"
+  Cost: 2
+  Weight: 2.0
+  Description: >
+    A common canvas or leather backpack with multiple pockets and straps.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Backpack%20(common)"
+  Properties:
+    CapacityWeight: "50"
+
+- Name: "Bedroll"
+  Type: "AdventuringGear"
+  Cost: 0.1
+  Weight: 5.0
+  Description: >
+    Two woolen blankets and a thin pad for sleeping on the ground.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Bedroll"
+  Properties: {}
+
+- Name: "Blanket"
+  Type: "AdventuringGear"
+  Cost: 0.5
+  Weight: 3.0
+  Description: >
+    A thick, woven blanket to keep you warm or provide padding.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Blanket"
+  Properties: {}
+
+- Name: "Caltrops"
+  Type: "AdventuringGear"
+  Cost: 1
+  Weight: 2.0
+  Description: >
+    Four-pronged metal spikes designed to slow or injure enemies on the ground.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Caltrops"
+  Properties: {}
+
+- Name: "Chalk"
+  Type: "AdventuringGear"
+  Cost: 0.01
+  Weight: 0.0
+  Description: >
+    A simple piece of white chalk for marking paths or messages.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Chalk"
+  Properties: {}
+
+- Name: "Crowbar"
+  Type: "AdventuringGear"
+  Cost: 2
+  Weight: 5.0
+  Description: >
+    A heavy iron lever providing a +2 circumstance bonus to force open doors or chests.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Crowbar"
+  Properties:
+    BonusSkill: "Strength"
+    BonusValue: "2"
+
+- Name: "Flint and steel"
+  Type: "AdventuringGear"
+  Cost: 1
+  Weight: 0.0
+  Description: >
+    Striking these together creates sparks to light tinder or torches.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Flint%20and%20steel"
+  Properties: {}
+
+- Name: "Grappling hook"
+  Type: "AdventuringGear"
+  Cost: 1
+  Weight: 4.0
+  Description: >
+    An iron hook used for securing climbing lines.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Grappling%20hook%20(common)"
+  Properties: {}
+
+- Name: "Mirror"
+  Type: "AdventuringGear"
+  Cost: 10
+  Weight: 0.5
+  Description: >
+    A small, polished steel mirror for signaling or looking around corners.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Mirror"
+  Properties: {}
+
+- Name: "Rope (50 ft.)"
+  Type: "AdventuringGear"
+  Cost: 1
+  Weight: 10.0
+  Description: >
+    50 feet of sturdy hemp rope.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Rope%20(50%20ft.)"
+  Properties:
+    Length: "50"
+
+- Name: "Silk rope (50 ft.)"
+  Type: "AdventuringGear"
+  Cost: 10
+  Weight: 5.0
+  Description: >
+    Lighter and stronger than hemp, providing a +2 bonus on Use Rope checks.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Silk%20rope%20(50%20ft.)"
+  Properties:
+    Length: "50"
+
+- Name: "Tent (small)"
+  Type: "AdventuringGear"
+  Cost: 10
+  Weight: 20.0
+  Description: >
+    A canvas shelter designed for one Medium creature.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Tent%20(small)"
+  Properties: {}
+
+- Name: "Torch"
+  Type: "AdventuringGear"
+  Cost: 0.01
+  Weight: 1.0
+  Description: >
+    A pitch-tipped rod that burns for 1 hour, shedding normal light in a 20ft radius.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Torch"
+  Properties: {}
+
+- Name: "Waterskin"
+  Type: "AdventuringGear"
+  Cost: 1
+  Weight: 4.0
+  Description: >
+    A leather bag designed to hold 1/2 gallon of liquid.
+  URL: "https://aonprd.com/EquipmentMiscDisplay.aspx?ItemName=Waterskin"
+  Properties:
+    CapacityVolume: "0.5 gallons"

@@ -7,7 +7,7 @@ public class ItemDefinition
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public double Weight { get; set; }
-    public int Cost { get; set; }
+    public double Cost { get; set; }
     public string ItemType { get; set; }
     public string Description { get; set; } = string.Empty;
     public string URL { get; set; } = string.Empty;

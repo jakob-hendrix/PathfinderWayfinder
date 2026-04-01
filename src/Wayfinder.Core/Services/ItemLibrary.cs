@@ -10,6 +10,9 @@ namespace Wayfinder.Core.Services
 
         public void Clear() => _itemDefinitions.Clear();
 
+        // Grab the values from the dictionary and materialize them into a List
+        public List<ItemDefinition> GetAllDefinitions() => _itemDefinitions.Values.ToList();
+
         public ItemDefinition GetItemDefinition(string id)
         {
             if (_itemDefinitions.TryGetValue(id, out var itemDefinition))

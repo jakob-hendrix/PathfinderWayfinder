@@ -1,5 +1,6 @@
 ﻿using Wayfinder.App.Services;
 using Wayfinder.Core.Constants;
+using Wayfinder.Core.DataDefinitions;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Items;
@@ -89,6 +90,17 @@ public class InventoryViewModel
         _stateService.RefreshDomain();
     }
 
+    public void RemoveItem(ItemInstance item)
+    {
+        if (Sheet == null) return;
+
+        // The sheet manages removing it from both the rich list and the save entity
+        Sheet.RemoveItem(item);
+
+        // Recalculate encumbrance and update the UI everywhere
+        _stateService.RefreshDomain();
+    }
+
     public void EquipItem(ItemInstance item, EquipmentSlot slot)
     {
         if (Sheet == null) return;
@@ -106,5 +118,17 @@ public class InventoryViewModel
         item.ContainerId = null;
 
         _stateService.RefreshDomain();
+    }
+
+    // Add this method to query the library for the picker
+    public IEnumerable<ItemDefinition> GetLibraryTemplates(ItemType categoryType)
+    {
+        // Assuming your library has a way to get all definitions. 
+        // We filter it by the string mapping of the enum.
+        var typeString = categoryType.ToString();
+
+        return _itemLibrary.GetAllDefinitions()
+                           .Where(d => d.ItemType.Equals(typeString, StringComparison.OrdinalIgnoreCase))
+                           .OrderBy(d => d.Name);
     }
 }

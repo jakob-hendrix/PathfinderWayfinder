@@ -1,0 +1,144 @@
+@typeparam TItem
+
+@if (IsOpen)
+{
+    <div class="picker-backdrop" @onclick="Close">
+        <div class="picker-modal shadow" @onclick:stopPropagation="true">
+            
+            @* Header *@
+            <div class="picker-header">
+                <h5 class="mb-0">@Title</h5>
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" @onclick="Close"></button>
+            </div>
+
+            @* Search Bar *@
+            <div class="picker-search">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 ps-0 shadow-none" 
+                           placeholder="Search..." 
+                           @bind="SearchText" 
+                           @bind:event="oninput" 
+                           autofocus />
+                </div>
+            </div>
+
+            @* Scrollable List *@
+            <div class="picker-body">
+                @if (FilteredItems.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var item in FilteredItems)
+                        {
+                            <button type="button" class="list-group-item list-group-item-action picker-item" @onclick="() => SelectItem(item)">
+                                <div class="fw-bold text-dark">@GetName(item)</div>
+                                @if (GetSubText != null)
+                                {
+                                    <small class="text-muted">@GetSubText(item)</small>
+                                }
+                            </button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center p-4 text-muted fst-italic">
+                        No matches found.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string Title { get; set; } = "Select Item";
+    
+    // The raw data
+    [Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = Array.Empty<TItem>();
+    
+    // Delegates that tell the generic picker how to read your specific object
+    [Parameter, EditorRequired] public Func<TItem, string> GetName { get; set; } = default!;
+    [Parameter] public Func<TItem, string>? GetSubText { get; set; }
+    [Parameter, EditorRequired] public Func<TItem, string> GetSearchString { get; set; } = default!;
+
+    // Events
+    [Parameter] public EventCallback<TItem> OnItemSelected { get; set; }
+    [Parameter] public EventCallback OnClosed { get; set; }
+
+    private string SearchText { get; set; } = string.Empty;
+
+    // The greedy filter logic
+    private IEnumerable<TItem> FilteredItems => 
+        string.IsNullOrWhiteSpace(SearchText) 
+            ? Items 
+            : Items.Where(i => GetSearchString(i).Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+    private async Task SelectItem(TItem item)
+    {
+        await OnItemSelected.InvokeAsync(item);
+        SearchText = string.Empty; // Reset search for next time
+    }
+
+    private async Task Close()
+    {
+        SearchText = string.Empty;
+        await OnClosed.InvokeAsync();
+    }
+}
+
+<style>
+    .picker-backdrop {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .picker-modal {
+        background-color: #fff;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 500px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .picker-header {
+        background-color: #2e3b2c; /* Earthy dark green */
+        color: #e0e8df;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .picker-search {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .picker-body {
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    .picker-item {
+        border-left: 4px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .picker-item:hover {
+        background-color: #fbfbfb;
+        border-left-color: #6b8e23; /* Olive green accent */
+    }
+</style>
