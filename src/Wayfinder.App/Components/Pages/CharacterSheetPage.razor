@@ -11,17 +11,24 @@
     else
     {
         <div class="px-2">
-            @* TOP HEADER (Remains standard Bootstrap so it spans 100%) *@
+            @* TOP HEADER *@
             <div class="row mb-4">
                 <div class="col-12">
                     <CharacterHeader VM="VM" />
                 </div>
             </div>
 
-            @* MOVEMENT BANNER *@
+            @* MOVEMENT ROW *@
+            <div class="row mb-3">
+                <div class="col-12">
+                    <MovementSection VM="@VM" />
+                </div>
+            </div>
+
+            @* ENCUMBRANCE ROW *@
             <div class="row mb-4">
                 <div class="col-12">
-                    <MovementSection VM="VM" />
+                    <EncumbranceSection VM="@VM" />
                 </div>
             </div>
 

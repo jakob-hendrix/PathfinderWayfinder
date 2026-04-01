@@ -37,6 +37,7 @@ public static class CarryCapacityCalculator
 
     private static double GetSizeAndLegMultiplier(SizeCategory size, int legs)
     {
+        // TODO - what if you have 8 legs? 1000?
         bool isQuadruped = legs >= 4;
 
         return size switch

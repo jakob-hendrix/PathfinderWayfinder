@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Wayfinder.App.Services;
 using Wayfinder.Core.DomainModels.Stats;
 using Wayfinder.Core.Extensions;
 using Wayfinder.Core.Interfaces;
@@ -8,7 +9,7 @@ using Wayfinder.Core.Models.Characters;
 using Wayfinder.Core.Models.Items;
 using Wayfinder.Core.Rules.Calculators;
 
-namespace Wayfinder.App.Services
+namespace Wayfinder.App.ViewModels
 {
     // TODO: add auto-save feature
     // "Debounced save" - save whenever a change happens and some period of idle time occurs
@@ -171,6 +172,19 @@ namespace Wayfinder.App.Services
 
         // 2. Update RunSpeed to use the dynamic multiplier instead of the hardcoded 4
         public int RunSpeed => (LandSpeed?.Total ?? 0) * RunMultiplier;
+        #endregion
+
+        #region Encumbrance
+        public string CurrentEncumbrance => ActiveSheet!.CurrentEncumbrance.ToString();
+        public double TotalCarriedWeight => ActiveSheet!.TotalCarriedWeight;
+
+        public int LightLoadLimit => ActiveSheet!.LightLoadLimit;
+        public int MediumLoadLimit => ActiveSheet!.MediumLoadLimit;
+        public int MaxCarryCapacity => ActiveSheet!.MaxCarryCapacity; // This is the Heavy limit
+
+        public int LiftOverHead => ActiveSheet!.LiftOverHead;
+        public int LiftOffGround => ActiveSheet!.LiftOffGround;
+        public int PushOrDrag => ActiveSheet!.PushOrDrag;
         #endregion
 
         private void TriggerFullRecalc()

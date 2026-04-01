@@ -1,0 +1,159 @@
+@using Wayfinder.UI.ViewModels
+
+<style>
+    .pf-encumbrance-card {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        border: 2px solid #212529;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+
+    .pf-encumbrance-header {
+        background-color: #212529;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 1px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    .pf-encumbrance-subheader {
+        display: flex;
+        background-color: #e9ecef;
+        border-bottom: 2px solid #212529;
+        font-size: 0.65rem;
+        font-weight: bold;
+        color: #6c757d;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .pf-encumbrance-row {
+        display: flex;
+        align-items: stretch;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+        .pf-encumbrance-row:last-child {
+            border-bottom: none;
+        }
+
+        .pf-encumbrance-row:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+    .pf-encumbrance-col-name {
+        font-weight: bold;
+        font-size: 0.9rem;
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end; /* Aligns label text to the right near the value */
+        border-right: 2px solid #212529;
+        color: #212529;
+        text-transform: uppercase;
+    }
+
+    .pf-encumbrance-col-val {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        color: #212529;
+    }
+
+    .pf-encumbrance-col-val-split {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px solid #dee2e6;
+    }
+
+        .pf-encumbrance-col-val-split:last-child {
+            border-right: none;
+        }
+</style>
+
+<div class="pf-encumbrance-card shadow-sm mb-3">
+    <div class="pf-encumbrance-header">
+        Encumbrance
+    </div>
+
+    @* ROW 1: Current Weight & Status (Split 50/50) *@
+    <div class="pf-encumbrance-row">
+        <div class="pf-encumbrance-col-name" style="width: 25%;">Weight</div>
+        <div class="pf-encumbrance-col-val" style="width: 25%; border-right: 2px solid #212529;">
+            <span class="font-monospace fw-bold fs-5">@VM.TotalCarriedWeight.ToString("0.##")</span>
+            <span class="ms-1 text-muted" style="font-size: 0.75rem; padding-top: 3px;">lbs</span>
+        </div>
+
+        <div class="pf-encumbrance-col-name" style="width: 25%;">Load</div>
+        <div class="pf-encumbrance-col-val" style="width: 25%;">
+            <span class="badge @GetBadgeColor() px-3 py-2 shadow-sm" style="font-size: 0.85rem; border: 1px solid rgba(0,0,0,0.1);">
+                @VM.CurrentEncumbrance
+            </span>
+        </div>
+    </div>
+
+    @* SUBHEADER: Load Limits *@
+    <div class="pf-encumbrance-subheader" style="border-top: 2px solid #212529;">
+        <div style="flex: 1; border-right: 1px solid #dee2e6; padding: 2px 0;">Light Load</div>
+        <div style="flex: 1; border-right: 1px solid #dee2e6; padding: 2px 0;">Medium Load</div>
+        <div style="flex: 1; padding: 2px 0;">Heavy Load</div>
+    </div>
+
+    @* ROW 2: Load Limits Data *@
+    <div class="pf-encumbrance-row" style="font-size: 0.95rem;">
+        <div class="pf-encumbrance-col-val-split font-monospace text-muted">
+            ≤ @VM.LightLoadLimit
+        </div>
+        <div class="pf-encumbrance-col-val-split font-monospace text-muted">
+            ≤ @VM.MediumLoadLimit
+        </div>
+        <div class="pf-encumbrance-col-val-split font-monospace fw-bold">
+            ≤ @VM.MaxCarryCapacity
+        </div>
+    </div>
+
+    @* SUBHEADER: Physics *@
+    <div class="pf-encumbrance-subheader" style="border-top: 2px solid #212529;">
+        <div style="flex: 1; border-right: 1px solid #dee2e6; padding: 2px 0;">Lift (Head)</div>
+        <div style="flex: 1; border-right: 1px solid #dee2e6; padding: 2px 0;">Lift (Ground)</div>
+        <div style="flex: 1; padding: 2px 0;">Push / Drag</div>
+    </div>
+
+    @* ROW 3: Physics Data *@
+    <div class="pf-encumbrance-row" style="font-size: 0.95rem;">
+        <div class="pf-encumbrance-col-val-split font-monospace">
+            @VM.LiftOverHead
+        </div>
+        <div class="pf-encumbrance-col-val-split font-monospace">
+            @VM.LiftOffGround
+        </div>
+        <div class="pf-encumbrance-col-val-split font-monospace">
+            @VM.PushOrDrag
+        </div>
+    </div>
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public CharacterSheetViewModel VM { get; set; } = default!;
+
+    private string GetBadgeColor()
+    {
+        return VM.CurrentEncumbrance switch
+        {
+            "Light" => "bg-success text-white",
+            "Medium" => "bg-warning text-dark",
+            "Heavy" => "bg-danger text-white",
+            "Overloaded" => "bg-dark text-danger",
+            _ => "bg-secondary text-white"
+        };
+    }
+}
