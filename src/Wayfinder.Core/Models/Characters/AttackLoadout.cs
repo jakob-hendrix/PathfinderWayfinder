@@ -1,13 +1,17 @@
-﻿namespace Wayfinder.Core.Models.Characters
+﻿namespace Wayfinder.Core.Models.Characters;
+
+public class AttackLoadout
 {
-    public class AttackLoadout
-    {
-        // TODO: implement
-        // This represents a defined set of attacks that the player can configure
-        // So something like
-        // Main Hand: Longsword +1 + Power Attack (things like weapon focus longsword would be calculated based
-        // Off Hand: Shield - Shield Slam
-        //
-        // Things like Weapon Focus (+1) and Haste (+1) would be derived from the collection of effects/abilities
-    }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = "New Loadout";
+
+    // Pointers to the ItemEntity / ItemInstance IDs
+    public Guid? MainHandItemId { get; set; }
+    public Guid? OffHandItemId { get; set; }
+
+    // Critical for Pathfinder math: Are they gripping a 1H weapon with two hands?
+    public bool IsTwoHandingMainWeapon { get; set; }
+
+    // Is this the loadout the character is currently holding?
+    public bool IsActive { get; set; }
 }

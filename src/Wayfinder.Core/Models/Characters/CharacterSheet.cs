@@ -89,6 +89,49 @@ public class CharacterSheet
 
     #region Combat Stats
     public int BaseAttackBonus => BabCalculator.Calculate(ClassLevels);
+
+    // --- LOADOUT MANAGEMENT ---
+
+    // The read-only list exposed to the UI
+    private readonly List<AttackLoadout> _loadouts = new();
+    public IReadOnlyList<AttackLoadout> Loadouts => _loadouts;
+
+    /// <summary>
+    /// Call this when hydrating the character from the database
+    /// </summary>
+    public void LoadHydratedLoadouts()
+    {
+        _loadouts.Clear();
+        if (BaseCharacter.AttacksLoadouts != null)
+        {
+            _loadouts.AddRange(BaseCharacter.AttacksLoadouts);
+        }
+
+        // Ensure at least one default loadout exists
+        if (!_loadouts.Any())
+        {
+            var defaultLoadout = new AttackLoadout { Name = "Default Loadout", IsActive = true };
+            AddLoadout(defaultLoadout);
+        }
+    }
+
+    public void AddLoadout(AttackLoadout loadout)
+    {
+        _loadouts.Add(loadout);
+
+        // Keep the save entity in sync!
+        if (!BaseCharacter.AttacksLoadouts.Contains(loadout))
+        {
+            BaseCharacter.AttacksLoadouts.Add(loadout);
+        }
+    }
+
+    public void RemoveLoadout(AttackLoadout loadout)
+    {
+        _loadouts.Remove(loadout);
+        BaseCharacter.AttacksLoadouts.Remove(loadout);
+    }
+
     #endregion
 
     #region Saving Throws

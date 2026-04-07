@@ -1,0 +1,270 @@
+@using Wayfinder.Core.Constants
+@using Wayfinder.Core.Models.Characters
+@using Wayfinder.Core.Models.Items
+@using Wayfinder.App.ViewModels
+@using Wayfinder.App.Components.Common
+
+<div class="equip-grid">
+    
+    @* === LEFT COLUMN: STANDARD BODY SLOTS === *@
+    <div class="equip-card shadow-sm h-100">
+        <div class="equip-card-header">
+            <span><i class="bi bi-person-fill me-2"></i>Body & Gear</span>
+        </div>
+        
+        <div class="d-flex flex-column">
+            <div class="equip-subheader">Armor</div>
+            @RenderSlotGroup(_armorSlots)
+
+            <div class="equip-subheader">Rings</div>
+            @RenderSlotGroup(_ringSlots)
+
+            <div class="equip-subheader">Wondrous Items</div>
+            @RenderSlotGroup(_wondrousSlots)
+        </div>
+    </div>
+
+    @* === RIGHT COLUMN: COMBAT LOADOUTS === *@
+    <div class="equip-card shadow-sm h-100">
+        <div class="equip-card-header">
+            <span><i class="bi bi-swords me-2"></i>Combat Loadouts</span>
+            <button class="btn btn-sm btn-light py-0" @onclick="VM.AddNewLoadout">
+                <i class="bi bi-plus-lg text-success fw-bold"></i> New
+            </button>
+        </div>
+        
+        <div class="d-flex flex-column pb-3">
+            @if (!VM.Loadouts.Any())
+            {
+                <div class="text-center p-4 text-muted fst-italic">
+                    No weapon loadouts created. 
+                </div>
+            }
+            
+            @foreach (var loadout in VM.Loadouts)
+            {
+                <div class="loadout-item @(loadout.IsActive ? "active-loadout" : "")">
+                    <div class="loadout-header">
+                        <input type="text" class="loadout-name w-50" @bind="loadout.Name" />
+                        <div>
+                            @if (!loadout.IsActive)
+                            {
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => VM.SetActiveLoadout(loadout.Id)">Set Active</button>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> ACTIVE</span>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="p-3">
+                        @* Main Hand *@
+                        <div class="mb-2">
+                            <label class="slot-label d-block mb-1">Main Hand</label>
+                            <div class="d-flex w-100 gap-1">
+                                <div class="slot-select-btn @(loadout.MainHandItemId != null && loadout.MainHandItemId != UnarmedSlotId ? "fw-bold text-dark" : "text-muted")" 
+                                     @onclick="() => OpenLoadoutPicker(loadout, true)">
+                                    @GetLoadoutItemName(loadout.MainHandItemId, true)
+                                </div>
+                                @if (loadout.MainHandItemId != null && loadout.MainHandItemId != UnarmedSlotId)
+                                {
+                                    <button class="btn-unequip" @onclick="() => ClearLoadoutHand(loadout, true)" title="Unequip">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        
+                        @* Two-Handed Toggle (Only available if holding a physical weapon) *@
+                        @if (loadout.MainHandItemId != null && loadout.MainHandItemId != UnarmedSlotId)
+                        {
+                            <div class="form-check mb-3 ms-1">
+                                <input class="form-check-input" type="checkbox" id="twoHand_@loadout.Id" @bind="loadout.IsTwoHandingMainWeapon">
+                                <label class="form-check-label text-muted" style="font-size: 0.8rem;" for="twoHand_@loadout.Id">
+                                    Wield with both hands (1.5x STR)
+                                </label>
+                            </div>
+                        }
+
+                        @* Off Hand *@
+                        <div class="mb-2">
+                            <label class="slot-label d-block mb-1">Off Hand</label>
+                            <div class="d-flex w-100 gap-1">
+                                <button class="slot-select-btn w-100 @(loadout.OffHandItemId != null ? "fw-bold text-dark" : "text-muted")" 
+                                        style="border: 1px solid #ced4da; background-color: #fff;"
+                                        disabled="@loadout.IsTwoHandingMainWeapon"
+                                        @onclick="() => OpenLoadoutPicker(loadout, false)">
+                                    @GetLoadoutItemName(loadout.OffHandItemId, false)
+                                </button>
+                                @if (loadout.OffHandItemId != null)
+                                {
+                                    <button class="btn-unequip" @onclick="() => ClearLoadoutHand(loadout, false)" title="Unequip">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+@* --- THE MODAL OVERLAY --- *@
+<GenericPickerModal TItem="ItemInstance"
+                    IsOpen="@_isPickerOpen"
+                    Title="@_pickerTitle"
+                    Items="@_pickerItems"
+                    GetName="@(item => item.DisplayName)"
+                    GetSubText="@(item => item.Id == UnarmedSlotId || item.Id == EmptySlotId ? "Innate" : $"{item.TotalWeight.ToString("0.##")} lbs | Quantity: {item.Quantity}")"
+                    GetSearchString="@(item => item.DisplayName)"
+                    OnItemSelected="HandleItemSelected"
+                    OnClosed="() => _isPickerOpen = false" />
+
+@code {
+    [Parameter, EditorRequired]
+    public InventoryViewModel VM { get; set; } = default!;
+
+    private enum PickerTarget { None, StandardSlot, LoadoutMainHand, LoadoutOffHand }
+
+    // --- Special Identifiers for the Modal Dummies ---
+    private static readonly Guid EmptySlotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+    private static readonly Guid UnarmedSlotId = Guid.Empty;
+
+    private ItemInstance _unarmedDummy = new ItemInstance(
+        new ItemEntity { Id = UnarmedSlotId }, 
+        new Wayfinder.Core.Models.Items.AdventuringGearItem { Name = "Unarmed", Weight = 0 }
+    );
+
+    private ItemInstance _emptyDummy = new ItemInstance(
+        new ItemEntity { Id = EmptySlotId }, 
+        new Wayfinder.Core.Models.Items.AdventuringGearItem { Name = "Empty (Free Hand)", Weight = 0 }
+    );
+
+    // --- Slot Definitions ---
+    private readonly EquipmentSlot[] _armorSlots = { EquipmentSlot.Armor };
+    private readonly EquipmentSlot[] _ringSlots = { EquipmentSlot.Ring1, EquipmentSlot.Ring2 };
+    private readonly EquipmentSlot[] _wondrousSlots = { 
+        EquipmentSlot.Head, EquipmentSlot.Headband, EquipmentSlot.Eyes, 
+        EquipmentSlot.Shoulders, EquipmentSlot.Neck, EquipmentSlot.Chest, 
+        EquipmentSlot.Body, EquipmentSlot.Belt, EquipmentSlot.Wrists, 
+        EquipmentSlot.Hands, EquipmentSlot.Feet 
+    };
+
+    // --- Modal State ---
+    private bool _isPickerOpen;
+    private string _pickerTitle = "Select Item";
+    private IEnumerable<ItemInstance> _pickerItems = Array.Empty<ItemInstance>();
+    
+    private PickerTarget _currentTarget = PickerTarget.None;
+    private EquipmentSlot _activeSlot;
+    private AttackLoadout? _activeLoadout;
+
+    // --- Actions ---
+    private void OpenSlotPicker(EquipmentSlot slot)
+    {
+        _currentTarget = PickerTarget.StandardSlot;
+        _activeSlot = slot;
+        _pickerTitle = $"Equip to {slot}";
+        _pickerItems = VM.GetEquippableItemsForSlot(slot);
+        _isPickerOpen = true;
+    }
+
+    private void OpenLoadoutPicker(AttackLoadout loadout, bool isMainHand)
+    {
+        _currentTarget = isMainHand ? PickerTarget.LoadoutMainHand : PickerTarget.LoadoutOffHand;
+        _activeLoadout = loadout;
+        _pickerTitle = isMainHand ? "Select Main Hand" : "Select Off Hand";
+        
+        var options = new List<ItemInstance>();
+        
+        if (isMainHand)
+        {
+            options.Add(_unarmedDummy);
+            options.AddRange(VM.Weapons);
+        }
+        else
+        {
+            // Offhand can be completely empty, or specifically dual-wielding fists
+            options.Add(_emptyDummy);
+            options.Add(_unarmedDummy);
+            options.AddRange(VM.Weapons);
+            options.AddRange(VM.Armor); // Shields
+        }
+        
+        _pickerItems = options;
+        _isPickerOpen = true;
+    }
+
+    private void HandleItemSelected(ItemInstance selectedItem)
+    {
+        if (_currentTarget == PickerTarget.StandardSlot)
+        {
+            VM.EquipItem(selectedItem, _activeSlot);
+        }
+        else if (_currentTarget == PickerTarget.LoadoutMainHand && _activeLoadout != null)
+        {
+            _activeLoadout.MainHandItemId = selectedItem.Id == EmptySlotId ? null : selectedItem.Id;
+        }
+        else if (_currentTarget == PickerTarget.LoadoutOffHand && _activeLoadout != null)
+        {
+            _activeLoadout.OffHandItemId = selectedItem.Id == EmptySlotId ? null : selectedItem.Id;
+        }
+
+        _isPickerOpen = false;
+        _currentTarget = PickerTarget.None;
+    }
+
+    // --- Helpers ---
+    private void UnequipSlot(EquipmentSlot slot)
+    {
+        var currentItem = VM.GetItemInSlot(slot);
+        if (currentItem != null) VM.ChangeItemState(currentItem, ItemState.Carried);
+    }
+
+    private void ClearLoadoutHand(AttackLoadout loadout, bool isMainHand)
+    {
+        if (isMainHand) loadout.MainHandItemId = null; // Visually falls back to "Unarmed"
+        else loadout.OffHandItemId = null;             // Visually falls back to "Empty"
+    }
+
+    private string GetLoadoutItemName(Guid? itemId, bool isMainHand)
+    {
+        if (itemId == null || itemId == EmptySlotId) 
+            return isMainHand ? "Unarmed" : "Empty (Free Hand)";
+            
+        if (itemId == UnarmedSlotId) 
+            return "Unarmed";
+            
+        var item = VM.AllItems.FirstOrDefault(i => i.Id == itemId);
+        return item?.DisplayName ?? "Unknown Item";
+    }
+
+    private RenderFragment RenderSlotGroup(EquipmentSlot[] slots) => __builder =>
+    {
+        foreach (var slot in slots)
+        {
+            var currentItem = VM.GetItemInSlot(slot);
+
+            <div class="slot-row">
+                <div class="slot-label">@slot.ToString()</div>
+                <div class="d-flex w-100 gap-1">
+                    <div class="slot-select-btn @(currentItem != null ? "fw-bold text-dark" : "text-muted")" 
+                         @onclick="() => OpenSlotPicker(slot)">
+                        @(currentItem != null ? currentItem.DisplayName : "-- Empty --")
+                    </div>
+                    
+                    @if (currentItem != null)
+                    {
+                        <button class="btn-unequip" @onclick="() => UnequipSlot(slot)" title="Unequip">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    };
+}

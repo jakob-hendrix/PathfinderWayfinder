@@ -36,6 +36,8 @@ public class InventoryViewModel
     public IEnumerable<ItemInstance> Armor => GetItemsByType(ItemType.Armor);
     public IEnumerable<ItemInstance> AdventuringGear => GetItemsByType(ItemType.AdventuringGear);
 
+    public IReadOnlyList<AttackLoadout> Loadouts => Sheet?.Loadouts ?? Array.Empty<AttackLoadout>();
+
     // Placeholder: Will need to expand based on how you define 'Container' properties
     public IEnumerable<ItemInstance> Containers =>
         Sheet?.Inventory.Where(i => i.BaseStats.Type == ItemType.AdventuringGear &&
@@ -47,7 +49,49 @@ public class InventoryViewModel
         return Sheet?.Inventory.Where(i => i.BaseStats.Type == type) ?? Enumerable.Empty<ItemInstance>();
     }
 
+    // A list of the standard static body slots (excluding hands, which are handled by Loadouts)
+    public static readonly EquipmentSlot[] StandardBodySlots =
+    {
+        EquipmentSlot.Armor, EquipmentSlot.Head, EquipmentSlot.Headband, EquipmentSlot.Eyes,
+        EquipmentSlot.Shoulders, EquipmentSlot.Neck, EquipmentSlot.Chest, EquipmentSlot.Body,
+        EquipmentSlot.Belt, EquipmentSlot.Wrists, EquipmentSlot.Hands,
+        EquipmentSlot.Ring2, EquipmentSlot.Ring1, EquipmentSlot.Feet
+    };
+
+    // Helper to get whatever is currently in a specific slot
+    public ItemInstance? GetItemInSlot(EquipmentSlot slot)
+    {
+        return Sheet?.Inventory.FirstOrDefault(i => i.EquippedSlot == slot);
+    }
+
+    // Helper for the dropdowns: Gets items that COULD go in this slot
+    // (In the future, you'll filter this by item type, e.g., only Armor in the Armor slot)
+    public IEnumerable<ItemInstance> GetEquippableItemsForSlot(EquipmentSlot slot)
+    {
+        if (Sheet == null) return Enumerable.Empty<ItemInstance>();
+
+        // Return items that are currently in this slot, OR items that are just carried
+        return Sheet.Inventory.Where(i => i.EquippedSlot == slot || i.State == ItemState.Carried);
+    }
+
     // --- Actions ---
+
+    // --- Loadout Actions ---
+    public void SetActiveLoadout(Guid loadoutId)
+    {
+        if (Sheet == null) return;
+        foreach (var l in Sheet.Loadouts)
+        {
+            l.IsActive = (l.Id == loadoutId);
+        }
+        _stateService.RefreshDomain(); // Triggers AC and Attack Bonus recalculations!
+    }
+
+    public void AddNewLoadout()
+    {
+        Sheet?.AddLoadout(new AttackLoadout { Name = $"Loadout {(Sheet.Loadouts.Count + 1)}" });
+        _stateService.RefreshDomain();
+    }
 
     public void ChangeItemContainer(ItemInstance item, Guid? newContainerId)
     {

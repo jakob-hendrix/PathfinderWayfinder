@@ -81,6 +81,9 @@ public partial class CharacterStateService : ObservableObject
         var hydratedItems = entity.Inventory.Select(itemEntity => _engine.ItemFactory.RehydrateItem(itemEntity));
         ActiveSheet.LoadHydratedInventory(hydratedItems);
 
+        // --- HYDRATE LOADOUTS ---
+        ActiveSheet.LoadHydratedLoadouts();
+
         RefreshDomain();
     }
 
