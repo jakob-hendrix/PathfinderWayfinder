@@ -32,18 +32,17 @@ public class ItemDomainMapper
         }
 
         // 3. Type-Specific Validation
-        // Ensure properties exist based on what the item actually is
         switch (mappedType)
         {
             case ItemType.Armor:
                 ValidateArmorProperties(dto, result);
                 break;
+            case ItemType.Weapon:
+                ValidateWeaponProperties(dto, result);
+                break;
             case ItemType.AdventuringGear:
-                // No strict property requirements yet
                 break;
             default:
-                // Instead of throwing an exception (which crashes the seeder), 
-                // we log a warning. The item still loads, but the dev knows to add rules later!
                 result.Warnings.Add($"No specific property validator implemented for ItemType '{mappedType}' on item '{dto.Name}'.");
                 break;
         }
@@ -61,7 +60,7 @@ public class ItemDomainMapper
             Name = dto.Name,
             Weight = dto.Weight,
             Cost = dto.Cost,
-            ItemType = dto.ItemType, // Or mappedType.ToString() for exact casing
+            ItemType = dto.ItemType,
             Description = dto.Description ?? string.Empty,
             URL = dto.URL ?? string.Empty,
             Properties = dto.Properties ?? new Dictionary<string, string>()
@@ -80,15 +79,50 @@ public class ItemDomainMapper
             return;
         }
 
-        // Fatal errors: An armor without these will break the Armor Class calculator later
         if (!dto.Properties.ContainsKey("ACP"))
         {
             result.Errors.Add($"Armor '{dto.Name}' is missing the 'ACP' property.");
         }
-
-        // Example of future additions:
-        // if (!dto.Properties.ContainsKey("ArmorBonus")) result.Errors.Add($"Armor '{dto.Name}' missing 'ArmorBonus'.");
-        // if (!dto.Properties.ContainsKey("MaxDex")) result.Errors.Add($"Armor '{dto.Name}' missing 'MaxDex'.");
     }
 
+    private void ValidateWeaponProperties(ItemYamlDto dto, ItemMapperResult result)
+    {
+        if (dto.Properties == null)
+        {
+            result.Errors.Add($"Weapon '{dto.Name}' has no Properties defined.");
+            return;
+        }
+
+        // 1. Validate Category
+        if (dto.Properties.TryGetValue("Category", out var categoryStr))
+        {
+            if (!Enum.TryParse<WeaponCategory>(categoryStr, true, out _))
+                result.Errors.Add($"Weapon '{dto.Name}' has an invalid Category: '{categoryStr}'. Expected Light, OneHanded, TwoHanded, or Ranged.");
+        }
+        else
+        {
+            result.Errors.Add($"Weapon '{dto.Name}' is missing the 'Category' property.");
+        }
+
+        // 2. Validate Proficiency
+        if (dto.Properties.TryGetValue("Proficiency", out var profStr))
+        {
+            if (!Enum.TryParse<WeaponProficiency>(profStr, true, out _))
+                result.Errors.Add($"Weapon '{dto.Name}' has an invalid Proficiency: '{profStr}'. Expected Simple, Martial, or Exotic.");
+        }
+
+        // 3. Validate Damage Types (Allowing B, P, S abbreviations)
+        if (dto.Properties.TryGetValue("DamageType", out var dmgTypeStr))
+        {
+            var types = dmgTypeStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            foreach (var type in types)
+            {
+                var upperType = type.ToUpper();
+                if (upperType != "B" && upperType != "P" && upperType != "S" && !Enum.TryParse<WeaponDamageType>(type, true, out _))
+                {
+                    result.Errors.Add($"Weapon '{dto.Name}' has an invalid DamageType: '{type}'. Expected B, P, S, Bludgeoning, Piercing, or Slashing.");
+                }
+            }
+        }
+    }
 }

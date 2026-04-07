@@ -92,19 +92,34 @@ namespace Wayfinder.Core.Services
         {
             return definition.ItemType switch
             {
-                // TODO refactor out some of the shared mapping
+                "Weapon" => new WeaponItem
+                {
+                    Name = definition.Name,
+                    Weight = definition.Weight,
+                    Cost = definition.Cost,
+                    Proficiency = Enum.Parse<WeaponProficiency>(definition.Properties.GetValueOrDefault("Proficiency", "Simple")),
+                    Category = Enum.Parse<WeaponCategory>(definition.Properties.GetValueOrDefault("Category", "OneHanded")),
+                    DamageSmall = definition.Properties.GetValueOrDefault("DamageSmall", "1d4"),
+                    DamageMedium = definition.Properties.GetValueOrDefault("DamageMedium", "1d6"),
+                    CritRange = definition.Properties.GetValueOrDefault("CritRange", "20"),
+                    CritMultiplier = int.Parse(definition.Properties.GetValueOrDefault("CritMultiplier", "2")),
+                    RangeIncrement = definition.Properties.ContainsKey("RangeIncrement") ? int.Parse(definition.Properties["RangeIncrement"]) : null,
+                    DamageTypes = definition.Properties.GetValueOrDefault("DamageType", "").Split(',').Select(ParseDamageType).ToList(),
+                    SpecialTraits = definition.Properties.GetValueOrDefault("Special", "").Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList(),
+                    ConditionalEffect = definition.Properties.GetValueOrDefault("ConditionalEffect")
+                },
                 "Armor" => new ArmorItem
                 {
                     Name = definition.Name,
                     Weight = definition.Weight,
                     Cost = definition.Cost,
-                    ArmorType = PathfinderEnumMapper.ToArmorType(definition.Properties["Category"]),
-                    ArmorBonus = int.Parse(definition.Properties["ArmorBonus"]),
-                    MaxDexBonus = int.Parse(definition.Properties["MaxDex"]),
-                    ArmorCheckPenalty = int.Parse(definition.Properties["ACP"]),
-                    ArcaneSpellFailureChance = int.Parse(definition.Properties["SpellFailure"]),
-                    SpeedForBase30 = int.Parse(definition.Properties["Speed30"]),
-                    SpeedForBase20 = int.Parse(definition.Properties["Speed20"])
+                    ArmorType = PathfinderEnumMapper.ToArmorType(definition.Properties.GetValueOrDefault("Category", "Light")),
+                    ArmorBonus = definition.Properties.TryGetValue("ArmorBonus", out var abStr) && int.TryParse(abStr, out var ab) ? ab : 0,
+                    MaxDexBonus = definition.Properties.TryGetValue("MaxDex", out var maxDexStr) && int.TryParse(maxDexStr, out var md) ? md : null,
+                    ArmorCheckPenalty = definition.Properties.TryGetValue("ACP", out var acpStr) && int.TryParse(acpStr, out var acp) ? acp : 0,
+                    ArcaneSpellFailureChance = definition.Properties.TryGetValue("SpellFailure", out var sfStr) && int.TryParse(sfStr, out var sf) ? sf : 0,
+                    SpeedForBase30 = definition.Properties.TryGetValue("Speed30", out var spd30Str) && int.TryParse(spd30Str, out var spd30) ? spd30 : 0,
+                    SpeedForBase20 = definition.Properties.TryGetValue("Speed20", out var spd20Str) && int.TryParse(spd20Str, out var spd20) ? spd20 : 0
                 },
                 "AdventuringGear" => new AdventuringGearItem
                 {
@@ -113,6 +128,18 @@ namespace Wayfinder.Core.Services
                     Cost = definition.Cost
                 },
                 _ => throw new NotSupportedException($"Unsupported item type: {definition.ItemType}")
+            };
+        }
+
+        // Add this helper to ItemFactory.cs or PathfinderEnumMapper.cs
+        private WeaponDamageType ParseDamageType(string typeString)
+        {
+            return typeString.ToUpper() switch
+            {
+                "B" => WeaponDamageType.Bludgeoning,
+                "P" => WeaponDamageType.Piercing,
+                "S" => WeaponDamageType.Slashing,
+                _ => Enum.Parse<WeaponDamageType>(typeString, true)
             };
         }
     }

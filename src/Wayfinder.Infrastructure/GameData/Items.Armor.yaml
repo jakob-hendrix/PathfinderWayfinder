@@ -1,0 +1,78 @@
+- Name: "Chain Shirt"
+  Type: "Armor"
+  Cost: 100
+  Weight: 25.0
+  Description: >
+    Covering the torso, this shirt is made up of thousands of interlocking metal rings.
+  URL: "https://www.d20pfsrd.com/equipment/armor/chain-shirt"
+  Properties:
+    Category: Light
+    ArmorBonus: 4
+    MaxDex: 4
+    ACP: -2
+    SpellFailure: 20
+    Speed30: 30
+    Speed20: 20
+
+- Name: "Leather Armor"
+  Type: "Armor"
+  Cost: 10.0
+  Weight: 15.0
+  Description: >
+    The breastplate and shoulder protectors of this armor are made of leather that has been stiffened by being boiled in oil.
+  URL: "https://aonprd.com/EquipmentArmorDisplay.aspx?ItemName=Leather"
+  Properties:
+    Category: Light
+    ArmorBonus: 2
+    MaxDex: 6
+    ACP: 0
+    SpellFailure: 10
+    Speed30: 30
+    Speed20: 20
+
+- Name: "Breastplate"
+  Type: "Armor"
+  Cost: 200.0
+  Weight: 30.0
+  Description: >
+    A breastplate covers a wearer's torso, shielding the vital organs. It comes with a helmet and matching greaves.
+  URL: "https://aonprd.com/EquipmentArmorDisplay.aspx?ItemName=Breastplate"
+  Properties:
+    Category: Medium
+    ArmorBonus: 6
+    MaxDex: 3
+    ACP: -4
+    SpellFailure: 25
+    Speed30: 20
+    Speed20: 15
+
+- Name: "Full Plate"
+  Type: "Armor"
+  Cost: 1500.0
+  Weight: 50.0
+  Description: >
+    This suit comprises shaped and fitted metal plates riveted and interlocked to cover the entire body. It includes gauntlets, heavy boots, and a visored helmet.
+  URL: "https://aonprd.com/EquipmentArmorDisplay.aspx?ItemName=Full%20plate"
+  Properties:
+    Category: Heavy
+    ArmorBonus: 9
+    MaxDex: 1
+    ACP: -6
+    SpellFailure: 35
+    Speed30: 20
+    Speed20: 15
+
+- Name: "Heavy Steel Shield"
+  Type: "Armor"
+  Cost: 20.0
+  Weight: 15.0
+  Description: >
+    You strap a shield to your forearm and grip it with your hand. A heavy shield is so heavy that you can't use your shield hand for anything else.
+  URL: "https://aonprd.com/EquipmentArmorDisplay.aspx?ItemName=Heavy%20steel%20shield"
+  Properties:
+    Category: Shield
+    ArmorBonus: 2
+    ACP: -2
+    SpellFailure: 15
+    Speed30: 30
+    Speed20: 20

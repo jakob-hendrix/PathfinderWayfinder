@@ -22,6 +22,8 @@ public static class PathfinderEnumMapper
         "light" => ArmorType.Light,
         "medium" => ArmorType.Medium,
         "heavy" => ArmorType.Heavy,
+        "shield" => ArmorType.Shield,
+        "towershield" => ArmorType.TowerShield,
         _ => throw new ArgumentException($"Invalid armor type: {value}")
     };
 

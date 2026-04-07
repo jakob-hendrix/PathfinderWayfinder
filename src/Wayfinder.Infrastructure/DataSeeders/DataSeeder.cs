@@ -171,9 +171,8 @@ namespace Wayfinder.Infrastructure.DataSeeders
             _itemLibrary.Clear();
             var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            // Assuming your items are stored in files named "Items.yaml" or similar.
-            // Adjust the search pattern if you split them into "Weapons.yaml", "Armor.yaml", etc.
-            var files = Directory.GetFiles(_dataPath, "Items.yaml");
+            // Matches Items.yaml, Items.Weapons.yaml, etc
+            var files = Directory.GetFiles(_dataPath, "Items*.yaml");
 
             var itemMapper = new ItemDomainMapper();
 

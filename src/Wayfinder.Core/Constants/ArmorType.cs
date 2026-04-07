@@ -5,5 +5,6 @@ public enum ArmorType
     Light,
     Medium,
     Heavy,
-    Shield
+    Shield,
+    TowerShield
 }

@@ -1,0 +1,50 @@
+- Name: "Bardiche"
+  Type: "Weapon"
+  Cost: 13.0
+  Weight: 14.0
+  Description: >
+    The blade of this weapon is an elongated cleaver attached to a pole. While the blade is much shorter than a halberd, the weapon's reach and weight still make it unwieldy in close quarters.
+  URL: "https://www.aonprd.com/EquipmentWeaponsDisplay.aspx?ItemName=Bardiche"
+  Properties:
+    Proficiency: "Martial"
+    Category: "TwoHanded"
+    DamageSmall: "1d8"
+    DamageMedium: "1d10"
+    CritRange: "19-20"
+    CritMultiplier: "2"
+    DamageType: "S"
+    Special: "brace, reach"
+    ConditionalEffect: "+2 bonus to CMD against sunder attempts made to sunder the bardiche"
+
+- Name: "Longsword"
+  Type: "Weapon"
+  Cost: 15.0
+  Weight: 4.0
+  Description: >
+    This sword is about 3-1/2 feet in length.
+  URL: "https://www.aonprd.com/EquipmentWeaponsDisplay.aspx?ItemName=Longsword"
+  Properties:
+    Proficiency: "Martial"
+    Category: "OneHanded"
+    DamageSmall: "1d6"
+    DamageMedium: "1d8"
+    CritRange: "19-20"
+    CritMultiplier: "2"
+    DamageType: "S"
+
+- Name: "Shortbow"
+  Type: "Weapon"
+  Cost: 30.0
+  Weight: 2.0
+  Description: >
+    A shortbow is made up of one piece of wood, about 3 feet in length. You need at least two hands to use a bow, regardless of its size.
+  URL: "https://www.aonprd.com/EquipmentWeaponsDisplay.aspx?ItemName=Shortbow"
+  Properties:
+    Proficiency: "Martial"
+    Category: "Ranged"
+    DamageSmall: "1d4"
+    DamageMedium: "1d6"
+    CritRange: "20"
+    CritMultiplier: "3"
+    RangeIncrement: "60"
+    DamageType: "P"
