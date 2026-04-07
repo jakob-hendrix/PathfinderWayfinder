@@ -1,0 +1,12 @@
+- Name: "Heavy Steel Shield"
+  Type: "Shield"
+  Cost: 20.0
+  Weight: 15.0
+  Description: >
+    You strap a shield to your forearm and grip it with your hand. A heavy shield is so heavy that you can't use your shield hand for anything else.
+  URL: "https://aonprd.com/EquipmentArmorDisplay.aspx?ItemName=Heavy%20steel%20shield"
+  Properties:
+    Category: Heavy
+    AC: 2
+    ACP: -2
+    SpellFailure: 15

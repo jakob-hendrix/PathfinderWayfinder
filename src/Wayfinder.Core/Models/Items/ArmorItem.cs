@@ -13,14 +13,4 @@ public class ArmorItem : BaseItem
 
     public int SpeedForBase30 { get; set; } = 0;
     public int SpeedForBase20 { get; set; } = 0;
-
-    // --- RULES ENGINE HELPERS ---
-
-    public ModifierType AcBonusType =>
-        (ArmorType == ArmorType.Shield || ArmorType == ArmorType.TowerShield)
-        ? ModifierType.Shield
-        : ModifierType.Armor;
-
-    // A quick helper to check if this item is a shield
-    public bool IsShield => ArmorType == ArmorType.Shield || ArmorType == ArmorType.TowerShield;
 }

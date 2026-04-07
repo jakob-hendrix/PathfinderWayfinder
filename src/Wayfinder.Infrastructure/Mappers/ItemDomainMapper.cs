@@ -37,6 +37,9 @@ public class ItemDomainMapper
             case ItemType.Armor:
                 ValidateArmorProperties(dto, result);
                 break;
+            case ItemType.Shield:
+                ValidateShieldProperties(dto, result);
+                break;
             case ItemType.Weapon:
                 ValidateWeaponProperties(dto, result);
                 break;
@@ -123,6 +126,26 @@ public class ItemDomainMapper
                     result.Errors.Add($"Weapon '{dto.Name}' has an invalid DamageType: '{type}'. Expected B, P, S, Bludgeoning, Piercing, or Slashing.");
                 }
             }
+        }
+    }
+
+    private void ValidateShieldProperties(ItemYamlDto dto, ItemMapperResult result)
+    {
+        if (dto.Properties == null)
+        {
+            result.Errors.Add($"Shield '{dto.Name}' has no Properties defined.");
+            return;
+        }
+
+        if (!dto.Properties.ContainsKey("ACP"))
+        {
+            result.Errors.Add($"Shield '{dto.Name}' is missing the 'ACP' property.");
+        }
+
+        if (dto.Properties.TryGetValue("Category", out var categoryStr))
+        {
+            if (!Enum.TryParse<ShieldType>(categoryStr, true, out _))
+                result.Errors.Add($"Shield '{dto.Name}' has an invalid Category: '{categoryStr}'. Expected Buckler, Light, Heavy, or Tower.");
         }
     }
 }

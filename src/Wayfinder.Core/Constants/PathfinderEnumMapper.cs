@@ -22,9 +22,16 @@ public static class PathfinderEnumMapper
         "light" => ArmorType.Light,
         "medium" => ArmorType.Medium,
         "heavy" => ArmorType.Heavy,
-        "shield" => ArmorType.Shield,
-        "towershield" => ArmorType.TowerShield,
         _ => throw new ArgumentException($"Invalid armor type: {value}")
+    };
+
+    public static ShieldType ToShieldType(string value) => value.ToLower() switch
+    {
+        "buckler" => ShieldType.Buckler,
+        "light" => ShieldType.Light,
+        "heavy" => ShieldType.Heavy,
+        "tower" => ShieldType.Tower,
+        _ => throw new ArgumentException($"Invalid shield type: {value}")
     };
 
     public static ItemType ToItemType(string value) => value.ToLower() switch

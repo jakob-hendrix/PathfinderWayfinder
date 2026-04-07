@@ -114,7 +114,7 @@ namespace Wayfinder.Core.Services
                     Weight = definition.Weight,
                     Cost = definition.Cost,
                     ArmorType = PathfinderEnumMapper.ToArmorType(definition.Properties.GetValueOrDefault("Category", "Light")),
-                    ArmorBonus = definition.Properties.TryGetValue("ArmorBonus", out var abStr) && int.TryParse(abStr, out var ab) ? ab : 0,
+                    ArmorBonus = definition.Properties.TryGetValue("AC", out var abStr) && int.TryParse(abStr, out var ab) ? ab : 0,
                     MaxDexBonus = definition.Properties.TryGetValue("MaxDex", out var maxDexStr) && int.TryParse(maxDexStr, out var md) ? md : null,
                     ArmorCheckPenalty = definition.Properties.TryGetValue("ACP", out var acpStr) && int.TryParse(acpStr, out var acp) ? acp : 0,
                     ArcaneSpellFailureChance = definition.Properties.TryGetValue("SpellFailure", out var sfStr) && int.TryParse(sfStr, out var sf) ? sf : 0,
@@ -126,6 +126,17 @@ namespace Wayfinder.Core.Services
                     Name = definition.Name,
                     Weight = definition.Weight,
                     Cost = definition.Cost
+                },
+                "Shield" => new ShieldItem
+                {
+                    Name = definition.Name,
+                    Weight = definition.Weight,
+                    Cost = definition.Cost,
+                    ShieldType = PathfinderEnumMapper.ToShieldType(definition.Properties.GetValueOrDefault("Category", "Heavy")),
+                    ShieldBonus = definition.Properties.TryGetValue("AC", out var sbStr) && int.TryParse(sbStr, out var sb) ? sb : 0,
+                    MaxDexBonus = definition.Properties.TryGetValue("MaxDex", out var maxDexStr) && int.TryParse(maxDexStr, out var md) ? md : null,
+                    ArmorCheckPenalty = definition.Properties.TryGetValue("ACP", out var acpStr) && int.TryParse(acpStr, out var acp) ? acp : 0,
+                    ArcaneSpellFailureChance = definition.Properties.TryGetValue("SpellFailure", out var sfStr) && int.TryParse(sfStr, out var sf) ? sf : 0
                 },
                 _ => throw new NotSupportedException($"Unsupported item type: {definition.ItemType}")
             };

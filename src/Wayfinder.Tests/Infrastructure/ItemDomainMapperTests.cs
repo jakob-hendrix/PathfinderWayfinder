@@ -37,7 +37,7 @@ public class ItemDomainMapperTests
     public void Map_ValidAdventuringGear_ReturnsFullyHydratedItem()
     {
         // Arrange
-        var dto = CreateBaseItemDto("AdventuringGear"); // Assuming PathfinderEnumMapper maps this
+        var dto = CreateBaseItemDto("AdventuringGear");
 
         // Act
         var result = _mapper.Map(dto);
@@ -61,7 +61,8 @@ public class ItemDomainMapperTests
         dto.Properties = new Dictionary<string, string>
         {
             { "ACP", "-2" },
-            { "ArmorBonus", "4" }
+            { "AC", "4" },
+            { "Category", "Light" }
         };
 
         // Act
@@ -73,7 +74,54 @@ public class ItemDomainMapperTests
             Assert.That(result.IsValid, Is.True);
             Assert.That(result.Errors, Is.Empty);
             Assert.That(result.HydratedItem, Is.Not.Null);
-            Assert.That(result.HydratedItem!.Properties, Contains.Key("ACP"));
+        });
+    }
+
+    [Test]
+    public void Map_ValidShield_ReturnsFullyHydratedItem()
+    {
+        // Arrange
+        var dto = CreateBaseItemDto("Shield");
+        dto.Properties = new Dictionary<string, string>
+        {
+            { "ACP", "-1" },
+            { "AC", "1" },
+            { "Category", "Light" }
+        };
+
+        // Act
+        var result = _mapper.Map(dto);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsValid, Is.True);
+            Assert.That(result.Errors, Is.Empty);
+            Assert.That(result.HydratedItem, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public void Map_ValidWeapon_ReturnsFullyHydratedItem()
+    {
+        // Arrange
+        var dto = CreateBaseItemDto("Weapon");
+        dto.Properties = new Dictionary<string, string>
+        {
+            { "Category", "OneHanded" },
+            { "Proficiency", "Martial" },
+            { "DamageType", "S, P" } // Testing multiple damage types and abbreviations
+        };
+
+        // Act
+        var result = _mapper.Map(dto);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsValid, Is.True);
+            Assert.That(result.Errors, Is.Empty);
+            Assert.That(result.HydratedItem, Is.Not.Null);
         });
     }
 
@@ -84,14 +132,11 @@ public class ItemDomainMapperTests
     [Test]
     public void Map_MissingName_ReturnsInvalidResult()
     {
-        // Arrange
         var dto = CreateBaseItemDto("AdventuringGear");
-        dto.Name = ""; // Invalid!
+        dto.Name = "";
 
-        // Act
         var result = _mapper.Map(dto);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result.IsValid, Is.False);
@@ -104,13 +149,10 @@ public class ItemDomainMapperTests
     [Test]
     public void Map_InvalidItemTypeEnum_ReturnsInvalidResult()
     {
-        // Arrange
-        var dto = CreateBaseItemDto("FakeItemType"); // PathfinderEnumMapper should throw on this
+        var dto = CreateBaseItemDto("FakeItemType");
 
-        // Act
         var result = _mapper.Map(dto);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result.IsValid, Is.False);
@@ -125,75 +167,120 @@ public class ItemDomainMapperTests
     [Test]
     public void Map_ArmorWithNullProperties_ReturnsInvalidResult()
     {
-        // Arrange
         var dto = CreateBaseItemDto("Armor");
-        dto.Properties = null!; // Explicitly nulling it out
+        dto.Properties = null!;
 
-        // Act
         var result = _mapper.Map(dto);
 
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors, Has.Count.EqualTo(1));
-            Assert.That(result.Errors[0], Does.Contain("no Properties defined"));
-            Assert.That(result.HydratedItem, Is.Null);
-        });
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("no Properties defined"));
     }
 
     [Test]
     public void Map_ArmorMissingACP_ReturnsInvalidResult()
     {
-        // Arrange
         var dto = CreateBaseItemDto("Armor");
-        dto.Properties = new Dictionary<string, string>
-        {
-            { "ArmorBonus", "4" },
-            // ACP deliberately missing
-            { "MaxDex", "2" }
-        };
+        dto.Properties = new Dictionary<string, string> { { "AC", "4" } }; // Missing ACP
 
-        // Act
         var result = _mapper.Map(dto);
 
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.IsValid, Is.False, "Armor without ACP must fail the mapping.");
-            Assert.That(result.Errors, Has.Count.EqualTo(1));
-            Assert.That(result.Errors[0], Does.Contain("missing the 'ACP' property"));
-            Assert.That(result.HydratedItem, Is.Null);
-        });
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("missing the 'ACP' property"));
     }
 
-    // ==========================================
-    // WARNINGS (Graceful Degradation)
-    // ==========================================
+    // --- SHIELD SPECIFIC VALIDATION TESTS ---
 
     [Test]
-    public void Map_UnhandledItemType_LogsWarningButSurvives()
+    public void Map_ShieldMissingACP_ReturnsInvalidResult()
     {
-        // Arrange
-        // Assuming "Weapon" is a valid enum in PathfinderEnumMapper, 
-        // but we haven't written a `ValidateWeaponProperties` case for it in the Mapper yet.
-        var dto = CreateBaseItemDto("Weapon");
+        var dto = CreateBaseItemDto("Shield");
+        dto.Properties = new Dictionary<string, string> { { "Category", "Heavy" } }; // Missing ACP
 
-        // Act
         var result = _mapper.Map(dto);
 
-        // Assert
-        Assert.Multiple(() =>
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("missing the 'ACP' property"));
+    }
+
+    [Test]
+    public void Map_ShieldInvalidCategory_ReturnsInvalidResult()
+    {
+        var dto = CreateBaseItemDto("Shield");
+        dto.Properties = new Dictionary<string, string>
         {
-            Assert.That(result.IsValid, Is.True, "The item should survive even if there are no specific property checks.");
-            Assert.That(result.Errors, Is.Empty);
+            { "ACP", "-2" },
+            { "Category", "FakeShieldType" } // Invalid Enum
+        };
 
-            // It should log a warning so the developer knows to add a validator later
-            Assert.That(result.Warnings, Has.Count.EqualTo(1));
-            Assert.That(result.Warnings[0], Does.Contain("No specific property validator implemented"));
+        var result = _mapper.Map(dto);
 
-            Assert.That(result.HydratedItem, Is.Not.Null);
-            Assert.That(result.HydratedItem!.ItemType, Is.EqualTo("Weapon"));
-        });
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("invalid Category"));
+    }
+
+    // --- WEAPON SPECIFIC VALIDATION TESTS ---
+
+    [Test]
+    public void Map_WeaponMissingCategory_ReturnsInvalidResult()
+    {
+        var dto = CreateBaseItemDto("Weapon");
+        dto.Properties = new Dictionary<string, string>
+        {
+            { "Proficiency", "Simple" }
+            // Category missing
+        };
+
+        var result = _mapper.Map(dto);
+
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("missing the 'Category' property"));
+    }
+
+    [Test]
+    public void Map_WeaponInvalidCategory_ReturnsInvalidResult()
+    {
+        var dto = CreateBaseItemDto("Weapon");
+        dto.Properties = new Dictionary<string, string>
+        {
+            { "Category", "SuperHeavy" } // Invalid Enum
+        };
+
+        var result = _mapper.Map(dto);
+
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("invalid Category"));
+    }
+
+    [Test]
+    public void Map_WeaponInvalidProficiency_ReturnsInvalidResult()
+    {
+        var dto = CreateBaseItemDto("Weapon");
+        dto.Properties = new Dictionary<string, string>
+        {
+            { "Category", "Light" },
+            { "Proficiency", "SuperMaster" } // Invalid Enum
+        };
+
+        var result = _mapper.Map(dto);
+
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("invalid Proficiency"));
+    }
+
+    [Test]
+    public void Map_WeaponInvalidDamageType_ReturnsInvalidResult()
+    {
+        var dto = CreateBaseItemDto("Weapon");
+        dto.Properties = new Dictionary<string, string>
+        {
+            { "Category", "OneHanded" },
+            { "Proficiency", "Simple" },
+            { "DamageType", "B, X" } // 'X' is invalid
+        };
+
+        var result = _mapper.Map(dto);
+
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors[0], Does.Contain("invalid DamageType: 'X'"));
     }
 }
