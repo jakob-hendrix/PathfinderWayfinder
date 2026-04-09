@@ -7,13 +7,20 @@ namespace Wayfinder.Core.Engines;
 
 public class EquipmentEngine : IEquipmentEngine
 {
-    public EquipmentSlot[] StandardBodySlots { get; } =
-    {
-        EquipmentSlot.Armor, EquipmentSlot.Head, EquipmentSlot.Headband, EquipmentSlot.Eyes,
-        EquipmentSlot.Shoulders, EquipmentSlot.Neck, EquipmentSlot.Chest, EquipmentSlot.Body,
-        EquipmentSlot.Belt, EquipmentSlot.Wrists, EquipmentSlot.Hands,
-        EquipmentSlot.Ring1, EquipmentSlot.Ring2, EquipmentSlot.Feet
+    public EquipmentSlot[] ArmorSlots { get; } = { EquipmentSlot.Armor };
+
+    public EquipmentSlot[] RingSlots { get; } = { EquipmentSlot.Ring1, EquipmentSlot.Ring2 };
+
+    public EquipmentSlot[] WondrousSlots { get; } = {
+        EquipmentSlot.Head, EquipmentSlot.Headband, EquipmentSlot.Eyes,
+        EquipmentSlot.Shoulders, EquipmentSlot.Neck, EquipmentSlot.Chest,
+        EquipmentSlot.Body, EquipmentSlot.Belt, EquipmentSlot.Wrists,
+        EquipmentSlot.Hands, EquipmentSlot.Feet
     };
+
+    // Combine them dynamically so we don't have to maintain two separate lists
+    public EquipmentSlot[] StandardBodySlots =>
+        ArmorSlots.Concat(RingSlots).Concat(WondrousSlots).ToArray();
 
     public IEnumerable<ItemInstance> GetItemsByType(IEnumerable<ItemInstance> inventory, ItemType type)
     {

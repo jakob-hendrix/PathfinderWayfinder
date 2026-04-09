@@ -1,3 +1,21 @@
+- Name: "Unarmed strike"
+  Type: "Weapon"
+  Cost: 0
+  Weight: 0.0
+  Description: >
+    An unarmed strike is always considered a light weapon. This includes punches, kicks, and headbutts.
+  URL: "https://www.aonprd.com/EquipmentWeaponsDisplay.aspx?ItemName=Unarmed%20strike"
+  Properties:
+    IsInnate: "true"
+    Proficiency: "Simple"
+    Category: "Light"
+    DamageSmall: "1d2"
+    DamageMedium: "1d3"
+    CritRange: "20"
+    CritMultiplier: "2"
+    DamageType: "B"
+    Special: "nonlethal"
+
 - Name: "Bardiche"
   Type: "Weapon"
   Cost: 13.0

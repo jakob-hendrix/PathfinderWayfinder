@@ -9,6 +9,9 @@ public abstract class BaseItem
     public double Cost { get; set; }
     public abstract ItemType Type { get; }
 
+    // Determines if the item is a physical, droppable object, or a part of the character
+    public bool IsInnate { get; set; } = false;
+
     // By default, items have no equip slot (like Adventuring Gear)
     public virtual EquipmentSlot? Slot => null;
 }

@@ -7,6 +7,9 @@ namespace Wayfinder.Core.Interfaces;
 public interface IEquipmentEngine
 {
     EquipmentSlot[] StandardBodySlots { get; }
+    EquipmentSlot[] ArmorSlots { get; }
+    EquipmentSlot[] RingSlots { get; }
+    EquipmentSlot[] WondrousSlots { get; }
 
     bool IsSlotCompatible(EquipmentSlot? itemSlot, EquipmentSlot targetSlot);
 

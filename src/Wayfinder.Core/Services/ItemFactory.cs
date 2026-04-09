@@ -106,7 +106,8 @@ namespace Wayfinder.Core.Services
                     RangeIncrement = definition.Properties.ContainsKey("RangeIncrement") ? int.Parse(definition.Properties["RangeIncrement"]) : null,
                     DamageTypes = definition.Properties.GetValueOrDefault("DamageType", "").Split(',').Select(ParseDamageType).ToList(),
                     SpecialTraits = definition.Properties.GetValueOrDefault("Special", "").Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList(),
-                    ConditionalEffect = definition.Properties.GetValueOrDefault("ConditionalEffect")
+                    ConditionalEffect = definition.Properties.GetValueOrDefault("ConditionalEffect"),
+                    IsInnate = definition.Properties.TryGetValue("IsInnate", out var innateStr) && bool.TryParse(innateStr, out var isInnate) && isInnate,
                 },
                 "Armor" => new ArmorItem
                 {

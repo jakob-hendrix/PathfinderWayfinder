@@ -77,8 +77,25 @@ public partial class CharacterStateService : ObservableObject
         ActiveSheet = new CharacterSheet(entity, _engine);
 
         // --- HYDRATE INVENTORY ---
-        // Convert all the lightweight save entities back into rich ItemInstances
-        var hydratedItems = entity.Inventory.Select(itemEntity => _engine.ItemFactory.RehydrateItem(itemEntity));
+        var hydratedItems = entity.Inventory.Select(itemEntity => _engine.ItemFactory.RehydrateItem(itemEntity)).ToList();
+
+        // --- AUTO-INJECT UNARMED STRIKE ---
+        if (!hydratedItems.Any(i => i.TemplateId == "unarmed_strike"))
+        {
+            var unarmedStrike = _engine.ItemFactory.CreateItem("unarmed_strike");
+
+            if (unarmedStrike == null)
+            {
+                // Fails fast if the data file is broken
+                throw new InvalidOperationException("CRITICAL APP STATE ERROR: 'unarmed_strike' is missing from the Item Library.");
+            }
+
+            hydratedItems.Add(unarmedStrike);
+
+            // Add the underlying entity to the save data so it persists!
+            entity.Inventory.Add(unarmedStrike.Entity);
+        }
+
         ActiveSheet.LoadHydratedInventory(hydratedItems);
 
         // --- HYDRATE LOADOUTS ---

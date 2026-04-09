@@ -31,7 +31,12 @@ public class InventoryViewModel
     // --- Core Inventory Access ---
     public IReadOnlyList<ItemInstance> AllItems => Sheet?.Inventory ?? new List<ItemInstance>();
 
-    public IEnumerable<ItemInstance> Weapons => _equipmentEngine.GetItemsByType(AllItems, ItemType.Weapon);
+    // Hides innate items (like fists) from standard inventory lists like "Backpack & Pockets"
+    public IEnumerable<ItemInstance> Weapons => _equipmentEngine.GetItemsByType(AllItems, ItemType.Weapon).Where(i => !i.BaseStats.IsInnate);
+
+    // Provides ALL weapons, including innate ones, to the Combat Loadout dropdowns
+    public IEnumerable<ItemInstance> EquippableWeapons => _equipmentEngine.GetItemsByType(AllItems, ItemType.Weapon);
+
     public IEnumerable<ItemInstance> Armor => _equipmentEngine.GetItemsByType(AllItems, ItemType.Armor);
     public IEnumerable<ItemInstance> Shields => _equipmentEngine.GetItemsByType(AllItems, ItemType.Shield);
     public IEnumerable<ItemInstance> AdventuringGear => _equipmentEngine.GetItemsByType(AllItems, ItemType.AdventuringGear);
@@ -44,6 +49,9 @@ public class InventoryViewModel
 
     // --- UI Layout Helpers ---
     public EquipmentSlot[] StandardBodySlots => _equipmentEngine.StandardBodySlots;
+    public EquipmentSlot[] ArmorSlots => _equipmentEngine.ArmorSlots;
+    public EquipmentSlot[] RingSlots => _equipmentEngine.RingSlots;
+    public EquipmentSlot[] WondrousSlots => _equipmentEngine.WondrousSlots;
 
     public ItemInstance? GetItemInSlot(EquipmentSlot slot) =>
         _equipmentEngine.GetItemInSlot(AllItems, slot);
