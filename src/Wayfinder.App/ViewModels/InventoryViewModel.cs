@@ -12,66 +12,77 @@ public class InventoryViewModel
     private readonly CharacterStateService _stateService;
     private readonly IItemLibrary _itemLibrary;
     private readonly IItemFactory _itemFactory;
+    private readonly IEquipmentEngine _equipmentEngine;
 
     // The active tab state (0 = Inventory, 1 = Gear)
     public int ActiveTab { get; set; } = 0;
 
-    public InventoryViewModel(CharacterStateService stateService, IItemLibrary itemLibrary, IItemFactory itemFactory)
+    public InventoryViewModel(CharacterStateService stateService, IItemLibrary itemLibrary, IItemFactory itemFactory, IEquipmentEngine equipmentEngine)
     {
         _stateService = stateService;
         _itemLibrary = itemLibrary;
         _itemFactory = itemFactory;
+        _equipmentEngine = equipmentEngine;
     }
 
-    // --- UI State Helpers ---
     public bool HasActiveCharacter => _stateService.ActiveSheet != null;
-
-    // Internal helper to avoid typing _stateService.ActiveSheet everywhere
     private CharacterSheet? Sheet => _stateService.ActiveSheet;
 
     // --- Core Inventory Access ---
     public IReadOnlyList<ItemInstance> AllItems => Sheet?.Inventory ?? new List<ItemInstance>();
 
-    public IEnumerable<ItemInstance> Weapons => GetItemsByType(ItemType.Weapon);
-    public IEnumerable<ItemInstance> Armor => GetItemsByType(ItemType.Armor);
-    public IEnumerable<ItemInstance> AdventuringGear => GetItemsByType(ItemType.AdventuringGear);
+    public IEnumerable<ItemInstance> Weapons => _equipmentEngine.GetItemsByType(AllItems, ItemType.Weapon);
+    public IEnumerable<ItemInstance> Armor => _equipmentEngine.GetItemsByType(AllItems, ItemType.Armor);
+    public IEnumerable<ItemInstance> Shields => _equipmentEngine.GetItemsByType(AllItems, ItemType.Shield);
+    public IEnumerable<ItemInstance> AdventuringGear => _equipmentEngine.GetItemsByType(AllItems, ItemType.AdventuringGear);
 
     public IReadOnlyList<AttackLoadout> Loadouts => Sheet?.Loadouts ?? Array.Empty<AttackLoadout>();
 
-    // Placeholder: Will need to expand based on how you define 'Container' properties
     public IEnumerable<ItemInstance> Containers =>
-        Sheet?.Inventory.Where(i => i.BaseStats.Type == ItemType.AdventuringGear &&
-                                    i.BaseStats.Name.Contains("Backpack", StringComparison.OrdinalIgnoreCase))
-        ?? Enumerable.Empty<ItemInstance>();
+        AllItems.Where(i => i.BaseStats.Type == ItemType.AdventuringGear &&
+                            i.BaseStats.Name.Contains("Backpack", StringComparison.OrdinalIgnoreCase));
 
-    private IEnumerable<ItemInstance> GetItemsByType(ItemType type)
+    // --- UI Layout Helpers ---
+    public EquipmentSlot[] StandardBodySlots => _equipmentEngine.StandardBodySlots;
+
+    public ItemInstance? GetItemInSlot(EquipmentSlot slot) =>
+        _equipmentEngine.GetItemInSlot(AllItems, slot);
+
+    public IEnumerable<ItemInstance> GetEquippableItemsForSlot(EquipmentSlot targetSlot) =>
+        _equipmentEngine.GetEquippableItemsForSlot(AllItems, targetSlot);
+
+    // --- Actions ---
+
+    public void EquipItem(ItemInstance item, EquipmentSlot slot)
     {
-        return Sheet?.Inventory.Where(i => i.BaseStats.Type == type) ?? Enumerable.Empty<ItemInstance>();
+        if (Sheet == null) return;
+        _equipmentEngine.EquipItem(Sheet, item, slot);
+        _stateService.RefreshDomain();
     }
 
-    // A list of the standard static body slots (excluding hands, which are handled by Loadouts)
-    public static readonly EquipmentSlot[] StandardBodySlots =
+    public void UnequipSlot(EquipmentSlot slot)
     {
-        EquipmentSlot.Armor, EquipmentSlot.Head, EquipmentSlot.Headband, EquipmentSlot.Eyes,
-        EquipmentSlot.Shoulders, EquipmentSlot.Neck, EquipmentSlot.Chest, EquipmentSlot.Body,
-        EquipmentSlot.Belt, EquipmentSlot.Wrists, EquipmentSlot.Hands,
-        EquipmentSlot.Ring2, EquipmentSlot.Ring1, EquipmentSlot.Feet
-    };
-
-    // Helper to get whatever is currently in a specific slot
-    public ItemInstance? GetItemInSlot(EquipmentSlot slot)
-    {
-        return Sheet?.Inventory.FirstOrDefault(i => i.EquippedSlot == slot);
+        if (Sheet == null) return;
+        _equipmentEngine.UnequipSlot(Sheet, slot);
+        _stateService.RefreshDomain();
     }
 
-    // Helper for the dropdowns: Gets items that COULD go in this slot
-    // (In the future, you'll filter this by item type, e.g., only Armor in the Armor slot)
-    public IEnumerable<ItemInstance> GetEquippableItemsForSlot(EquipmentSlot slot)
+    public void ChangeItemState(ItemInstance item, ItemState newState)
     {
-        if (Sheet == null) return Enumerable.Empty<ItemInstance>();
+        if (Sheet == null) return;
 
-        // Return items that are currently in this slot, OR items that are just carried
-        return Sheet.Inventory.Where(i => i.EquippedSlot == slot || i.State == ItemState.Carried);
+        if (newState == ItemState.Equipped)
+        {
+            // If they just blindly select "Equipped" from a dropdown, try to auto-equip to its default slot
+            if (item.BaseStats.Slot.HasValue)
+                _equipmentEngine.EquipItem(Sheet, item, item.BaseStats.Slot.Value);
+        }
+        else
+        {
+            _equipmentEngine.UnequipItem(item);
+            item.State = newState; // Handle 'Dropped' or 'Stored' states
+        }
+        _stateService.RefreshDomain();
     }
 
     // --- Actions ---
@@ -120,20 +131,6 @@ public class InventoryViewModel
         _stateService.RefreshDomain();
     }
 
-    public void ChangeItemState(ItemInstance item, ItemState newState)
-    {
-        if (Sheet == null) return;
-
-        item.State = newState;
-
-        if (newState != ItemState.Equipped)
-        {
-            item.EquippedSlot = null;
-        }
-
-        _stateService.RefreshDomain();
-    }
-
     public void RemoveItem(ItemInstance item)
     {
         if (Sheet == null) return;
@@ -142,25 +139,6 @@ public class InventoryViewModel
         Sheet.RemoveItem(item);
 
         // Recalculate encumbrance and update the UI everywhere
-        _stateService.RefreshDomain();
-    }
-
-    public void EquipItem(ItemInstance item, EquipmentSlot slot)
-    {
-        if (Sheet == null) return;
-
-        var existingItem = Sheet.Inventory.FirstOrDefault(i => i.EquippedSlot == slot);
-        if (existingItem != null)
-        {
-            // Modifying this automatically modifies existingItem.Entity.State!
-            existingItem.State = ItemState.Carried;
-            existingItem.EquippedSlot = null;
-        }
-
-        item.State = ItemState.Equipped;
-        item.EquippedSlot = slot;
-        item.ContainerId = null;
-
         _stateService.RefreshDomain();
     }
 

@@ -6,6 +6,9 @@ public class WeaponItem : BaseItem
 {
     public override ItemType Type => ItemType.Weapon;
 
+    // Defaulting to MainHand, but our logic will make it interchangeable with OffHand
+    public override EquipmentSlot? Slot => EquipmentSlot.MainHand;
+
     public WeaponProficiency Proficiency { get; set; }
     public WeaponCategory Category { get; set; }
 

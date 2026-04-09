@@ -220,12 +220,6 @@
     }
 
     // --- Helpers ---
-    private void UnequipSlot(EquipmentSlot slot)
-    {
-        var currentItem = VM.GetItemInSlot(slot);
-        if (currentItem != null) VM.ChangeItemState(currentItem, ItemState.Carried);
-    }
-
     private void ClearLoadoutHand(AttackLoadout loadout, bool isMainHand)
     {
         if (isMainHand) loadout.MainHandItemId = null; // Visually falls back to "Unarmed"
@@ -260,7 +254,7 @@
                     
                     @if (currentItem != null)
                     {
-                        <button class="btn-unequip" @onclick="() => UnequipSlot(slot)" title="Unequip">
+                        <button class="btn-unequip" @onclick="() => VM.UnequipSlot(slot)" title="Unequip">
                             <i class="bi bi-x-lg"></i>
                         </button>
                     }

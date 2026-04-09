@@ -9,5 +9,6 @@ namespace Wayfinder.Core.Interfaces
         IRaceFactory RaceFactory { get; }
         IClassLevelEngine ClassLevelEngine { get; }
         ISkillEngine SkillEngine { get; }
+        IEquipmentEngine EquipmentEngine { get; }
     }
 }

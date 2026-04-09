@@ -9,6 +9,6 @@ public abstract class BaseItem
     public double Cost { get; set; }
     public abstract ItemType Type { get; }
 
-    // Most items are just carried
-    public virtual bool IsEquippable => false;
+    // By default, items have no equip slot (like Adventuring Gear)
+    public virtual EquipmentSlot? Slot => null;
 }

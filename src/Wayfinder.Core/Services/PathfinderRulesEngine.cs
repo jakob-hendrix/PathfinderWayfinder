@@ -16,18 +16,22 @@ namespace Wayfinder.Core.Services
 
         public ISkillEngine SkillEngine { get; }
 
+        public IEquipmentEngine EquipmentEngine { get; }
+
         public PathfinderRulesEngine(
             IClassFactory classFactory,
             IItemFactory itemFactory,
             IRaceFactory raceFactory,
             IClassLevelEngine classLevelEngine,
-            ISkillEngine skillEngine)
+            ISkillEngine skillEngine,
+            IEquipmentEngine equipmentEngine)
         {
             ClassFactory = classFactory;
             ItemFactory = itemFactory;
             RaceFactory = raceFactory;
             ClassLevelEngine = classLevelEngine;
             SkillEngine = skillEngine;
+            EquipmentEngine = equipmentEngine;
         }
     }
 }

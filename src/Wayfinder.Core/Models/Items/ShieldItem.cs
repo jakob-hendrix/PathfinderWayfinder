@@ -6,6 +6,9 @@ public class ShieldItem : BaseItem
 {
     public override ItemType Type => ItemType.Shield;
 
+    // Defaulting to MainHand, but our logic will make it interchangeable with OffHand
+    public override EquipmentSlot? Slot => EquipmentSlot.OffHand;
+
     public ShieldType ShieldType { get; set; }
 
     // --- STATS ---

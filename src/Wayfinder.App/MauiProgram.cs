@@ -5,6 +5,7 @@ using Wayfinder.Core.Configuration;
 using Wayfinder.Core.Data;
 using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataServices;
+using Wayfinder.Core.Engines;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Logic.Features;
@@ -67,6 +68,7 @@ namespace Wayfinder.App
             builder.Services.AddClassFeatures();
             builder.Services.AddSingleton<IClassLevelEngine, ClassLevelEngine>();
             builder.Services.AddSingleton<ISkillEngine, SkillEngine>();
+            builder.Services.AddSingleton<IEquipmentEngine, EquipmentEngine>();
             builder.Services.AddSingleton<IPathfinderRulesEngine, PathfinderRulesEngine>();
             #endregion
 #if DEBUG

@@ -3,6 +3,7 @@ using Wayfinder.Core.Configuration;
 using Wayfinder.Core.Data;
 using Wayfinder.Core.Data.Interfaces;
 using Wayfinder.Core.DataDefinitions;
+using Wayfinder.Core.Engines;
 using Wayfinder.Core.Factories;
 using Wayfinder.Core.Interfaces;
 using Wayfinder.Core.Logic.Interfaces;
@@ -49,6 +50,7 @@ public class TestRulesContext
         services.AddTransient<IItemFactory, ItemFactory>();
         services.AddTransient<IRaceFactory, RaceFactory>();
         services.AddTransient<ISkillEngine, SkillEngine>();
+        services.AddTransient<IEquipmentEngine, EquipmentEngine>();
         services.AddTransient<IPathfinderRulesEngine, PathfinderRulesEngine>();
 
         Provider = services.BuildServiceProvider();
