@@ -19,6 +19,7 @@ public interface IEquipmentEngine
     ItemInstance? GetItemInSlot(IEnumerable<ItemInstance> inventory, EquipmentSlot slot);
 
     void EquipItem(CharacterSheet sheet, ItemInstance item, EquipmentSlot slot);
-    void UnequipItem(ItemInstance item);
+    void UnequipItem(CharacterSheet sheet, ItemInstance item);
     void UnequipSlot(CharacterSheet sheet, EquipmentSlot slot);
+    void RebuildEquipmentEffects(CharacterSheet sheet);
 }

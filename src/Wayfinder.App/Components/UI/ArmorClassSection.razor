@@ -1,0 +1,82 @@
+@using Wayfinder.Core.Rules.Calculators
+@using Wayfinder.App.ViewModels
+@using Wayfinder.App.Components.Common 
+
+<style>
+    .ac-display-box {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+    }
+    .ac-main {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        color: #2e3b2c;
+        /* Adding a subtle visual cue that this is hoverable */
+        border-bottom: 2px dotted #ced4da; 
+        display: inline-block;
+        padding: 0 0.5rem;
+    }
+    .ac-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #6c757d;
+        letter-spacing: 1px;
+    }
+    .ac-sub-block {
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid #e9ecef;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+    }
+    .ac-sub-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .ac-sub-val {
+        font-weight: bold;
+        color: #495057;
+        border-bottom: 1px dotted #ced4da;
+    }
+</style>
+
+<div class="ac-display-box shadow-sm">
+    <div class="ac-label mb-1">Total Armor Class</div>
+    
+    <StatTooltip Stat="VM.ArmorClass.TotalStat">
+        <div class="ac-main">@VM.ArmorClass.Total</div>
+    </StatTooltip>
+    
+    <div class="ac-sub-block">
+        <div class="ac-sub-item text-start">
+            <span class="ac-label" style="font-size: 0.65rem;">Touch</span>
+            <StatTooltip Stat="VM.ArmorClass.TouchStat">
+                <span class="ac-sub-val">@VM.ArmorClass.Touch</span>
+            </StatTooltip>
+        </div>
+        
+        <div class="ac-sub-item text-center">
+            <span class="ac-label" style="font-size: 0.65rem;">Dex Mod</span>
+            <span class="ac-sub-val" style="border-bottom: none;">
+                @(VM.ArmorClass.AppliedDexMod >= 0 ? $"+{VM.ArmorClass.AppliedDexMod}" : VM.ArmorClass.AppliedDexMod)
+            </span>
+        </div>
+        
+        <div class="ac-sub-item text-end">
+            <span class="ac-label" style="font-size: 0.65rem;">Flat-Footed</span>
+            <StatTooltip Stat="VM.ArmorClass.FlatFootedStat">
+                <span class="ac-sub-val">@VM.ArmorClass.FlatFooted</span>
+            </StatTooltip>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public CharacterSheetViewModel VM { get; set; } = default!;
+}

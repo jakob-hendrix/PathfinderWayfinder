@@ -2,6 +2,7 @@
 
 public class ActiveEffect
 {
+    public Guid SourceId { get; init; }
     public required string SourceName { get; init; } = string.Empty; // e.g., "Ring of Protection +2"
     public EffectCategory Category { get; set; }
     public string TargetStatName { get; init; } = string.Empty;

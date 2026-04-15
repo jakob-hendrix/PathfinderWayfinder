@@ -87,7 +87,7 @@ public class InventoryViewModel
         }
         else
         {
-            _equipmentEngine.UnequipItem(item);
+            _equipmentEngine.UnequipItem(Sheet, item);
             item.State = newState; // Handle 'Dropped' or 'Stored' states
         }
         _stateService.RefreshDomain();

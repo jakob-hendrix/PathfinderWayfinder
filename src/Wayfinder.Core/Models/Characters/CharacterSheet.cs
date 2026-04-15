@@ -88,7 +88,13 @@ public class CharacterSheet
     #endregion
 
     #region Combat Stats
+
     public int BaseAttackBonus => BabCalculator.Calculate(ClassLevels);
+
+    public AcCalculationResult ArmorClass => ArmorClassCalculator.Calculate(
+            this.Dexterity.Total,
+            this.Inventory.Where(i => i.State == ItemState.Equipped),
+            this.ActiveEffects);
 
     // --- LOADOUT MANAGEMENT ---
 
@@ -360,6 +366,8 @@ public class CharacterSheet
         // Rebuild the base facts
         RebuildRace();
         RebuildClasses();
+
+        _rulesEngine.EquipmentEngine.RebuildEquipmentEffects(this);
 
         // Rebuild the stats
         RecalculateAbilityScores();

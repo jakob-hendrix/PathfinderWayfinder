@@ -85,6 +85,18 @@ namespace Wayfinder.App.ViewModels
 
         #region Combat Stats
         public int BaseAttackBonus => SafeGet(() => ActiveSheet?.BaseAttackBonus);
+        public AcCalculationResult ArmorClass
+        {
+            get
+            {
+                if (ActiveSheet != null) return ActiveSheet.ArmorClass;
+                return ArmorClassCalculator.Calculate(
+                    10,
+                    Array.Empty<ItemInstance>(),
+                    Array.Empty<ActiveEffect>()
+                );
+            }
+        }
         #endregion
 
         #region Saves
