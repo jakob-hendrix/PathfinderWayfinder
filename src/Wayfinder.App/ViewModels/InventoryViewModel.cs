@@ -158,6 +158,11 @@ public class InventoryViewModel
         var typeString = categoryType.ToString();
 
         return _itemLibrary.GetAllDefinitions()
+            .Where(d => d.ItemType.Equals(typeString, StringComparison.OrdinalIgnoreCase))
+            .Where(d => !(d.Properties.TryGetValue("IsInnate", out var innateStr) && bool.TryParse(innateStr, out var isInnate) && isInnate))
+            .OrderBy(d => d.Name);
+
+        return _itemLibrary.GetAllDefinitions()
                            .Where(d => d.ItemType.Equals(typeString, StringComparison.OrdinalIgnoreCase))
                            .OrderBy(d => d.Name);
     }
